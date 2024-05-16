@@ -64,6 +64,7 @@ FUNCTION_RETURN pmod_init(pmod_t* pmod)
 
         case PMOD_INTERFACE_UART:
         {
+#if MCU_PERIPHERY_DEVICE_COUNT_UART
             mcu_uart_hw_config_t hw_config = 
             {
                 .unit = pmod->interface_num,
@@ -99,6 +100,7 @@ FUNCTION_RETURN pmod_init(pmod_t* pmod)
                     mcu_io_set_dir(pmod->uart_reset, MCU_IO_DIR_OUT);
                 }
             }
+#endif
             break;
         }
 
@@ -168,10 +170,12 @@ void pmod_free(pmod_t* pmod)
 
         case PMOD_INTERFACE_UART:
         {
+#if MCU_PERIPHERY_DEVICE_COUNT_UART > 0
             mcu_uart_free(pmod->uart);
             pmod->uart = NULL;
             pmod->device = NULL;
             // TODO: INT and Reset
+#endif
             break;
         }
 
