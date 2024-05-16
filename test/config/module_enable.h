@@ -291,10 +291,10 @@
 #define MODULE_ENABLE_RPC                               0
 
 /// Enables the rtc module for calculation function on time.
-#define MODULE_ENABLE_RTC								1
+#define MODULE_ENABLE_RTC								0
 
 /// Enables module for security
-#define MODULE_ENABLE_SECURITY                          1
+#define MODULE_ENABLE_SECURITY                          0
 
 /// Enables the segment7 module for showing info on 7-Segment displays.
 #define MODULE_ENABLE_SEGMENT7							0

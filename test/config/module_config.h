@@ -48,9 +48,9 @@
 /// Defines if the mmc can be used for log. If set to true dbg_init_logfile must be called.
 #define DBG_USE_MMC_LOG							    false
 /// If enabled, debugging can be enabled via TCP, when dbg_init_tcp is called.
-#define DBG_USE_TCP								    true
+#define DBG_USE_TCP								    false
 /// If enabled, a console will be added to the tcp debug interface when DBG_USE_TCP is enabled.
-#define DBG_USE_TCP_CONSOLE						    true
+#define DBG_USE_TCP_CONSOLE						    false
 #if DBG_USE_MMC_LOG
 	/// Name of the directory on the sd card where the log files of this module will be stored.
 	#define DBG_LOG_DIRECTORY						"DevLog"
