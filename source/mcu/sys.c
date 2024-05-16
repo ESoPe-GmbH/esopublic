@@ -246,7 +246,7 @@ extern void app_main_handle(void);
 
 #ifdef _RENESAS_SYNERGY_
 void hal_entry(void)
-#elif KERNELTEST
+#elif defined(KERNELTEST) || defined(ESOPUBLICTEST)
 void system_main(void)
 #elif _IS_ST() || MCU_TYPE == PC_EMU
 int main(void)
@@ -357,7 +357,7 @@ static void _task_main(void* arg)
 #endif
 		_handle();
 	}
-#if KERNELTEST
+#if defined(KERNELTEST) || defined(ESOPUBLICTEST)
 	return;
 #elif _IS_ST() || MCU_TYPE == PC_EMU
 	return 0;
