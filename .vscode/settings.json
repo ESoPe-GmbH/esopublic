@@ -1,0 +1,38 @@
+{
+    "files.associations": {
+        "pt-sem.h": "c",
+        "sys.h": "c",
+        "mcu.h": "c",
+        "mcu_types.h": "c",
+        "module_public.h": "c",
+        "module_config.h": "c",
+        "mcu_heap.h": "c",
+        "module_enable.h": "c",
+        "array": "c",
+        "deque": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "list": "c",
+        "utility": "c",
+        "vector": "c",
+        "xhash": "c",
+        "xstring": "c",
+        "xtree": "c",
+        "xutility": "c",
+        "charconv": "c",
+        "xmemory": "c",
+        "string.h": "c",
+        "line_reader.h": "c",
+        "ostream": "c",
+        "chrono": "c",
+        "rect.h": "c"
+    },
+    "spellright.language": [
+        "de"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ]
+}
