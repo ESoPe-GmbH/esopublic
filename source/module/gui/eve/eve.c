@@ -292,12 +292,12 @@ void eve_init_touch(eve_t* obj)
 
 			if(obj->eve_display_is_rotated)
 			{
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_A, 0xfffffb23);
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_B, 0xfffffffe);
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_C, 0x0137519c);
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_D, 0x00000018);
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_E, 0xfffff942);
-				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_F, 0x00f2a9a4);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_A, 0xfffff8b1);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_B, 0x0000001e);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_C, 0x01d69d48);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_D, 0xffffffad);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_E, 0xfffff8a5);
+				eve_spi_write_32(obj, EVE_REG_TOUCH_TRANSFORM_F, 0x0111f811);
 			}
 			else
 			{
