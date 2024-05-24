@@ -83,6 +83,14 @@ uint8_t math_declen(uint32_t value);
  **/
 uint8_t math_hexlen(uint32_t value);
 
+/**
+ * @brief Calculates the log2 for an integer number. Can be used to find the highest bit index in a bitmask.
+ * 
+ * @param value                 Integer value to check.
+ * @return int                  Index of the highest bit = log2(value).
+ */
+int math_log2_int(int value);
+
 #endif
 
 #endif

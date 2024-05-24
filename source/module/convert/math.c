@@ -57,4 +57,15 @@ uint8_t math_hexlen(uint32_t value)
 	return i + (i%2);	// if i is a multiple of 2 the modulo is zero. Else it is increased by one.
 }
 
+int math_log2_int(int value)
+{
+	// log2 of 0 is infinite, we return INT32_MAX in this case.
+	if(value == 0)
+	{
+		return INT32_MAX;
+	}
+
+	return 31 - __builtin_clz(value);
+}
+
 #endif
