@@ -422,7 +422,7 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 	eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
 	eve_copro_write_command(eve, EVE_BITMAP_SOURCE(obj->component.mem_file_ptr->address));
 	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT(obj->format, obj->stride, obj->raw_h));
-	eve_copro_write_command(eve, EVE_BITMAP_SIZE(EVE_FILTER_NEAREST, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height));
+	eve_copro_write_command(eve, EVE_BITMAP_SIZE(obj->filter, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height));
 
 	if(obj->scale_x != 256)//If scale is not 1.0
 		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(obj->scale_x));

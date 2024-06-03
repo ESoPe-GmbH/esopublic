@@ -104,6 +104,20 @@ typedef enum
 }IMAGE_FILEFORMAT;
 
 /**
+ * @enum IMAGE_FILTER_T
+ * Is used to specify the filter of the image.
+ */
+typedef enum
+{
+	/// Nearest-neighbor filter
+	IMAGE_FILTER_NEAREST =	0,
+
+	/// Bilinear filter
+	IMAGE_FILTER_BILINEAR =	1,
+
+}IMAGE_FILTER_T;
+
+/**
  * @struct image_t
  *
  * The image object is used to load the image from the file and to show it from the eve ram.
@@ -167,6 +181,9 @@ typedef struct
 	/// Memory object for the image. Is needed for handling multiple images on the screen of the same image. Ensures
 	/// that it is stored in memory only once.
 //	eve_memory_file_t* mem;
+
+	/// Filter that should be used for this image
+	IMAGE_FILTER_T filter;
 }image_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
