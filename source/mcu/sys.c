@@ -305,7 +305,7 @@ void main(void)
 	security_init();
 #endif
 
-#if MODULE_ENABLE_NETWORK
+#if MODULE_ENABLE_NETWORK && (!defined(NETWORK_SKIP_INIT_IN_SYS) || !NETWORK_SKIP_INIT_IN_SYS)
 	network_interface_init();
 #endif
 
