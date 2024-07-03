@@ -221,6 +221,10 @@ void comm_vprintf(comm_t *h, char *str, va_list vl)
 				 }
 				 switch(letter2)
 				 {
+					case '%':
+						comm_putc(h, '%');
+					break;
+
 					case 'c':
 						comm_putc(h, va_arg(vl, int));
 						is_in_fromatted_data = false;
