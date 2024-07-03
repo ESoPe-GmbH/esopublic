@@ -45,16 +45,6 @@ typedef float magnet_value_t;
 // Structure
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/// @brief Structure for a 3D-coordinate
-typedef struct position_3d_s
-{
-    /// @brief X-Coordinate
-    float x;
-    /// @brief Y-Coordinate
-    float y;
-    /// @brief Z-Coordinate
-    float z;
-}position_3d_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External Functions

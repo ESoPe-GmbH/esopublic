@@ -71,6 +71,17 @@ typedef float lux_t;
 /// Type for proximity values.
 typedef uint32_t proximity_t;
 
+/// @brief Structure for a 3D vector
+typedef struct vector_3d_s
+{
+    /// @brief X-Coordinate
+    float x;
+    /// @brief Y-Coordinate
+    float y;
+    /// @brief Z-Coordinate
+    float z;
+}vector_3d_t;
+
 /// Handle for the sensor device drivers. This is a common type for all sensors, because some sensors have multiple functions.
 typedef void* sensor_device_handle_t;
 
