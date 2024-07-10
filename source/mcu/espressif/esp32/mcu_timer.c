@@ -11,7 +11,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "driver/timer.h"
 #include "esp_timer.h"
 
 #if MCU_PERIPHERY_DEVICE_COUNT_TIMER > 0
