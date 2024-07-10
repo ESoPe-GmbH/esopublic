@@ -88,6 +88,12 @@
 /// Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations.
 #define MODULE_ENABLE_SENSOR_PROXIMITY                  0
 
+/// Enable the touch abstraction for touch displays
+#define MODULE_ENABLE_LCD_TOUCH                             0
+
+/// Enable the touch driver for Ilitek ILI2130
+#define MODULE_ENABLE_LCD_TOUCH_DRIVER_ILI2130              0
+
 /// Enables the module for an temperature sensor
 #define MODULE_ENABLE_SENSOR_TEMPERATURE     			0
 
