@@ -138,7 +138,9 @@ void comm_vprintf(comm_t *h, char *str, va_list vl)
 	char* tmp_ptr = NULL;				// Is used for storing string pointers temporarily
 	int32_t tmp_int32 = 0;				// Is used for storing integers temporarily
 	int64_t tmp_int64 = 0;
+#if MODULE_ENABLE_RTC
 	void* ptr_param;					// Temporary pointer where the type is not needed
+#endif
 
 	if(h==NULL || h->interface==NULL || h->interface->xputc==NULL)	
 		return;	// Cancel if it cannot be used.
