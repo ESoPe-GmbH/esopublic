@@ -100,7 +100,7 @@
 	strrchr((const char*)("\\" __FILE__), '\\') + 1, (const char*)(LINE2STRING(__LINE__))
 #else
 #define DBG_STRING		\
-	strrchr("/"__FILE__, '/') + 1, LINE2STRING(__LINE__)
+	strrchr((const char*)("/" __FILE__), '/') + 1, LINE2STRING(__LINE__)
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
