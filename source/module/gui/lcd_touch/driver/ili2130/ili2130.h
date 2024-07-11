@@ -37,6 +37,8 @@ typedef struct ili2130_hw_config_s
     MCU_IO_PIN io_reset;
     /// I/O interrupt handler. Can be NULL if INT pin is not connected
     mcu_io_int_t io_int;
+    /// Set to true if touch is handled in protothread. This can be false for slint, since ESP Slint is handling touch on its own.
+    bool use_protothread;
 
 }ili2130_hw_config_t;
 

@@ -84,7 +84,7 @@ lcd_touch_device_handle_t ili2130_create(const ili2130_hw_config_t* hw)
 			mcu_io_interrupt_set_param(device->hw->io_int, device, (void(*)(void*))_int_touch, MCU_INT_LVL_HI, MCU_IO_INT_EDGE_LOW);
 		}
 
-		// system_task_init_handle(&device->task, true, (system_task_cb_handle_t)_handle, device);
+		system_task_init_handle(&device->task, hw->use_protothread, (system_task_cb_handle_t)_handle, device);
 	}
 
 	return device;    
