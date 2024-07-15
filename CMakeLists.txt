@@ -18,5 +18,22 @@ if(NOT DEFINED PROJECT_NAME)
     add_subdirectory(test)
 elseif(DEFINED ESP_PLATFORM)
     file(GLOB_RECURSE publicsrcs "source/*.c")
-    idf_component_register(SRCS ${publicsrcs} INCLUDE_DIRS "source" REQUIRES config nvs_flash driver esp_timer esp_event)
+    
+    set(KERNEL_REQUIRES config nvs_flash driver esp_timer esp_event)
+
+    if(${KERNEL_ADD_DEPENDENCY_SLINT})
+        list(APPEND KERNEL_REQUIRES slint__slint espressif__esp_lcd_touch)
+    endif()
+
+    idf_component_register(SRCS ${publicsrcs} INCLUDE_DIRS "source" REQUIRES ${KERNEL_REQUIRES})
+
+    if(${KERNEL_ADD_DEPENDENCY_SLINT})
+        include_directories(../../managed_components/slint__slint/include)
+        include_directories(../../managed_components/espressif__esp_lcd_touch/include)
+
+        target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DKERNEL_USES_SLINT")
+
+        message(STATUS "Kernel uses slint")
+    endif()
+    
 endif()
