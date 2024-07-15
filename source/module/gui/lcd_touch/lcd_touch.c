@@ -202,6 +202,18 @@ FUNCTION_RETURN_T lcd_touch_del(lcd_touch_handle_t h)
     return FUNCTION_RETURN_OK;
 }
 
+FUNCTION_RETURN_T lcd_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint16_t* y_max)
+{
+    ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(x_max, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(y_max, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+    *x_max = h->config.x_max;
+    *y_max = h->config.y_max;
+
+    return FUNCTION_RETURN_OK;
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------

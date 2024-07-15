@@ -239,6 +239,17 @@ FUNCTION_RETURN_T lcd_touch_get_flags(lcd_touch_handle_t h, struct lcd_touch_fla
  */
 FUNCTION_RETURN_T lcd_touch_del(lcd_touch_handle_t h);
 
+/**
+ * @brief Get the configured dimensions for the touch panel.
+ * 
+ * @param h     Touch device handle
+ * @param x_max Maximum X-Coordinate
+ * @param y_max Maximum Y-Coordinate
+ * @return 
+ *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
+ */
+FUNCTION_RETURN_T lcd_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint16_t* y_max);
+
 #endif // MODULE_ENABLE_LCD_TOUCH
 
 #endif /* __MODULE_TOUCH_H_ */
