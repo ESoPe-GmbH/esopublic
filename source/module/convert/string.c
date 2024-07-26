@@ -1386,7 +1386,7 @@ bool string_create_datetime_ocmf(char* str, uint16_t max_len, rtc_time_t* t, int
     // --- End Quickfix Nextcharge
 
     string_printf(str_zone, "%c%02d00", timezone >= 0 ? '+' : '-', timezone > 0 ? timezone : -timezone);
-    string_printf(str_fractals, ",%03d", system_get_tick_count() % 1000);    
+    string_printf(str_fractals, ",%03d", t->tm_msec);    
 
     res = snprintf(str, max_len, "%04d-%02d-%02dT%02d:%02d:%02d%s%s",
                     (int)(ts.tm_year + RTC_EPOCH_YR), (int)(ts.tm_mon + 1), (int)(ts.tm_mday),
