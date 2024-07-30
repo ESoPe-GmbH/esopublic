@@ -150,11 +150,11 @@ FUNCTION_RETURN_T ili2130_read_data(lcd_touch_device_handle_t device)
 			{
 				if((data[1 + (i * 5)] & 0x40) == 0x40)
 				{
-					uint8_t point_id = data[1 + (i * 5)] & 0x3F;
+					// uint8_t point_id = data[1 + (i * 5)] & 0x3F;
 					device->x[i] = data[2 + (i * 5)] + (uint16_t)data[3 + (i * 5)] * 256;
 					device->y[i] = data[4 + (i * 5)] + (uint16_t)data[5 + (i * 5)] * 256;
 					
-					DBG_INFO("Finger %d: %d / %d\n", (uint32_t)point_id, (uint32_t)device->x[i], (uint32_t)device->y[i]);
+					// DBG_INFO("Finger %d: %d / %d\n", (uint32_t)point_id, (uint32_t)device->x[i], (uint32_t)device->y[i]);
 					num++;
 				}
 			}
@@ -175,7 +175,7 @@ FUNCTION_RETURN_T ili2130_read_data(lcd_touch_device_handle_t device)
 		return FUNCTION_RETURN_READ_ERROR;
 	}
 
-	DBG_INFO("Num: %d\n", device->num_touched);
+	// DBG_INFO("Num: %d\n", device->num_touched);
 
 	return FUNCTION_RETURN_OK;
 }
@@ -194,7 +194,7 @@ bool ili2130_get_xy(lcd_touch_device_handle_t device, uint16_t *x, uint16_t *y, 
 		x[i] = device->x[i];
 		y[i] = device->y[i];
 
-		DBG_INFO("Finger 2 %d: %d / %d\n", (uint32_t)i, (uint32_t)device->x[i], (uint32_t)device->y[i]);
+		// DBG_INFO("Finger 2 %d: %d / %d\n", (uint32_t)i, (uint32_t)device->x[i], (uint32_t)device->y[i]);
 	}
 
 	return true;

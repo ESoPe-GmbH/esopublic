@@ -156,10 +156,10 @@ bool lcd_touch_get_xy(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *
             }
         }
         
-        for(int i = 0; i < *point_num; i++)
-        {
-            DBG_INFO("[%d] x=%d y=%d\n", i, x[i], y[i]);   
-        }
+        // for(int i = 0; i < *point_num; i++)
+        // {
+        //     DBG_INFO("[%d] x=%d y=%d\n", i, x[i], y[i]);   
+        // }
 
         return true;
     }
