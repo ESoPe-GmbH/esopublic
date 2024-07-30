@@ -38,6 +38,8 @@ struct lcd_touch_device_s
 	uint16_t y[MAX_POINTS];
 
 	int num_touched;
+
+	uint32_t timestamp_init;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -78,6 +80,8 @@ lcd_touch_device_handle_t ili2130_create(const ili2130_hw_config_t* hw)
 			mcu_wait_ms(50);
 			mcu_io_set(hw->io_reset, 1);
 		}
+
+		device->timestamp_init = system_get_tick_count();
 
 		if(hw->io_int)
 		{
@@ -121,6 +125,12 @@ FUNCTION_RETURN_T ili2130_free(lcd_touch_device_handle_t device)
 FUNCTION_RETURN_T ili2130_read_data(lcd_touch_device_handle_t device)
 {
 	ASSERT_RET_NOT_NULL(device, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+	// Chip needs 500ms after reset until it responds to I2C frames. Return not ready to indicate that it is not ready yet.
+	if( (system_get_tick_count() - device->timestamp_init) < 400)
+	{
+		return FUNCTION_RETURN_NOT_READY;
+	}
 	
 	uint8_t data[64];
 
