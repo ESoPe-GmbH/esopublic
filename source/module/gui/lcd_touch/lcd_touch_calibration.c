@@ -39,14 +39,13 @@ static int _get_y(int x, int y, float d, float e, float f, int y_max);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 bool lcd_touch_calibration_process_etml035023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
-{
-    // TODO: Get values -> Below values are from 4.3"
-    float a = -0.0292;
-    float b = 0.0002;
-    float c = 478.2111;
+{    
+    float a = -0.0194;
+    float b = -0.0001;
+    float c = 321.5548;
     float d = -0.0005;
-    float e = -0.0276;
-    float f = 273.0244;
+    float e = -0.0249;
+    float f = 238.5683;
 
     return _common_process(x, y, point_num, max_point_num, 320, 240, a, b, c, d, e, f);
 }
