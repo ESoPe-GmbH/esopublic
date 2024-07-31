@@ -7,6 +7,7 @@
 #if MODULE_ENABLE_LCD_TOUCH
 
 #include "module/convert/convert.h"
+#include "module/comm/dbg.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal definitions
@@ -99,8 +100,8 @@ static bool _common_process(uint16_t *x, uint16_t *y, uint8_t *point_num, uint8_
 
     for(int i = 0; i < i_max; i++)
     {
-        x[i] = _get_x(x[i], y[i], a, b, c, 480);
-        y[i] = _get_y(x[i], y[i], d, e, f, 272);
+        x[i] = _get_x(x[i], y[i], a, b, c, x_max);
+        y[i] = _get_y(x[i], y[i], d, e, f, y_max);
     }
 
     return i_max > 0;
