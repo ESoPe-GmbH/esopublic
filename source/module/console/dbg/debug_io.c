@@ -68,6 +68,11 @@ FUNCTION_RETURN debug_io_execute(console_data_t* data, char** args, uint8_t args
 			mcu_io_toggle(io);
 			return console_set_response_dynamic(data, FUNCTION_RETURN_OK, 30, "set %s %s", args[1], mcu_io_get(io) ? "H" : "L");
 		}
+		else if(strcmp(args[0], "reset") == 0 && io != PIN_NONE)
+		{
+			mcu_io_reset(io);
+			return console_set_response_dynamic(data, FUNCTION_RETURN_OK, 30, "reset %s", args[1]);
+		}
 		else
 			return FUNCTION_RETURN_NOT_FOUND;
 	}

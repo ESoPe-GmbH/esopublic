@@ -10,6 +10,8 @@
  *  @section	How-to-use
  *
  *
+ *  @version    2.01 (04.09.2024)
+ *               - Added mcu_io_reset
  *  @version    2.00 (20.08.2022)
  *               - Extracted mcu_io functions in this file. History from now on will only contain infos about mcu_io
  *	@version	1.12 (10.10.2016)
@@ -120,6 +122,12 @@
 // MCU functions
 //------------------------------------------------------------------------------------------------------------
 
+/**
+ * @brief   Reset all GPIO functionality like alternate functions to use it as a GPIO.
+ * 
+ * @param p					I/O Pin
+ */
+void mcu_io_reset(MCU_IO_PIN p);
 /**
  * @brief	Sets the direction of a port (8 Pins) at once.
  * @param p					I/O Port (For example P2 to set the direction for the pins P2_0 - P2_7)

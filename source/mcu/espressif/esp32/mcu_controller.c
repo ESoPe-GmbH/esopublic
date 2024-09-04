@@ -102,6 +102,18 @@ uint32_t mcu_enter_sleep_mode(uint32_t sleep_time)
 	return 0;
 }
 
+void mcu_io_reset(MCU_IO_PIN p)
+{
+#if CONFIG_IDF_TARGET_ESP32S3
+	if(p <= GPIO48)
+#else
+	if(p <= GPIO39)
+#endif
+	{
+		gpio_reset_pin(p);
+	}
+}
+
 void mcu_io_set_port_dir(MCU_IO_PIN p, uint8_t d)
 {
 	// TODO: Implement
