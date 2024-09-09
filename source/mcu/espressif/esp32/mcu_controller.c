@@ -123,6 +123,8 @@ void mcu_io_set_dir(MCU_IO_PIN p, MCU_IO_DIRECTION d)
 {
 #if CONFIG_IDF_TARGET_ESP32S3
 	if(p <= GPIO48)
+#elif CONFIG_IDF_TARGET_ESP32P4
+	if(p <= GPIO56)
 #else
 	if(p <= GPIO39)
 #endif
@@ -144,6 +146,8 @@ void mcu_io_set_pullup(MCU_IO_PIN p, bool pullup_active)
 {
 #if CONFIG_IDF_TARGET_ESP32S3
 	if(p <= GPIO48)
+#elif CONFIG_IDF_TARGET_ESP32P4
+	if(p <= GPIO56)
 #else
 	if(p <= GPIO39)
 #endif
@@ -163,6 +167,8 @@ void mcu_io_set(MCU_IO_PIN p, uint8_t d)
 {
 #if CONFIG_IDF_TARGET_ESP32S3
 	if(p <= GPIO48)
+#elif CONFIG_IDF_TARGET_ESP32P4
+	if(p <= GPIO56)
 #else
 	if(p <= GPIO39)
 #endif
@@ -179,6 +185,8 @@ void mcu_io_toggle(MCU_IO_PIN p)
 {
 #if CONFIG_IDF_TARGET_ESP32S3
 	if(p <= GPIO48)
+#elif CONFIG_IDF_TARGET_ESP32P4
+	if(p <= GPIO56)
 #else
 	if(p <= GPIO39)
 #endif
@@ -195,6 +203,8 @@ uint8_t mcu_io_get(MCU_IO_PIN p)
 {
 #if CONFIG_IDF_TARGET_ESP32S3
 	if(p <= GPIO48)
+#elif CONFIG_IDF_TARGET_ESP32P4
+	if(p <= GPIO56)
 #else
 	if(p <= GPIO39)
 #endif
