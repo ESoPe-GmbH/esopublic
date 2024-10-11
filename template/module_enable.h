@@ -49,6 +49,9 @@
 #define MODULE_ENABLE_CONVERT_BASE64					1
 
 /// Enables the convert module. Is necessary for multiple other modules.
+#define MODULE_ENABLE_CONVERT_BCD                       1
+
+/// Enables the convert module. Is necessary for multiple other modules.
 #define MODULE_ENABLE_CONVERT_MATH						1
 
 /// Enables the convert module. Is necessary for multiple other modules.

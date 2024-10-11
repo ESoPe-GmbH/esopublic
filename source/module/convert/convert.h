@@ -12,6 +12,7 @@
 #include "swap.h"
 #include "sort.h"
 #include "base64.h"
+#include "bcd.h"
 
 
 #endif /* SRC_MODULE_CONVERT_CONVERT_H_ */
