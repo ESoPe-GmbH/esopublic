@@ -14,7 +14,7 @@
 #ifndef __MODULE_ST1633I_H_
 #define __MODULE_ST1633I_H_
 
-#include "module.h"
+#include "module_public.h"
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 #include "module/enum/function_return.h"
 #include "module/gui/lcd_touch/lcd_touch.h"

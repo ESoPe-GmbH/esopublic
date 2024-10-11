@@ -14,7 +14,7 @@
 #ifndef __MODULE_EVE_LCD_H_
 #define __MODULE_EVE_LCD_H_
 
-#include "module.h"
+#include "module_public.h"
 #if MODULE_ENABLE_GUI && MCU_TYPE == MCU_ESP32 && defined(KERNEL_USES_SLINT)
 #include "module/enum/function_return.h"
 

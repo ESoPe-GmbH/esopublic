@@ -14,7 +14,7 @@
 #ifndef __MODULE_LCD_TOUCH_ESP32_H_
 #define __MODULE_LCD_TOUCH_ESP32_H_
 
-#include "module.h"
+#include "module_public.h"
 #if MODULE_ENABLE_LCD_TOUCH && MCU_TYPE == MCU_ESP32 && defined(KERNEL_USES_SLINT)
 #include "module/enum/function_return.h"
 #include "esp_lcd_touch.h"
