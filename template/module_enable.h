@@ -103,6 +103,9 @@
 /// Enables the module for an temperature sensor
 #define MODULE_ENABLE_SENSOR_TEMPERATURE     			0
 
+/// Enable the display driver for Smart line display
+#define DISPLAY_ENABLE_SLD							    0
+
 /// Enable the utility functions for the color.
 #define MODULE_ENABLE_UTIL_COLOR                        0
 
