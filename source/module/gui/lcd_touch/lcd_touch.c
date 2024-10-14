@@ -110,7 +110,7 @@ FUNCTION_RETURN_T lcd_touch_read_data(lcd_touch_handle_t h)
 
 bool lcd_touch_get_xy(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {
-    ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(h, NO_ACTION, false);
 
     if(h->interface->get_xy)
     {
