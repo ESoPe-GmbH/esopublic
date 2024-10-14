@@ -126,7 +126,7 @@ FUNCTION_RETURN_T st1633i_read_data(lcd_touch_device_handle_t device)
 	ASSERT_RET_NOT_NULL(device, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
 
 	// Chip needs 500ms after reset until it responds to I2C frames. Return not ready to indicate that it is not ready yet.
-	if( (system_get_tick_count() - device->timestamp_init) < 400)
+	if( (system_get_tick_count() - device->timestamp_init) < 500)
 	{
 		return FUNCTION_RETURN_NOT_READY;
 	}
@@ -159,7 +159,7 @@ FUNCTION_RETURN_T st1633i_read_data(lcd_touch_device_handle_t device)
                 device->x[num] = ((uint16_t)(data[j] & 0x70) << 4) + data[j + 1];
                 device->y[num] = ((uint16_t)(data[j] & 0x07) << 8) + data[j + 2];
                 
-                // DBG_INFO("Finger %d: %d / %d\n", (uint32_t)point_id, (uint32_t)device->x[i], (uint32_t)device->y[i]);
+                // DBG_INFO("Finger %d: %d / %d\n", (uint32_t)num, (uint32_t)device->x[i], (uint32_t)device->y[i]);
                 num++;
             }
         }
