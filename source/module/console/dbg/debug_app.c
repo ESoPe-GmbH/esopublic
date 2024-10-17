@@ -128,7 +128,7 @@ FUNCTION_RETURN debug_app_execute(console_data_t* data, char** args, uint8_t arg
 		len = base64_encodebuffer_direct(buffer, 32);
 //        	DBG_INFO("Len %d\n", len);
 
-		FUNCTION_RETURN ret = console_set_response_dynamic(data, FUNCTION_RETURN_OK, 100, "hash %#s\n", len, buffer);
+		FUNCTION_RETURN ret = console_set_response_dynamic(data, FUNCTION_RETURN_OK, 100, "hash %#s", len, buffer);
 
 		mbedtls_sha256_free(&_hash_sha_256);
 
