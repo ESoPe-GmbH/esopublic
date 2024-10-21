@@ -71,9 +71,10 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
 
     DBG_VERBOSE("Create config\n");
 #if MCU_TYPE == MCU_ESP32
+    device->mcu_config.rgb.esp32s3.sram_trans_align = 4;
     device->mcu_config.rgb.esp32s3.psram_trans_align = 64;
     device->mcu_config.rgb.esp32s3.flags.fb_in_psram = true;
-    device->mcu_config.rgb.esp32s3.flags.relax_on_idle = true;
+    device->mcu_config.rgb.esp32s3.flags.relax_on_idle = false;
 #endif
     //[0] is 0
     ASSERT_RET(eeid[1] == 1, goto error, NULL, "Display with DPI needed\n");
@@ -92,10 +93,10 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     device->device_config.rgb.vsync_back_porch = _uint16_from_eeid(eeid, 20);
     device->device_config.rgb.vsync_pulse_width = eeid[22];
     device->device_config.rgb.vsync_front_porch = _uint16_from_eeid(eeid, 23);
-    device->device_config.rgb.flags.hsync_idle_low = (eeid[25] & 0x01) == 0;
-    device->device_config.rgb.flags.vsync_idle_low = (eeid[25] & 0x02) == 0;
-    device->device_config.rgb.flags.de_idle_high = (eeid[25] & 0x04) == 0x04;
-    device->device_config.rgb.flags.pclk_active_neg = true;
+    device->device_config.rgb.flags.hsync_idle_low = (eeid[25] & 0x01) == 0x01;
+    device->device_config.rgb.flags.vsync_idle_low = (eeid[25] & 0x02) == 0x02;
+    device->device_config.rgb.flags.de_idle_high = (eeid[25] & 0x04) == 0;
+    device->device_config.rgb.flags.pclk_active_neg = (eeid[25] & 0x20) == 0x20;
 
     device->mcu = display_mcu_init(config, device);
     ASSERT_RET(device->mcu, goto error, NULL, "Cannot create mcu device pointer\n");
