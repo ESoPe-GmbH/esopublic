@@ -12,9 +12,6 @@
  *
  ******************************************************************************/
 
-#ifndef __DISPLAY__SLD__DISPLAY_SLD_H__
-#define __DISPLAY__SLD__DISPLAY_SLD_H__
-
 #include "module.h"
 
 #if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
@@ -25,6 +22,10 @@
 #include "module/comm/dbg.h"
 #include "module/convert/convert.h"
 #include "module/util/assert.h"
+
+#if MODULE_ENABLE_EEPROM
+#include "module/eeprom/eeprom_i2c.h"
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Defines
@@ -59,6 +60,42 @@ static uint16_t _uint16_from_eeid(const uint8_t* eeid, uint8_t index);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#if MODULE_ENABLE_EEPROM
+display_sld_handle_t display_sld_init_hardware(const display_common_hardware_t* config, i2c_t* i2c)
+{
+    DBG_ASSERT(config, NO_ACTION, NULL, "config cannot be NULL\n");
+    DBG_ASSERT(i2c, NO_ACTION, NULL, "i2c cannot be NULL\n");
+    display_sld_handle_t device = mcu_heap_calloc(1, sizeof(display_sld_t));
+    DBG_ASSERT(device, NO_ACTION, NULL, "Cannot create display device pointer\n");
+
+    uint8_t eeid[0x1C] = {0};
+    FUNCTION_RETURN ret;
+    // Create handle to read the eeprom and free it after reading again
+    const eeprom_i2c_config_t eeprom_config = EEPROM_I2C_M24C01(i2c, 0, 0, 0);
+    eeprom_device_t eeprom = eeprom_i2c_init(&eeprom_config);
+    ret = eeprom_i2c_read(eeprom, 0, eeid, sizeof(eeid));
+    eeprom_i2c_free(eeprom);
+
+    DBG_ASSERT(ret == FUNCTION_RETURN_OK, goto error, NULL, "Failed to read eeprom\n");
+
+    device->display = display_sld_init(config, eeid, sizeof(eeid));
+
+    // TODO: Init touch if touch is enabled in eeid
+
+    return device;
+error:
+    if(device->display)
+    {
+        // TODO: Uninitialize display
+        mcu_heap_free(device->display);
+        device->display = NULL;
+    }
+
+    mcu_heap_free(device);
+    return NULL;
+}
+#endif
 
 display_handle_t display_sld_init(const display_common_hardware_t* config, const uint8_t *eeid, uint8_t eeid_length)
 {
@@ -141,5 +178,3 @@ static uint16_t _uint16_from_eeid(const uint8_t* eeid, uint8_t index)
 }
 
 #endif // MODULE_ENABLE_DISPLAY
-
-#endif // __DISPLAY__SLD__DISPLAY_SLD_H__
