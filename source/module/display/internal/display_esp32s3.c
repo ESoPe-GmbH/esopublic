@@ -141,6 +141,56 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
 #endif
         
         DBG_VERBOSE("Create RGB panel\n");
+
+        // #define _DBG(var, type)     DBG_VERBOSE(#var "=%" #type "\n", mcu->panel_config.timings.var);
+
+        // _DBG(pclk_hz, d);
+        // _DBG(h_res, d);
+        // _DBG(v_res, d);
+        // _DBG(hsync_pulse_width, d);
+        // _DBG(hsync_back_porch, d);
+        // _DBG(hsync_front_porch, d);
+        // _DBG(vsync_pulse_width, d);
+        // _DBG(vsync_back_porch, d);
+        // _DBG(vsync_front_porch, d);
+        // _DBG(flags.hsync_idle_low, d);
+        // _DBG(flags.vsync_idle_low, d);
+        // _DBG(flags.de_idle_high, d);
+        // _DBG(flags.pclk_active_neg, d);
+        // _DBG(flags.pclk_idle_high, d);
+
+        // #undef _DBG
+        // #define _DBG(var, type)     DBG_VERBOSE(#var "=%" #type "\n", mcu->panel_config.var);
+
+        // _DBG(clk_src, d);
+        // _DBG(data_width, d);
+        // _DBG(sram_trans_align, d);
+        // _DBG(psram_trans_align, d);
+        
+        // _DBG(hsync_gpio_num, d);
+        // _DBG(vsync_gpio_num, d);
+        // _DBG(de_gpio_num, d);
+        // _DBG(pclk_gpio_num, d);
+        // _DBG(disp_gpio_num, d);
+        // _DBG(flags.disp_active_low, d);
+        // _DBG(flags.fb_in_psram, d);
+        // _DBG(flags.refresh_on_demand, d);
+        // _DBG(data_gpio_nums[0], d);
+        // _DBG(data_gpio_nums[1], d);
+        // _DBG(data_gpio_nums[2], d);
+        // _DBG(data_gpio_nums[3], d);
+        // _DBG(data_gpio_nums[4], d);
+        // _DBG(data_gpio_nums[5], d);
+        // _DBG(data_gpio_nums[6], d);
+        // _DBG(data_gpio_nums[7], d);
+        // _DBG(data_gpio_nums[8], d);
+        // _DBG(data_gpio_nums[9], d);
+        // _DBG(data_gpio_nums[10], d);
+        // _DBG(data_gpio_nums[11], d);
+        // _DBG(data_gpio_nums[12], d);
+        // _DBG(data_gpio_nums[13], d);
+        // _DBG(data_gpio_nums[14], d);
+        // _DBG(data_gpio_nums[15], d);
         
         ret = esp_lcd_new_rgb_panel(&mcu->panel_config, &mcu->panel_handle);
         DBG_ASSERT(ret == ESP_OK, goto error, NULL, "esp_lcd_new_rgb_panel failed\n");
@@ -151,33 +201,36 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         ret = esp_lcd_rgb_panel_register_event_callbacks(mcu->panel_handle, &mcu->panel_event_callbacks, mcu);
         DBG_ASSERT(ret == ESP_OK, goto error, NULL, "esp_lcd_rgb_panel_register_event_callbacks failed\n");      
 #endif
-        
-        DBG_VERBOSE("Create SPI\n");
 
-        spi_bus_config_t buscfg = 
+        if(config->spi.use_spi)
         {
-            .miso_io_num = P(config->rgb.miso),
-            .mosi_io_num = P(config->rgb.mosi),
-            .sclk_io_num = P(config->rgb.clk),
-            .quadwp_io_num = -1,
-            .quadhd_io_num = -1
-        };
-        spi_device_interface_config_t devcfg = 
-        {
-            .address_bits = 1,
-            .spics_io_num = P(config->rgb.cs),
-            .queue_size = 1, 
-            .clock_speed_hz = APB_CLK_FREQ / 8,
-            .mode = 0
-        };
+            DBG_VERBOSE("Create SPI\n");
 
-        //Initialize the SPI bus
-        ret=spi_bus_initialize(config->rgb.spi_unit, &buscfg, SPI_DMA_DISABLED);
-        DBG_ASSERT(ret == ESP_OK, goto error, NULL, "spi_bus_initialize failed\n");
+            spi_bus_config_t buscfg = 
+            {
+                .miso_io_num = P(config->spi.miso),
+                .mosi_io_num = P(config->spi.mosi),
+                .sclk_io_num = P(config->spi.clk),
+                .quadwp_io_num = -1,
+                .quadhd_io_num = -1
+            };
+            spi_device_interface_config_t devcfg = 
+            {
+                .address_bits = 1,
+                .spics_io_num = P(config->spi.cs),
+                .queue_size = 1, 
+                .clock_speed_hz = APB_CLK_FREQ / 8,
+                .mode = 0
+            };
 
-        //Attach the interface to the SPI bus
-        ret=spi_bus_add_device(config->rgb.spi_unit, &devcfg, &mcu->spi);
-        DBG_ASSERT(ret == ESP_OK, goto error, NULL, "spi_bus_add_device failed\n");
+            //Initialize the SPI bus
+            ret=spi_bus_initialize(config->spi.spi_unit, &buscfg, SPI_DMA_DISABLED);
+            DBG_ASSERT(ret == ESP_OK, goto error, NULL, "spi_bus_initialize failed\n");
+
+            //Attach the interface to the SPI bus
+            ret=spi_bus_add_device(config->spi.spi_unit, &devcfg, &mcu->spi);
+            DBG_ASSERT(ret == ESP_OK, goto error, NULL, "spi_bus_add_device failed\n");
+        }        
     }
     else if(config->interface == DISPLAY_INTERFACE_8080)
     {
@@ -284,20 +337,32 @@ FUNCTION_RETURN_T display_mcu_refresh(display_mcu_handle_t mcu)
     return ESP_OK == esp_lcd_rgb_panel_refresh(mcu->panel_handle) ? FUNCTION_RETURN_OK : FUNCTION_RETURN_UNSUPPORTED;
 }
 
+#if MCU_TYPE == MCU_ESP32
+FUNCTION_RETURN_T display_get_esp_panel_handle(display_handle_t display, esp_lcd_panel_handle_t* panel_handle)
+{
+    ASSERT_RET_NOT_NULL(display, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(panel_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+    *panel_handle = display->mcu->panel_handle;
+    return FUNCTION_RETURN_OK;
+}
+#endif
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 static bool _on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
 {
-    BaseType_t high_task_awoken = pdFALSE;
     display_mcu_handle_t mcu = user_data;
     display_event_data_t event = {0};
     
-    if(mcu->config->on_frame_trans_done)
-        mcu->config->on_frame_trans_done(mcu->display, &event, mcu->config->user_ctx);
+    if(mcu && mcu->config && mcu->config->on_frame_trans_done)
+    {
+        return mcu->config->on_frame_trans_done(mcu->display, &event, mcu->config->user_ctx);
+    }
 
-    return high_task_awoken == pdTRUE;
+    return false;
 }
 
 #endif // MODULE_ENABLE_DISPLAY && MCU_TYPE == MCU_ESP32

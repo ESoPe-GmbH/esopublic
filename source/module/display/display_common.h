@@ -150,18 +150,24 @@ typedef struct display_common_hardware_s
 
             // For RGB + SPI displays, the SPI interface must also be selected!
 
-            /// SPI Unit number (as used in mcu_spi_init)
-            uint8_t spi_unit;
-            /// SPI MOSI pin for RGB+SPI
-            MCU_IO_PIN mosi;
-            /// SPI MISO pin for RGB+SPI
-            MCU_IO_PIN miso;
-            /// SPI CLK pin for RGB+SPI
-            MCU_IO_PIN clk;
-            /// SPI CS pin for RGB+SPI
-            MCU_IO_PIN cs;
         } rgb;
     };
+    struct
+    {
+        /// Can be activated for displays that need a spi interface.
+        /// Some displays are completely spi, others like some rgb interface have a separate spi channel for commands.
+        bool use_spi;
+        /// SPI Unit number (as used in mcu_spi_init)
+        uint8_t spi_unit;
+        /// SPI MOSI pin for RGB+SPI
+        MCU_IO_PIN mosi;
+        /// SPI MISO pin for RGB+SPI
+        MCU_IO_PIN miso;
+        /// SPI CLK pin for RGB+SPI
+        MCU_IO_PIN clk;
+        /// SPI CS pin for RGB+SPI
+        MCU_IO_PIN cs;
+    }spi;
 }display_common_hardware_t;
 
 /**
@@ -276,6 +282,19 @@ FUNCTION_RETURN_T display_device_disp_off(display_handle_t display, bool off);
  *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
  */
 FUNCTION_RETURN_T display_device_refresh(display_handle_t display);
+
+#if MCU_TYPE == MCU_ESP32
+#include "esp_lcd_types.h"
+/**
+ * @brief On ESP32 the esp_lcd_panel is used as underlying layer. Get the handle in case it is needed for third party libraries.
+ * 
+ * @param[in] display Display handle, which is created by @c display_common_init()
+ * @param[out] panel_handle Pointer where the internal panel handle will be written to.
+ *          - FUNCTION_RETURN_OK on success
+ *          - FUNCTION_RETURN_PARAM_ERROR when either @c display or @c panel_handle are @c NULL.
+ */
+FUNCTION_RETURN_T display_get_esp_panel_handle(display_handle_t display, esp_lcd_panel_handle_t* panel_handle);
+#endif
 
 #endif // MODULE_ENABLE_DISPLAY
 
