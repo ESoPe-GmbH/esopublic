@@ -20,6 +20,10 @@ elseif(DEFINED ESP_PLATFORM)
     file(GLOB_RECURSE publicsrcs "source/*.c")
     
     set(KERNEL_REQUIRES config nvs_flash driver esp_timer esp_event)
+    # Auto detect LVGL bases on kproject config variable.
+    if(DEFINED CONFIG_LV_COLOR_DEPTH AND NOT DEFINED KERNEL_ADD_DEPENDENCY_LVGL)
+        set(KERNEL_ADD_DEPENDENCY_LVGL true)
+    endif()
 
     if(${KERNEL_ADD_DEPENDENCY_SLINT})
         list(APPEND KERNEL_REQUIRES slint__slint espressif__esp_lcd_touch)
@@ -34,6 +38,12 @@ elseif(DEFINED ESP_PLATFORM)
         target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DKERNEL_USES_SLINT")
 
         message(STATUS "Kernel uses slint")
+    endif()
+
+    if(${KERNEL_ADD_DEPENDENCY_LVGL})
+        include_directories(../../managed_components/lvgl__lvgl/src)
+        target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DKERNEL_USES_LVGL")
+        message(STATUS "Kernel uses lvgl")
     endif()
     
 endif()
