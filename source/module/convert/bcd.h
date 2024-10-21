@@ -26,14 +26,14 @@
  * @param value 		Value in decimal
  * @return uint8_t 		Value in BCD
  */
-static uint8_t bcd_encode_uint8(uint8_t value);
+uint8_t bcd_encode_uint8(uint8_t value);
 /**
  * @brief Converts a BCD value into a decimal value.
  * 
  * @param value 		Value in BCD
  * @return uint8_t 		Value in decimal
  */
-static uint8_t bcd_decode_uint8(uint8_t value);
+uint8_t bcd_decode_uint8(uint8_t value);
 
 #endif
 

@@ -10,12 +10,12 @@
 #include "bcd.h"
 
 
-static uint8_t bcd_encode_uint8(uint8_t value)
+uint8_t bcd_encode_uint8(uint8_t value)
 {
 	return((value / 10 * 0x10) + (value % 10));
 }
 
-static uint8_t bcd_decode_uint8(uint8_t value)
+uint8_t bcd_decode_uint8(uint8_t value)
 {
 	return ((value / 0x10 * 10) + (value & 0x0F));
 }
