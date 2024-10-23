@@ -52,7 +52,7 @@ FUNCTION_RETURN lvgl_helper_init(const lvgl_helper_config_t* config)
 {
     memcpy(&_config, config, sizeof(lvgl_helper_config_t));
     
-    xTaskCreatePinnedToCore(_task_window, "DISP", 8192, NULL, portPRIVILEGE_BIT | (configMAX_PRIORITIES - 1), config, 1);
+    xTaskCreatePinnedToCore(_task_window, "DISP", 8192, &_config, portPRIVILEGE_BIT | (configMAX_PRIORITIES - 1), NULL, 1);
     
     return FUNCTION_RETURN_OK;
 }
@@ -71,6 +71,7 @@ static void _task_window(void* param)
     DBG_INFO("Initialize LVGL library\n");
     lv_init();
 
+    DBG_INFO("Create %dx%d\n", display_device_get_width(config->display), display_device_get_height(config->display));
     display = lv_display_create(display_device_get_width(config->display), display_device_get_height(config->display));
     lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
     lv_display_set_flush_cb(display, _lv_display_flush_cb);
@@ -87,6 +88,7 @@ static void _task_window(void* param)
     if(buf1 == NULL) 
     {
         DBG_ERROR("display draw buffer malloc failed\n");
+        lv_display_delete(display);
         vTaskDelete(NULL);
         return;
     }
@@ -95,6 +97,7 @@ static void _task_window(void* param)
     if(buf2 == NULL) 
     {
         DBG_ERROR("display buffer malloc failed\n");
+        lv_display_delete(display);
         lv_free(buf1);
         vTaskDelete(NULL);
         return;
