@@ -62,26 +62,55 @@ static uint16_t _uint16_from_eeid(const uint8_t* eeid, uint8_t index);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #if MODULE_ENABLE_EEPROM
-display_sld_handle_t display_sld_init_hardware(const display_common_hardware_t* config, i2c_t* i2c)
+display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* config)
 {
     DBG_ASSERT(config, NO_ACTION, NULL, "config cannot be NULL\n");
-    DBG_ASSERT(i2c, NO_ACTION, NULL, "i2c cannot be NULL\n");
     display_sld_handle_t device = mcu_heap_calloc(1, sizeof(display_sld_t));
     DBG_ASSERT(device, NO_ACTION, NULL, "Cannot create display device pointer\n");
 
     uint8_t eeid[0x1C] = {0};
     FUNCTION_RETURN ret;
     // Create handle to read the eeprom and free it after reading again
-    const eeprom_i2c_config_t eeprom_config = EEPROM_I2C_M24C01(i2c, 0, 0, 0);
+    const eeprom_i2c_config_t eeprom_config = EEPROM_I2C_M24C01(config->touch.i2c, 0, 0, 0);
     eeprom_device_t eeprom = eeprom_i2c_init(&eeprom_config);
     ret = eeprom_i2c_read(eeprom, 0, eeid, sizeof(eeid));
     eeprom_i2c_free(eeprom);
 
     DBG_ASSERT(ret == FUNCTION_RETURN_OK, goto error, NULL, "Failed to read eeprom\n");
 
-    device->display = display_sld_init(config, eeid, sizeof(eeid));
+    device->backlight = mcu_pwm_create(&config->backlight, NULL);
 
-    // TODO: Init touch if touch is enabled in eeid
+    device->display = display_sld_init(&config->display, eeid, sizeof(eeid));
+
+    device->width = _uint16_from_eeid(eeid, 8);
+    device->height = _uint16_from_eeid(eeid, 10);
+
+    if(eeid[2] == 1)
+    {
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+        // Capacitive touch is used
+        lcd_touch_device_handle_t touch_device = st1633i_create(&config->touch);
+        if(touch_device)
+        {
+            // TODO: Set flags based on display
+            struct lcd_touch_config_s touch_config = 
+            {
+                .flags = {.mirror_x = true, .mirror_y = true, .swap_xy = false},
+                .x_max = device->width,
+                .y_max = device->height
+            };
+            lcd_touch_create(touch_device, &st1633i_lcd_touch_interface, &touch_config, &device->touch);
+        }
+#endif
+    }
+    // Else: No touch
+
+    display_device_reset(device->display);
+    display_device_init(device->display);
+    // TODO: Set display orientation based on display in use.
+    display_device_mirror(device->display, true, false);
+    display_device_swap_xy(device->display, true);
+
 
     return device;
 error:
@@ -90,6 +119,12 @@ error:
         // TODO: Uninitialize display
         mcu_heap_free(device->display);
         device->display = NULL;
+    }
+
+    if(device->touch)
+    {
+        lcd_touch_del(device->touch);
+        lcd_touch_free(&device->touch);
     }
 
     mcu_heap_free(device);
@@ -152,6 +187,11 @@ error:
         device = NULL;
     }
     return NULL;
+}
+
+void display_sld_set_backlight(display_sld_handle_t device, float pwm)
+{
+    mcu_pwm_set_duty_cycle(device->backlight, (uint32_t)(pwm * 100.0));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
