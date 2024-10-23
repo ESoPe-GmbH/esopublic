@@ -204,6 +204,20 @@ FUNCTION_RETURN_T display_device_init(display_handle_t display);
  */
 FUNCTION_RETURN_T display_device_del(display_handle_t display);
 /**
+ * @brief Retrieve the horizontal resolution of the display in pixel.
+ * 
+ * @param[in] display Display handle, which is created by `display_common_init()`
+ * @return int32_t  Horizontal resolution of the display in pixel or -1 if display is invalid.
+ */
+int32_t display_device_get_width(display_handle_t display);
+/**
+ * @brief Retrieve the vertical resolution of the display in pixel.
+ * 
+ * @param[in] display Display handle, which is created by `display_common_init()`
+ * @return int32_t  Vertical resolution of the display in pixel or -1 if display is invalid.
+ */
+int32_t display_device_get_height(display_handle_t display);
+/**
  * @brief Draw bitmap on display
  *
  * @param[in] display Display handle, which is created by `display_common_init()`

@@ -64,10 +64,6 @@ typedef struct display_sld_s
     /// @brief Handle used for touch functions.
     lcd_touch_handle_t touch;
 #endif
-    /// Horizontal resolution of the display
-    int32_t width;
-    /// Vertical resolution of the display
-    int32_t height;
 }display_sld_t;
 
 /// @brief Handle for the SmartLineDisplay

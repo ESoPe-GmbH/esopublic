@@ -47,6 +47,24 @@ inline FUNCTION_RETURN_T display_device_del(display_handle_t display)
     return display_mcu_del_device(display->mcu);
 }
 
+int32_t display_device_get_width(display_handle_t display)
+{
+    if(display)
+    {
+        return display->device_config.rgb.h_res;
+    }
+    return -1;
+}
+
+int32_t display_device_get_height(display_handle_t display)
+{
+    if(display)
+    {
+        return display->device_config.rgb.v_res;
+    }
+    return -1;
+}
+
 inline FUNCTION_RETURN_T display_device_draw_bitmap(display_handle_t display, int x_start, int y_start, int x_end, int y_end, const void *color_data)
 {
     return display_mcu_draw_bitmap(display->mcu, x_start, y_start, x_end, y_end, color_data);

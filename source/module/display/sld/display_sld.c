@@ -82,8 +82,6 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     device->display = display_sld_init(&config->display, eeid, sizeof(eeid));
 
-    device->width = _uint16_from_eeid(eeid, 8);
-    device->height = _uint16_from_eeid(eeid, 10);
 
     if(eeid[2] == 1)
     {
@@ -96,8 +94,8 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
             struct lcd_touch_config_s touch_config = 
             {
                 .flags = {.mirror_x = true, .mirror_y = true, .swap_xy = false},
-                .x_max = device->width,
-                .y_max = device->height
+                .x_max = device->display->device_config.rgb.h_res,
+                .y_max = device->display->device_config.rgb.v_res
             };
             lcd_touch_create(touch_device, &st1633i_lcd_touch_interface, &touch_config, &device->touch);
         }
