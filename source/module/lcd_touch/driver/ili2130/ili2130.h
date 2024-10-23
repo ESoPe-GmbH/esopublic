@@ -1,23 +1,23 @@
 /**
- * @file st1633i.h
+ * @file ili2130.device
  * @author Tim Koczwara
  * 
  * @brief 
  * 
- * @version 1.00 (20.08.2024)
+ * @version 1.00 (10.07.2024)
  * 	- Intial release
  * 
  * @par References
  * 
  **/
 
-#ifndef __MODULE_ST1633I_H_
-#define __MODULE_ST1633I_H_
+#ifndef __MODULE_ILI2130_H_
+#define __MODULE_ILI2130_H_
 
 #include "module_public.h"
-#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ILI2130 && MODULE_ENABLE_LCD_TOUCH
 #include "module/enum/function_return.h"
-#include "module/gui/lcd_touch/lcd_touch.h"
+#include "module/lcd_touch/lcd_touch.h"
 #include "module/comm/i2c/i2c.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -29,17 +29,7 @@
 // Configuration
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Enumeration
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Structure
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-typedef struct st1633i_hw_config_s
+typedef struct ili2130_hw_config_s
 {
     /// Pointer to the i2c handler used for communication
     i2c_t* i2c;
@@ -50,18 +40,27 @@ typedef struct st1633i_hw_config_s
     /// Set to true if touch is handled in protothread. This can be false for slint, since ESP Slint is handling touch on its own.
     bool use_protothread;
 
-}st1633i_hw_config_t;
+}ili2130_hw_config_t;
 
-extern const struct lcd_touch_interface_s st1633i_lcd_touch_interface;
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+// Enumeration
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+// Structure
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+extern const struct lcd_touch_interface_s ili2130_lcd_touch_interface;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * Create the device handler for ST1633I touch driver.
+ * Create the device handler for ILI2130 tocuh driver.
 **/
-lcd_touch_device_handle_t st1633i_create(const st1633i_hw_config_t* hw);
+lcd_touch_device_handle_t ili2130_create(const ili2130_hw_config_t* hw);
 
 /**
  * @brief Delete Touch
@@ -71,7 +70,7 @@ lcd_touch_device_handle_t st1633i_create(const st1633i_hw_config_t* hw);
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_free(lcd_touch_device_handle_t device);
+FUNCTION_RETURN_T ili2130_free(lcd_touch_device_handle_t device);
 
 /**
  * @brief Set touch controller into sleep mode
@@ -83,7 +82,7 @@ FUNCTION_RETURN_T st1633i_free(lcd_touch_device_handle_t device);
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_enter_sleep(lcd_touch_device_handle_t device);
+FUNCTION_RETURN_T ili2130_enter_sleep(lcd_touch_device_handle_t device);
 
 /**
  * @brief set touch controller into normal mode
@@ -95,7 +94,7 @@ FUNCTION_RETURN_T st1633i_enter_sleep(lcd_touch_device_handle_t device);
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_exit_sleep(lcd_touch_device_handle_t device);
+FUNCTION_RETURN_T ili2130_exit_sleep(lcd_touch_device_handle_t device);
 
 /**
  * @brief Read data from touch controller (mandatory)
@@ -107,7 +106,7 @@ FUNCTION_RETURN_T st1633i_exit_sleep(lcd_touch_device_handle_t device);
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_read_data(lcd_touch_device_handle_t device);
+FUNCTION_RETURN_T ili2130_read_data(lcd_touch_device_handle_t device);
 
 /**
  * @brief Get coordinates from touch controller (mandatory)
@@ -122,7 +121,7 @@ FUNCTION_RETURN_T st1633i_read_data(lcd_touch_device_handle_t device);
  * @return
  *      - Returns true, when touched and coordinates readed. Otherwise returns false.
  */
-bool st1633i_get_xy(lcd_touch_device_handle_t device, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
+bool ili2130_get_xy(lcd_touch_device_handle_t device, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
 
 /**
  * @brief Change flags for mirror and swapping.
@@ -133,7 +132,7 @@ bool st1633i_get_xy(lcd_touch_device_handle_t device, uint16_t *x, uint16_t *y, 
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_set_flags(lcd_touch_device_handle_t device, struct lcd_touch_flags_s flags);
+FUNCTION_RETURN_T ili2130_set_flags(lcd_touch_device_handle_t device, struct lcd_touch_flags_s flags);
 
 /**
  * @brief Get flags for mirror and swapping.
@@ -144,8 +143,8 @@ FUNCTION_RETURN_T st1633i_set_flags(lcd_touch_device_handle_t device, struct lcd
  * @return
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T st1633i_get_flags(lcd_touch_device_handle_t device, struct lcd_touch_flags_s* flags);
+FUNCTION_RETURN_T ili2130_get_flags(lcd_touch_device_handle_t device, struct lcd_touch_flags_s* flags);
 
-#endif // MODULE_ENABLE_ST1633I
+#endif // MODULE_ENABLE_ILI2130
 
-#endif /* __MODULE_ST1633I_H_ */
+#endif /* __MODULE_ILI2130_H_ */

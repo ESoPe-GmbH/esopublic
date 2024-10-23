@@ -20,11 +20,11 @@
 #if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 
 #include "../display_common.h"
-#include "module/gui/lcd_touch/lcd_touch.h"
+#include "module/lcd_touch/lcd_touch.h"
 #include "module/comm/i2c/i2c.h"
 
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
-#include "module/gui/lcd_touch/driver/st1633i/st1633i.h"
+#include "module/lcd_touch/driver/st1633i/st1633i.h"
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
