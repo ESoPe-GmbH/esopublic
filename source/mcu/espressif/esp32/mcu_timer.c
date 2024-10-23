@@ -14,16 +14,6 @@
 #include "esp_timer.h"
 
 #if MCU_PERIPHERY_DEVICE_COUNT_TIMER > 0
-
-#define MCU_TIMER_INIT_HANDLER(h, n, mtu)										\
-				{																\
-						h->num = n;												\
-						h->is_mtu = mtu;										\
-						h->callback = f;										\
-						h->obj = obj;											\
-						h->frq = 0;												\
-						mcu_timer_handler_hash[n] = h;							\
-				}
 				
 struct mcu_timer_s *mcu_timer_handler_hash[MCU_TIMER_TOTAL_COUNT] = {0};
 uint8_t mcu_current_timer_handler = 0;
@@ -38,7 +28,14 @@ mcu_timer_t mcu_timer_init(MCU_INT_LVL lvl, uint32_t frq_hz, void (*f)(void*), v
 
 	handle = &mcu_timer_handler[mcu_current_timer_handler];	
 
-	// TODO: Implement
+    const esp_timer_create_args_t periodic_timer_args = 
+    {
+        .name = "MCU_TIMER",
+        .callback = f,
+		.arg = obj
+    };
+
+    esp_timer_create(&periodic_timer_args, &handle->handle);
 
 	if(MCU_OK != mcu_timer_set_frq(handle, frq_hz))
 		return NULL;
@@ -59,7 +56,14 @@ mcu_timer_t mcu_timer_create(const mcu_timer_config_t* config)
 
 	handle = &mcu_timer_handler[mcu_current_timer_handler];	
 
-	// TODO: Implement
+    const esp_timer_create_args_t periodic_timer_args = 
+    {
+        .name = "MCU_TIMER",
+        .callback = config->f,
+		.arg = config->obj
+    };
+
+    esp_timer_create(&periodic_timer_args, &handle->handle);
 
 	if(MCU_OK != mcu_timer_set_frq(handle, config->frq_hz))
 		return NULL;
@@ -77,22 +81,14 @@ uint64_t mcu_timer_get_microseconds(void)
 	return esp_timer_get_time();
 }
 
-static void mcu_timer_set_start(mcu_timer_t h, uint8_t state)
-{
-	if(h==NULL)	
-		return;
-
-	// TODO: Implement
-}
-
 void mcu_timer_start(mcu_timer_t h)
 {	
-	mcu_timer_set_start(h, 1);	
+	esp_timer_start_periodic(h->handle, 1000000 / h->frq);  // us from Hz
 }
 
 void mcu_timer_stop(mcu_timer_t h)
 {	
-	mcu_timer_set_start(h, 0);	
+	esp_timer_stop(h->handle);	
 }
 
 MCU_RESULT mcu_timer_set_frq(mcu_timer_t h, uint32_t frq_hz)
@@ -100,7 +96,23 @@ MCU_RESULT mcu_timer_set_frq(mcu_timer_t h, uint32_t frq_hz)
 	if(h==NULL)
 		return MCU_ERROR_TMR_NOT_AVAILABLE;
 
-	// TODO: Implement
+	if(h->frq == frq_hz)
+	{
+		return MCU_OK;
+	}
+
+	if(frq_hz == 0)
+	{
+		return MCU_ERROR_TMR_FRQ_INVALID;
+	}
+
+	h->frq = frq_hz;
+	if(esp_timer_is_active(h->handle))
+	{
+		// Restart timer with new period
+		mcu_timer_stop(h);
+		mcu_timer_start(h);
+	}
 
 	return MCU_OK;
 }

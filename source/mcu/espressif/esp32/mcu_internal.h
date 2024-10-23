@@ -26,6 +26,7 @@
 #include "driver/i2c.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
+#include "esp_timer.h"
 
 #if MCU_PERIPHERY_DEVICE_COUNT_UART > 0
 
@@ -65,6 +66,7 @@ extern struct mcu_uart_s mcu_uart_handler[MCU_PERIPHERY_DEVICE_COUNT_UART];
 
 struct mcu_timer_s
 {
+	esp_timer_handle_t handle;
 	uint8_t num;
 	uint32_t frq;							
 	void (*callback)(void*);					
