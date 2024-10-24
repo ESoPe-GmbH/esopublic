@@ -90,7 +90,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->display = display;
         mcu->config = config;
         mcu->panel_config.clk_src = LCD_CLK_SRC_PLL160M;
-        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz;
+        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz > 12000000 ? 12000000 : display->device_config.rgb.pclk_hz;
         mcu->panel_config.timings.h_res = display->device_config.rgb.h_res;
         mcu->panel_config.timings.v_res = display->device_config.rgb.v_res;
         mcu->panel_config.timings.hsync_pulse_width = display->device_config.rgb.hsync_pulse_width;
