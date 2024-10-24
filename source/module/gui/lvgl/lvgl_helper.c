@@ -51,8 +51,12 @@ static lvgl_helper_config_t _config = {0};
 FUNCTION_RETURN lvgl_helper_init(const lvgl_helper_config_t* config)
 {
     memcpy(&_config, config, sizeof(lvgl_helper_config_t));
+
+    if(config->display)
+    {
+        xTaskCreatePinnedToCore(_task_window, "DISP", 8192, &_config, portPRIVILEGE_BIT | (configMAX_PRIORITIES - 1), NULL, 1);
+    }
     
-    xTaskCreatePinnedToCore(_task_window, "DISP", 8192, &_config, portPRIVILEGE_BIT | (configMAX_PRIORITIES - 1), NULL, 1);
     
     return FUNCTION_RETURN_OK;
 }
@@ -66,14 +70,14 @@ static void _task_window(void* param)
 {
     lvgl_helper_config_t* config = (lvgl_helper_config_t*)param;
     lv_display_t* display;
-    lv_indev_t* indev_drv;
+    lv_indev_t* indev_drv = NULL;
 
     DBG_INFO("Initialize LVGL library\n");
     lv_init();
 
     DBG_INFO("Create %dx%d\n", display_device_get_width(config->display), display_device_get_height(config->display));
     display = lv_display_create(display_device_get_width(config->display), display_device_get_height(config->display));
-    lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
+    lv_display_set_rotation(display, config->rotation);
     lv_display_set_flush_cb(display, _lv_display_flush_cb);
     lv_display_set_user_data(display, config->display);
     lv_display_set_color_format(display, LV_COLOR_FORMAT_RGB565);
@@ -117,10 +121,13 @@ static void _task_window(void* param)
 
     lv_display_set_buffers(display, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_FULL);
     
-    indev_drv = lv_indev_create();
-    lv_indev_set_type(indev_drv, LV_INDEV_TYPE_POINTER);
-    lv_indev_set_driver_data(indev_drv, config->touch);
-    lv_indev_set_read_cb(indev_drv, _read_cb);
+    if(config->touch)
+    {
+        indev_drv = lv_indev_create();
+        lv_indev_set_type(indev_drv, LV_INDEV_TYPE_POINTER);
+        lv_indev_set_driver_data(indev_drv, config->touch);
+        lv_indev_set_read_cb(indev_drv, _read_cb);
+    }
 
     if(config->f_ui_init)
     {
@@ -143,7 +150,7 @@ static void _task_window(void* param)
             lv_task_handler();
         }
         
-        if(system_get_tick_count() - timestamp_touch >= 100)
+        if(indev_drv && system_get_tick_count() - timestamp_touch >= 100)
         {
             timestamp_touch = system_get_tick_count();
 

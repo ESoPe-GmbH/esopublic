@@ -57,6 +57,8 @@ typedef struct lvgl_helper_config_s
     uint8_t timer_unit;
     /// @brief Function to call to create the ui using lvgl functions.
     lvgl_helper_ui_init_t f_ui_init;
+    /// Initial rotation of the display
+    lv_display_rotation_t rotation;
 }lvgl_helper_config_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
