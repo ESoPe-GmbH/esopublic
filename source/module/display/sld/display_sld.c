@@ -80,10 +80,15 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     device->backlight = mcu_pwm_create(&config->backlight, NULL);
 
+    mcu_io_set_dir(config->display.rgb.disp_en, MCU_IO_DIR_OUT);
+    mcu_io_set(config->display.rgb.disp_en, 1);
+
     device->display = display_sld_init(&config->display, eeid, sizeof(eeid));
+    DBG_ASSERT(device->display, goto error, NULL, "Failed to initialize display\n");
 
+    bool rotate = device->display->device_config.rgb.v_res > device->display->device_config.rgb.h_res;
 
-    if(eeid[2] == 1)
+    // if(eeid[2] == 1)
     {
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
         // Capacitive touch is used
@@ -104,11 +109,9 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
     // Else: No touch
 
     display_device_reset(device->display);
-    display_device_init(device->display);
-    // TODO: Set display orientation based on display in use.
-    display_device_mirror(device->display, true, false);
-    display_device_swap_xy(device->display, true);
-
+    display_device_init(device->display);    
+    display_device_mirror(device->display, rotate, false);
+    display_device_swap_xy(device->display, rotate);
 
     return device;
 error:
@@ -139,6 +142,8 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     display_handle_t device = mcu_heap_calloc(1, sizeof(struct display_data_s));
     DBG_ASSERT(device, NO_ACTION, NULL, "Cannot create display device pointer\n");
 
+    DBG_INFO("EEPROM: %#A\n", eeid_length, eeid);
+
     DBG_VERBOSE("Create config\n");
 #if MCU_TYPE == MCU_ESP32
     device->mcu_config.rgb.esp32s3.sram_trans_align = 4;
@@ -149,7 +154,7 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     //[0] is 0
     ASSERT_RET(eeid[1] == 1, goto error, NULL, "Display with DPI needed\n");
     has_touch = eeid[2] > 0;
-    ASSERT_RET(eeid[3] == 'S' && eeid[4] == 'M', goto error, NULL, "Invalid EEID content\n");
+    ASSERT_RET(eeid[3] == 'S' && eeid[4] == 'W', goto error, NULL, "Invalid EEID content\n");
     // [5] = Manufacturer revision
     // [7:6] = Physical size in format xxh.xxh
     DBG_INFO("Initialize %x.%x\" Display with%s touch\n", (uint32_t)eeid[6], (uint32_t)eeid[7], has_touch ? "" : "out");
@@ -167,6 +172,7 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     device->device_config.rgb.flags.vsync_idle_low = (eeid[25] & 0x02) == 0x02;
     device->device_config.rgb.flags.de_idle_high = (eeid[25] & 0x04) == 0;
     device->device_config.rgb.flags.pclk_active_neg = (eeid[25] & 0x20) == 0x20;
+    device->device_config.rgb.flags.pclk_idle_high = false;
 
     device->mcu = display_mcu_init(config, device);
     ASSERT_RET(device->mcu, goto error, NULL, "Cannot create mcu device pointer\n");
@@ -198,16 +204,18 @@ void display_sld_set_backlight(display_sld_handle_t device, float pwm)
 
 static uint32_t _pclk_from_eeid(const uint8_t* eeid, uint8_t index)
 {
-    uint32_t tmp = ((uint32_t)bcd_decode_uint8(eeid[index + 1]));
-    if(tmp > 10)
-    {
-        tmp *= 10000;
-    }
-    else
-    {
-        tmp *= 100000;
-    }
-    return ((uint32_t)bcd_decode_uint8(eeid[index]) * 1000000) + tmp;
+    // uint32_t tmp = ((uint32_t)bcd_decode_uint8(eeid[index + 1]));
+    // if(tmp > 10)
+    // {
+    //     tmp *= 10000;
+    // }
+    // else
+    // {
+    //     tmp *= 100000;
+    // }
+    // return ((uint32_t)bcd_decode_uint8(eeid[index]) * 1000000) + tmp;
+
+    return (uint32_t)eeid[index] * 1000000 + eeid[index + 1] * 100000;
 }
 
 static uint16_t _uint16_from_eeid(const uint8_t* eeid, uint8_t index)
