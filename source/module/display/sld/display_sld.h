@@ -31,6 +31,40 @@
 // Defines
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/// Initializer for @c display_sld_hardware_t
+/// @param i2c_touch    Pointer to the i2c interface to use
+#define DISPLAY_SLD_HARDWARE_INIT_ESP_S3(i2c_touch)    \
+{    \
+    .display =     \
+    {    \
+        .display = DISPLAY_DEVICE_SLD,    \
+        .interface = DISPLAY_INTERFACE_RGB,    \
+        .rgb =     \
+        {    \
+            .r = {GPIO14, GPIO20, GPIO13, GPIO19, GPIO12, PIN_NONE, PIN_NONE, PIN_NONE},    \
+            .g = {GPIO8, GPIO21, GPIO3, GPIO11, GPIO18, GPIO10, PIN_NONE, PIN_NONE},    \
+            .b = {GPIO9, GPIO17, GPIO46, GPIO16, GPIO7, PIN_NONE, PIN_NONE, PIN_NONE},    \
+            .pclk = GPIO4,    \
+            .de = GPIO5,    \
+            .hsync = GPIO15,    \
+            .vsync = GPIO6,    \
+            .data_width = 16,    \
+            .disp_en = GPIO42    \
+        },    \
+        .on_frame_trans_done = NULL    \
+    },    \
+    .backlight =     \
+    {    \
+        .timer_unit = 0,    \
+        .timer_channel = 0,    \
+        .output_pin = GPIO39    \
+    },    \
+    .touch =     \
+    {            \
+        .i2c = i2c_touch,    \
+        .io_reset = GPIO2,    \
+    }    \
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
