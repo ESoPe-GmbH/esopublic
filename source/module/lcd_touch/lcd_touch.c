@@ -33,6 +33,18 @@ struct lcd_touch_s
     list_t observer;
 };
 
+/// @brief Observer list element
+typedef struct lcd_touch_observer_s lcd_touch_observer_t;
+
+/// @brief Observer list element
+struct lcd_touch_observer_s
+{
+    /// @brief Config for the observer contains callback and user pointer
+    lcd_touch_observer_config_t  config;
+    /// @brief Pointer to next list element
+    lcd_touch_observer_t* next;
+};
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -69,6 +81,9 @@ FUNCTION_RETURN_T lcd_touch_create(lcd_touch_device_handle_t device, const struc
     memcpy(&(*handle)->config, config, sizeof(struct lcd_touch_config_s));
     (*handle)->device = device;
 
+    lcd_touch_observer_t* observer = NULL;
+    list_init(&(*handle)->observer, observer, &observer->next);
+
     return FUNCTION_RETURN_OK;
 }
 
@@ -87,11 +102,11 @@ FUNCTION_RETURN_T lcd_touch_add_observer(lcd_touch_handle_t h, const lcd_touch_o
 {
     ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
 
-    lcd_touch_observer_config_t* c = mcu_heap_calloc(1, sizeof(lcd_touch_observer_config_t));
+    lcd_touch_observer_t* c = mcu_heap_calloc(1, sizeof(lcd_touch_observer_t));
 
     ASSERT_RET_NOT_NULL(c, NO_ACTION, FUNCTION_RETURN_INSUFFICIENT_MEMORY);
 
-    memcpy(c, config, sizeof(lcd_touch_observer_config_t));
+    memcpy(&c->config, config, sizeof(lcd_touch_observer_config_t));
     
     list_add_element(&h->observer, c);
 
@@ -103,28 +118,23 @@ FUNCTION_RETURN_T lcd_touch_remove_observer(lcd_touch_handle_t h, const lcd_touc
     ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
     ASSERT_RET_NOT_NULL(config, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
     
-    lcd_touch_observer_config_t* e = list_first_element(&h->observer);
+    lcd_touch_observer_t* e = list_first_element(&h->observer);
     while(e)
     {
-        // Remove this exact config
-        // if(e == config)
-        // {
-        //     list_remove_element(&h->observer, e);
-        //     return FUNCTION_RETURN_OK;
-        // }
-        // else 
         if(config->user_ctx) // Remove this exact user context
         {
             // Remove only if user context is the same and either no callback was specified or the callback matches
-            if(config->user_ctx == e->user_ctx && (config->f_cb == NULL || (config->f_cb == e->f_cb)) )
+            if(config->user_ctx == e->config.user_ctx && (config->f_cb == NULL || (config->f_cb == e->config.f_cb)) )
             {
                 list_remove_element(&h->observer, e);
+                mcu_heap_free(e);
                 return FUNCTION_RETURN_OK;
             }
         }
-        else if(config->f_cb && config->f_cb == e->f_cb) // Remove based on the function
+        else if(config->f_cb && config->f_cb == e->config.f_cb) // Remove based on the function
         {
             list_remove_element(&h->observer, e);
+            mcu_heap_free(e);
             return FUNCTION_RETURN_OK;
         }
         
@@ -294,24 +304,25 @@ FUNCTION_RETURN_T lcd_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint
 
 static void _notify_observer(lcd_touch_handle_t h, lcd_touch_observer_event_t* event)
 {
-    bool touch_changed = (event->point_num > 0) == h->is_touched;
-    h->is_touched = (event->point_num > 0);
+    bool is_touched = (event->point_num > 0);
+    bool touch_changed = is_touched != h->is_touched;
+    h->is_touched = is_touched;
 
-    if(!h->is_touched && !touch_changed)
+    if(!is_touched && !touch_changed)
     {
         // Do not keep track on untouched display.
         return;
     }
 
-    lcd_touch_observer_config_t* e = list_first_element(&h->observer);
+    lcd_touch_observer_t* e = list_first_element(&h->observer);
 
     while(e)
     {
         // Notify observer when it is configured to track the fingers or if the touch is pressed/released.
-        if(e->f_cb && (e->track_finger || touch_changed))
+        if(e->config.f_cb != NULL && (e->config.track_finger || touch_changed))
         {
-            event->user_ctx = e->user_ctx;
-            e->f_cb(h, event);
+            event->user_ctx = e->config.user_ctx;
+            e->config.f_cb(h, event);
         }
         
         e = list_next_element(&h->observer, e);
