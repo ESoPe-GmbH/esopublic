@@ -27,12 +27,23 @@ struct lcd_touch_s
     struct lcd_touch_config_s config;
     /// @brief Handle of the touch device
     lcd_touch_device_handle_t device;
+    /// @brief Is set and cleared whenever fingers are removed or touched.
+    bool is_touched;
+    /// @brief Observers that get notified when a finger touches or is released.
+    list_t observer;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Call to trigger notifications to observers
+ * 
+ * @param h         Touch device handle
+ * @param event     Pointer to the event containing the touched fingers. @c user_ctx is changed based on the observer internally-
+ */
+static void _notify_observer(lcd_touch_handle_t h, lcd_touch_observer_event_t* event);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal variables
@@ -70,6 +81,57 @@ FUNCTION_RETURN_T lcd_touch_free(lcd_touch_handle_t* handle)
     *handle = NULL;
 
     return FUNCTION_RETURN_OK;
+}
+
+FUNCTION_RETURN_T lcd_touch_add_observer(lcd_touch_handle_t h, const lcd_touch_observer_config_t* config)
+{
+    ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+    lcd_touch_observer_config_t* c = mcu_heap_calloc(1, sizeof(lcd_touch_observer_config_t));
+
+    ASSERT_RET_NOT_NULL(c, NO_ACTION, FUNCTION_RETURN_INSUFFICIENT_MEMORY);
+
+    memcpy(c, config, sizeof(lcd_touch_observer_config_t));
+    
+    list_add_element(&h->observer, c);
+
+    return FUNCTION_RETURN_OK;
+}
+
+FUNCTION_RETURN_T lcd_touch_remove_observer(lcd_touch_handle_t h, const lcd_touch_observer_config_t* config)
+{
+    ASSERT_RET_NOT_NULL(h, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(config, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    
+    lcd_touch_observer_config_t* e = list_first_element(&h->observer);
+    while(e)
+    {
+        // Remove this exact config
+        // if(e == config)
+        // {
+        //     list_remove_element(&h->observer, e);
+        //     return FUNCTION_RETURN_OK;
+        // }
+        // else 
+        if(config->user_ctx) // Remove this exact user context
+        {
+            // Remove only if user context is the same and either no callback was specified or the callback matches
+            if(config->user_ctx == e->user_ctx && (config->f_cb == NULL || (config->f_cb == e->f_cb)) )
+            {
+                list_remove_element(&h->observer, e);
+                return FUNCTION_RETURN_OK;
+            }
+        }
+        else if(config->f_cb && config->f_cb == e->f_cb) // Remove based on the function
+        {
+            list_remove_element(&h->observer, e);
+            return FUNCTION_RETURN_OK;
+        }
+        
+        e = list_next_element(&h->observer, e);
+    }
+
+    return FUNCTION_RETURN_NOT_FOUND;
 }
 
 FUNCTION_RETURN_T lcd_touch_enter_sleep(lcd_touch_handle_t h)
@@ -119,6 +181,8 @@ bool lcd_touch_get_xy(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *
         if(!touched)
         {
             *point_num = 0;
+            lcd_touch_observer_event_t event = {0};
+            _notify_observer(h, &event);
             return false;
         }
         
@@ -130,6 +194,8 @@ bool lcd_touch_get_xy(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *
         if(!touched)
         {
             *point_num = 0;
+            lcd_touch_observer_event_t event = {0};
+            _notify_observer(h, &event);
             return false;
         }
 
@@ -155,6 +221,14 @@ bool lcd_touch_get_xy(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *
                 }
             }
         }
+
+        lcd_touch_observer_event_t event = {
+            .point_num = *point_num,
+            .strength = strength,
+            .x = x,
+            .y = y
+        };
+        _notify_observer(h, &event);
         
         // for(int i = 0; i < *point_num; i++)
         // {
@@ -217,5 +291,31 @@ FUNCTION_RETURN_T lcd_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static void _notify_observer(lcd_touch_handle_t h, lcd_touch_observer_event_t* event)
+{
+    bool touch_changed = (event->point_num > 0) == h->is_touched;
+    h->is_touched = (event->point_num > 0);
+
+    if(!h->is_touched && !touch_changed)
+    {
+        // Do not keep track on untouched display.
+        return;
+    }
+
+    lcd_touch_observer_config_t* e = list_first_element(&h->observer);
+
+    while(e)
+    {
+        // Notify observer when it is configured to track the fingers or if the touch is pressed/released.
+        if(e->f_cb && (e->track_finger || touch_changed))
+        {
+            event->user_ctx = e->user_ctx;
+            e->f_cb(h, event);
+        }
+        
+        e = list_next_element(&h->observer, e);
+    }
+}
 
 #endif
