@@ -88,7 +88,7 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     bool rotate = device->display->device_config.rgb.v_res > device->display->device_config.rgb.h_res;
 
-    // if(eeid[2] == 1)
+    if(eeid[2] == 1)
     {
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
         // Capacitive touch is used
