@@ -259,7 +259,6 @@ void main(void)
 #if MCU_TYPE == PC_EMU
 	debug_init();
 #endif
-	board_init();
 
 #if MCU_TYPE == MCU_ESP32
 	esp_err_t ret = nvs_flash_init();
@@ -268,12 +267,17 @@ void main(void)
 		nvs_flash_erase();
 		ret = nvs_flash_init();
 	}
+#endif // MCU_TYPE == MCU_ESP32
+
+	board_init();
+
+#if MCU_TYPE == MCU_ESP32
 
 #if MCU_PERIPHERY_ENABLE_ETHERNET || MCU_PERIPHERY_ENABLE_WIFI
 	esp_netif_init();
 #endif
 	esp_event_loop_create_default();
-#endif
+#endif // MCU_TYPE == MCU_ESP32
 
 	_init();
 
