@@ -83,6 +83,8 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
     mcu_io_set_dir(config->display.rgb.disp_en, MCU_IO_DIR_OUT);
     mcu_io_set(config->display.rgb.disp_en, 1);
 
+    string_nprintf(device->screen_diagonal, sizeof(device->screen_diagonal), "%x.%x", (uint32_t)eeid[6], (uint32_t)eeid[7]);
+
     device->display = display_sld_init(&config->display, eeid, sizeof(eeid));
     DBG_ASSERT(device->display, goto error, NULL, "Failed to initialize display\n");
 

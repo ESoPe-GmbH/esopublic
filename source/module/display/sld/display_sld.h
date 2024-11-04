@@ -98,6 +98,8 @@ typedef struct display_sld_s
     /// @brief Handle used for touch functions.
     lcd_touch_handle_t touch;
 #endif
+    /// Screen diagonal of the display in inch as read from EEPROM e.g. "2.4"
+    char screen_diagonal[6];
 }display_sld_t;
 
 /// @brief Handle for the SmartLineDisplay
