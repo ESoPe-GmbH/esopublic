@@ -109,6 +109,12 @@
 #define DEBUG_IDENTIFICATION_HELP				"Can be used to check if the firmware is running on the correct hardware"
 #endif
 
+#if DEBUG_CONSOLE_ENABLE_ESP
+#define DEBUG_ESP_COMMAND			"esp"
+#define DEBUG_ESP_HELP				"Subcommands: hash\n" \
+									"\thash: Get the SHA256 hash of the data partition\n"
+#endif
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -260,6 +266,16 @@ extern FUNCTION_RETURN debug_wifi_execute(console_data_t* data, char** args, uin
  */
 extern FUNCTION_RETURN debug_identification_execute(console_data_t* data, char** args, uint8_t args_len);
 #endif
+#if DEBUG_CONSOLE_ENABLE_ESP
+/**
+ * @brief Handles esp specific commands
+ * @param data		Pointer to the console that received the command line.
+ * @param args		Pointer array for each argument of the command. The whitespaces were used as dividers for each part.
+ * @param args_len	Number of arguments used in args.
+ * @return			FUNCTION_RETURN value to show if execution succeeded.
+ */
+extern FUNCTION_RETURN debug_esp_execute(console_data_t* data, char** args, uint8_t args_len);
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal structures and enums
@@ -304,6 +320,9 @@ console_command_t debug_console_commands[] =
 #endif
 #if DEBUG_CONSOLE_ENABLE_IDENTIFICATION
 		{DEBUG_IDENTIFICATION_COMMAND, 		debug_identification_execute, true, DEBUG_IDENTIFICATION_HELP, NULL},
+#endif
+#if DEBUG_CONSOLE_ENABLE_ESP
+		{DEBUG_ESP_COMMAND, 				debug_esp_execute, 			true, 	DEBUG_ESP_HELP, 			NULL},
 #endif
 };
 

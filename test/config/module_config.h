@@ -116,6 +116,8 @@
 #define DEBUG_CONSOLE_ENABLE_WIFI				    true
 /// Password that has to be sent with test start for it to unlock testing.
 #define DEBUG_CONSOLE_TEST_PASSWORD				    "KameSennin@ESoPe-1337"
+/// Enable / disable console for esp specific commands
+#define DEBUG_CONSOLE_ENABLE_ESP					true
 #endif
 
 #if MODULE_ENABLE_CONVERT_MATH
