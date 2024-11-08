@@ -75,7 +75,7 @@ FUNCTION_RETURN_T lcd_touch_esp32_create(lcd_touch_handle_t touch_handle, esp_lc
     ASSERT_RET_NOT_NULL(esp_touch_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
 
     _esp_lcd_touch.config.driver_data = touch_handle;
-    lcd_get_dimensions(touch_handle, &_esp_lcd_touch.config.x_max, &_esp_lcd_touch.config.y_max);
+    lcd_touch_get_dimensions(touch_handle, &_esp_lcd_touch.config.x_max, &_esp_lcd_touch.config.y_max);
 
     *esp_touch_handle = &_esp_lcd_touch;
     

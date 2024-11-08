@@ -324,7 +324,7 @@ FUNCTION_RETURN_T lcd_touch_del(lcd_touch_handle_t h);
  * @return 
  *      - FUNCTION_RETURN_OK on success, otherwise returns FUNCTION_RETURN_xxx
  */
-FUNCTION_RETURN_T lcd_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint16_t* y_max);
+FUNCTION_RETURN_T lcd_touch_get_dimensions(lcd_touch_handle_t h, uint16_t* x_max, uint16_t* y_max);
 
 #endif // MODULE_ENABLE_LCD_TOUCH
 
