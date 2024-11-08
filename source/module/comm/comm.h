@@ -143,7 +143,7 @@ void 	comm_put(comm_t *h, uint8_t *buf, uint16_t element_cnt);
  * @param h			Pointer to the comm_t. Does nothing if h is NULL.
  * @param str		A 0-terminated ascii string.
  **/
-void 	comm_puts(comm_t *h, char* str);
+void 	comm_puts(comm_t *h, const char* str);
 
 /**
  * @brief	Sends a formatted string to the device the comm_t is assigned to.
@@ -158,7 +158,7 @@ void 	comm_puts(comm_t *h, char* str);
  * @param str		A string with the format defined in @link vxprintf vxprintf@endlink.
  * @param ...		Different parameters according to the format of str.
  **/
-void 	comm_printf(comm_t *h, char *str, ...);
+void 	comm_printf(comm_t *h, const char *str, ...);
 
 /**
  * @brief	Sends a formatted string to the device the comm_t is assigned to.
@@ -187,7 +187,7 @@ void 	comm_printf(comm_t *h, char *str, ...);
  * @param str		A string with the format defined above.
  * @param vl		List with variable arguments according to the format of str.
  **/
-void 	comm_vprintf(comm_t *h, char *str, va_list vl);
+void 	comm_vprintf(comm_t *h, const char *str, va_list vl);
 
 /**
  * Indicates whether data can be sent on an interface.

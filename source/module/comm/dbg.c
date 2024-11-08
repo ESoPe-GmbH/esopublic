@@ -375,7 +375,7 @@ void dbg_set_comm(comm_t *h)
 #endif
 }
 
-void dbg_printf(const char *dbg_string1, const char *dbg_string2, char *str, ...)
+void dbg_printf(const char *dbg_string1, const char *dbg_string2, const char *str, ...)
 {
 	va_list vl;
 	va_start(vl, str);
@@ -383,7 +383,7 @@ void dbg_printf(const char *dbg_string1, const char *dbg_string2, char *str, ...
 	va_end(vl);
 }
 
-void dbg_vprintf(const char *dbg_string1, const char *dbg_string2, char *str, va_list vl)
+void dbg_vprintf(const char *dbg_string1, const char *dbg_string2, const char *str, va_list vl)
 {
 #if _DBG_STRING_HIDE_PATH || _DBG_STRING_MIN_LEN
 	uint16_t i = 0, len = 0;

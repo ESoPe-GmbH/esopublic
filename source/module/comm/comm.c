@@ -78,7 +78,7 @@ void comm_put(comm_t *h, uint8_t *buf, uint16_t len)
 		h->interface->xputs(h->device_handler, buf, len);
 }
 
-void comm_puts(comm_t *h, char* str)
+void comm_puts(comm_t *h, const char* str)
 {
 	if(str == NULL)
 		return;
@@ -119,7 +119,7 @@ void comm_puts(comm_t *h, char* str)
 	_set_left_aligned = false;
 }
 
-void comm_printf(comm_t *h, char *str, ...)
+void comm_printf(comm_t *h, const char *str, ...)
 {
 	va_list vl;	
 	va_start(vl, str);
@@ -127,7 +127,7 @@ void comm_printf(comm_t *h, char *str, ...)
 	va_end(vl);
 }
 
-void comm_vprintf(comm_t *h, char *str, va_list vl)
+void comm_vprintf(comm_t *h, const char *str, va_list vl)
 {
 	uint8_t	letter;						// Stores a character. If the character is %, the following format will be checked.
 	uint8_t	letter2;					// Stores a character inside the format checking routine.

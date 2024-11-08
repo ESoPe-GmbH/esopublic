@@ -241,7 +241,7 @@ void dbg_set_comm(comm_t *h);
  * @param str				A string with the format defined in @link vxprintf vxprintf@endlink.
  * @param ...				Different parameters according to the format of str.
  **/
-void 	dbg_printf(const char *dbg_string1, const char *dbg_string2, char *str, ...);
+void 	dbg_printf(const char *dbg_string1, const char *dbg_string2, const char *str, ...);
 
 /**
  * @brief	Sends a formatted string to the device comm_debug is assigned to.
@@ -256,7 +256,7 @@ void 	dbg_printf(const char *dbg_string1, const char *dbg_string2, char *str, ..
  * @param str				A string with the format defined in @link vxprintf vxprintf@endlink.
  * @param vl				List with variable arguments according to the format of str.
  **/
-void 	dbg_vprintf(const char *dbg_string1, const char *dbg_string2, char *str, va_list vl);
+void 	dbg_vprintf(const char *dbg_string1, const char *dbg_string2, const char *str, va_list vl);
 
 #if DBG_USE_MMC_LOG
 /**
