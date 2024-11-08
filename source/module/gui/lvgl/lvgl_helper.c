@@ -7,6 +7,8 @@
 
 #include "module/comm/dbg.h"
 #include "module/util/assert.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal definitions
