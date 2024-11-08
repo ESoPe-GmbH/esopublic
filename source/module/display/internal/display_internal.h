@@ -180,6 +180,12 @@ struct display_data_s
     display_mcu_config_t mcu_config;
     /// Device configuration is filled by specific display
     display_device_config_t device_config;
+    /// @brief Setting for swap xy
+    bool swap_xy;
+    /// @brief Setting to mirror x
+    bool mirror_x;
+    /// @brief Setting to mirror y
+    bool mirror_y;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------

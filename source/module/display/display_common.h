@@ -243,6 +243,19 @@ FUNCTION_RETURN_T display_device_draw_bitmap(display_handle_t display, int x_sta
  */
 FUNCTION_RETURN_T display_device_mirror(display_handle_t display, bool mirror_x, bool mirror_y);
 /**
+ * @brief Get the Mirror the LCD panel on specific axis
+ *
+ * @note Combined with `display_device_get_swap_xy()`, one can get screen rotation
+ *
+ * @param[in] display Display handle, which is created by `display_common_init()`
+ * @param[out] mirror_x Whether the panel will be mirrored about the x axis
+ * @param[out] mirror_y Whether the panel will be mirrored about the y axis
+ * @return
+ *          - FUNCTION_RETURN_OK on success
+ *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
+ */
+FUNCTION_RETURN_T display_device_get_mirror(display_handle_t display, bool* mirror_x, bool* mirror_y);
+/**
  * @brief Swap/Exchange x and y axis
  *
  * @note Combined with `display_device_mirror()`, one can realize screen rotation
@@ -254,6 +267,18 @@ FUNCTION_RETURN_T display_device_mirror(display_handle_t display, bool mirror_x,
  *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
  */
 FUNCTION_RETURN_T display_device_swap_xy(display_handle_t display, bool swap_axes);
+/**
+ * @brief Get the setting for Swap/Exchange x and y axis
+ *
+ * @note Combined with `display_device_get_mirror()`, one can get screen rotation
+ *
+ * @param[in] display Display handle, which is created by `display_common_init()`
+ * @param[out] swap_axes Whether to swap the x and y axis
+ * @return
+ *          - FUNCTION_RETURN_OK on success
+ *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
+ */
+FUNCTION_RETURN_T display_device_get_swap_xy(display_handle_t display, bool* swap_axes);
 /**
  * @brief Set extra gap in x and y axis
  *
