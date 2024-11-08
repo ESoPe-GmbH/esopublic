@@ -100,7 +100,7 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
             // TODO: Set flags based on display
             struct lcd_touch_config_s touch_config = 
             {
-                .flags = {.mirror_x = true, .mirror_y = true, .swap_xy = false},
+                .flags = {.mirror_x = false, .mirror_y = false, .swap_xy = false},
                 .x_max = device->display->device_config.rgb.h_res,
                 .y_max = device->display->device_config.rgb.v_res
             };
