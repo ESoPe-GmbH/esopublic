@@ -26,6 +26,12 @@
 /// True: FT81x register are used, false: FT800 register are used
 #define EVE_USE_FT81X								(EVE_GENERATION > 1)
 
+#if DEBUG_CONSOLE_ENABLE_ESP && MCU_TYPE != MCU_ESP32
+#warning esp console can only be used on esp32 mcus!
+#undef DEBUG_CONSOLE_ENABLE_ESP
+#define DEBUG_CONSOLE_ENABLE_ESP                    false
+#endif
+
 #if MODULE_PREFER_HEAP
 
 /// Declares an array based on heap settings as heap or fixed array. If you need a static variable, write static before the macro call.
