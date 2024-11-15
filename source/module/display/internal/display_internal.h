@@ -157,11 +157,16 @@ typedef union display_mcu_rgb_config_s
                     /// If this flag is enabled, a low level of display control signal can turn the screen on; vice versa
                     unsigned int disp_active_low: 1;      
                 } flags;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+                /// DMA burst size, in bytes
+                size_t dma_burst_size;
+#else
                 /// Alignment for framebuffer that allocated in SRAM
                 size_t sram_trans_align;
                 /// Alignment for framebuffer that allocated in PSRAM 
                 size_t psram_trans_align;
-            }esp32s3;
+#endif
+            }esp32; // ESP32S3 and P4
         }rgb;
     };
 }display_mcu_config_t;

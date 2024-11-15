@@ -148,10 +148,14 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
 
     DBG_VERBOSE("Create config\n");
 #if MCU_TYPE == MCU_ESP32
-    device->mcu_config.rgb.esp32s3.sram_trans_align = 4;
-    device->mcu_config.rgb.esp32s3.psram_trans_align = 64;
-    device->mcu_config.rgb.esp32s3.flags.fb_in_psram = true;
-    device->mcu_config.rgb.esp32s3.flags.relax_on_idle = false;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    device->mcu_config.rgb.esp32.dma_burst_size = 64;
+#else
+    device->mcu_config.rgb.esp32.sram_trans_align = 4;
+    device->mcu_config.rgb.esp32.psram_trans_align = 64;
+#endif
+    device->mcu_config.rgb.esp32.flags.fb_in_psram = true;
+    device->mcu_config.rgb.esp32.flags.relax_on_idle = false;
 #endif
     //[0] is 0
     ASSERT_RET(eeid[1] == 1, goto error, NULL, "Display with DPI needed\n");

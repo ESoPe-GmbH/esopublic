@@ -105,16 +105,20 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.timings.flags.pclk_active_neg = display->device_config.rgb.flags.pclk_active_neg;
         mcu->panel_config.timings.flags.pclk_idle_high = display->device_config.rgb.flags.pclk_idle_high;
         mcu->panel_config.data_width = config->rgb.data_width;
-        mcu->panel_config.sram_trans_align = display->mcu_config.rgb.esp32s3.sram_trans_align;
-        mcu->panel_config.psram_trans_align = display->mcu_config.rgb.esp32s3.psram_trans_align;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+        mcu->panel_config.dma_burst_size = display->mcu_config.rgb.esp32.dma_burst_size;
+#else // Lower ESP-IDF only for ESP32-S3
+        mcu->panel_config.sram_trans_align = display->mcu_config.rgb.esp32.sram_trans_align;
+        mcu->panel_config.psram_trans_align = display->mcu_config.rgb.esp32.psram_trans_align;
+#endif
 
         mcu->panel_config.hsync_gpio_num = P(config->rgb.hsync);
         mcu->panel_config.vsync_gpio_num = P(config->rgb.vsync);
         mcu->panel_config.de_gpio_num = P(config->rgb.de);
         mcu->panel_config.pclk_gpio_num = P(config->rgb.pclk);
         mcu->panel_config.disp_gpio_num = P(config->rgb.disp_en);
-        mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32s3.flags.disp_active_low;
-        mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32s3.flags.fb_in_psram;
+        mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32.flags.disp_active_low;
+        mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
         mcu->panel_config.data_gpio_nums[1]  = P(config->rgb.b[1]);
         mcu->panel_config.data_gpio_nums[2]  = P(config->rgb.b[2]);
@@ -133,11 +137,11 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.data_gpio_nums[15] = P(config->rgb.r[4]);
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-        mcu->panel_config.flags.refresh_on_demand = display->mcu_config.rgb.esp32s3.flags.relax_on_idle;
+        mcu->panel_config.flags.refresh_on_demand = display->mcu_config.rgb.esp32.flags.relax_on_idle;
 #else
         mcu->panel_config.on_frame_trans_done = _on_vsync_event;
         mcu->panel_config.user_ctx = mcu;
-        mcu->panel_config.flags.relax_on_idle = display->mcu_config.rgb.esp32s3.flags.relax_on_idle;
+        mcu->panel_config.flags.relax_on_idle = display->mcu_config.rgb.esp32.flags.relax_on_idle;
 #endif
         
         DBG_VERBOSE("Create RGB panel\n");
