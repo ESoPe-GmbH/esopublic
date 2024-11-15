@@ -118,7 +118,7 @@ struct pt
 /**
  * Allocates the memory for a subthread.
  */
-#define PT_CREATE_SUBTHREAD(pt)			(pt)->sub_pt = calloc(sizeof(pt_t), 1)
+#define PT_CREATE_SUBTHREAD(pt)			(pt)->sub_pt = calloc(1, sizeof(pt_t))
 /**
  * Frees the memory of a subthread that was created with PT_CREATE_SUBTHREAD.
  */
