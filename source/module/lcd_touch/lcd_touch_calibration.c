@@ -64,27 +64,24 @@ bool lcd_touch_calibration_process_etml043023udra(lcd_touch_handle_t h, uint16_t
 
 bool lcd_touch_calibration_process_etml050023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {
-    // TODO: Get values -> Below values are from 4.3"
-    float a = -0.0292;
-    float b = 0.0002;
-    float c = 478.2111;
-    float d = -0.0005;
-    float e = -0.0276;
-    float f = 273.0244;
+    float a = 0.0494;
+    float b = 0.0007;
+    float c = 1.6587;
+    float d = 0.000;
+    float e = 0.0503;
+    float f = -5.8513;
 
     return _common_process(x, y, point_num, max_point_num, 800, 480, a, b, c, d, e, f);
 }
 
 bool lcd_touch_calibration_process_etml070023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {
-    // TODO: Get values -> Below values are from 4.3"
-
-    float a = -0.0292;
-    float b = 0.0002;
-    float c = 478.2111;
-    float d = -0.0005;
-    float e = -0.0276;
-    float f = 273.0244;
+    float a = 0.0494;
+    float b = 0.0007;
+    float c = 1.6587;
+    float d = 0.000;
+    float e = 0.0503;
+    float f = -5.8513;
 
     return _common_process(x, y, point_num, max_point_num, 800, 480, a, b, c, d, e, f);
 }
