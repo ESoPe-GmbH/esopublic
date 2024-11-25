@@ -85,23 +85,31 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
 
     DBG_VERBOSE("Copy mcu config\n");
 
+    uint16_t max_data_width = 24;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    max_data_width = SOC_LCDCAM_RGB_DATA_WIDTH;
+#else
+    max_data_width = SOC_LCD_RGB_DATA_WIDTH;
+#endif
+
     if(config->interface == DISPLAY_INTERFACE_RGB)
     {
         mcu->display = display;
         mcu->config = config;
-        mcu->panel_config.clk_src = LCD_CLK_SRC_PLL160M;
 #if CONFIG_IDF_TARGET_ESP32P4
+        mcu->panel_config.clk_src = LCD_CLK_SRC_PLL160M;
         mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz;
 #elif CONFIG_IDF_TARGET_ESP32S3
-        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz > 12000000 ? 12000000 : display->device_config.rgb.pclk_hz;
+        mcu->panel_config.clk_src = LCD_CLK_SRC_PLL240M;
+        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz > 16000000 ? 16000000 : display->device_config.rgb.pclk_hz;
 #endif
         mcu->panel_config.timings.h_res = display->device_config.rgb.h_res;
         mcu->panel_config.timings.v_res = display->device_config.rgb.v_res;
         mcu->panel_config.timings.hsync_pulse_width = display->device_config.rgb.hsync_pulse_width;
-        mcu->panel_config.timings.hsync_back_porch = display->device_config.rgb.hsync_back_porch;
+        mcu->panel_config.timings.hsync_back_porch = display->device_config.rgb.hsync_back_porch - display->device_config.rgb.hsync_pulse_width;
         mcu->panel_config.timings.hsync_front_porch = display->device_config.rgb.hsync_front_porch;
         mcu->panel_config.timings.vsync_pulse_width = display->device_config.rgb.vsync_pulse_width;
-        mcu->panel_config.timings.vsync_back_porch = display->device_config.rgb.vsync_back_porch;
+        mcu->panel_config.timings.vsync_back_porch = display->device_config.rgb.vsync_back_porch - display->device_config.rgb.vsync_pulse_width;
         mcu->panel_config.timings.vsync_front_porch = display->device_config.rgb.vsync_front_porch;
         mcu->panel_config.timings.flags.hsync_idle_low = display->device_config.rgb.flags.hsync_idle_low;
         mcu->panel_config.timings.flags.vsync_idle_low = display->device_config.rgb.flags.vsync_idle_low;
@@ -115,6 +123,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.sram_trans_align = display->mcu_config.rgb.esp32.sram_trans_align;
         mcu->panel_config.psram_trans_align = display->mcu_config.rgb.esp32.psram_trans_align;
 #endif
+        mcu->panel_config.num_fbs = 2;
 
         mcu->panel_config.hsync_gpio_num = P(config->rgb.hsync);
         mcu->panel_config.vsync_gpio_num = P(config->rgb.vsync);
@@ -123,6 +132,9 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.disp_gpio_num = P(config->rgb.disp_en);
         mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32.flags.disp_active_low;
         mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
+        
+    if(config->rgb.data_width == 16 || max_data_width == 16)
+    {
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
         mcu->panel_config.data_gpio_nums[1]  = P(config->rgb.b[1]);
         mcu->panel_config.data_gpio_nums[2]  = P(config->rgb.b[2]);
@@ -139,6 +151,34 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.data_gpio_nums[13] = P(config->rgb.r[2]);
         mcu->panel_config.data_gpio_nums[14] = P(config->rgb.r[3]);
         mcu->panel_config.data_gpio_nums[15] = P(config->rgb.r[4]);
+    }
+    else if(config->rgb.data_width == 24)
+    {
+        mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
+        mcu->panel_config.data_gpio_nums[1]  = P(config->rgb.b[1]);
+        mcu->panel_config.data_gpio_nums[2]  = P(config->rgb.b[2]);
+        mcu->panel_config.data_gpio_nums[3]  = P(config->rgb.b[3]);
+        mcu->panel_config.data_gpio_nums[4]  = P(config->rgb.b[4]);
+        mcu->panel_config.data_gpio_nums[5]  = P(config->rgb.b[5]);
+        mcu->panel_config.data_gpio_nums[6]  = P(config->rgb.b[6]);
+        mcu->panel_config.data_gpio_nums[7]  = P(config->rgb.b[7]);
+        mcu->panel_config.data_gpio_nums[8]  = P(config->rgb.g[0]);
+        mcu->panel_config.data_gpio_nums[9]  = P(config->rgb.g[1]);
+        mcu->panel_config.data_gpio_nums[10] = P(config->rgb.g[2]);
+        mcu->panel_config.data_gpio_nums[11] = P(config->rgb.g[3]);
+        mcu->panel_config.data_gpio_nums[12] = P(config->rgb.g[4]);
+        mcu->panel_config.data_gpio_nums[13] = P(config->rgb.g[5]);
+        mcu->panel_config.data_gpio_nums[14] = P(config->rgb.g[6]);
+        mcu->panel_config.data_gpio_nums[15] = P(config->rgb.g[7]);
+        mcu->panel_config.data_gpio_nums[16] = P(config->rgb.r[0]);
+        mcu->panel_config.data_gpio_nums[17] = P(config->rgb.r[1]);
+        mcu->panel_config.data_gpio_nums[18] = P(config->rgb.r[2]);
+        mcu->panel_config.data_gpio_nums[19] = P(config->rgb.r[3]);
+        mcu->panel_config.data_gpio_nums[20] = P(config->rgb.r[4]);
+        mcu->panel_config.data_gpio_nums[21] = P(config->rgb.r[5]);
+        mcu->panel_config.data_gpio_nums[22] = P(config->rgb.r[6]);
+        mcu->panel_config.data_gpio_nums[23] = P(config->rgb.r[7]);
+    }
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
         mcu->panel_config.flags.refresh_on_demand = display->mcu_config.rgb.esp32.flags.relax_on_idle;
