@@ -31,9 +31,18 @@
 #include "driver/spi_master.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Enumeration
+// Defines
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#ifndef DISPLAY_MAX_PCLK
+#if CONFIG_IDF_TARGET_ESP32P4
+/// Maximum clock for PCLK on ESP32P4 is not known yet
+#define DISPLAY_MAX_PCLK        100000000
+#elif CONFIG_IDF_TARGET_ESP32S3
+/// Maximum clock for PCLK is 40MHz on ESP32S3, but only works well with 14MHz. Define other values in config to try out optimizations.
+#define DISPLAY_MAX_PCLK        14000000
+#endif
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
@@ -98,11 +107,10 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->config = config;
 #if CONFIG_IDF_TARGET_ESP32P4
         mcu->panel_config.clk_src = LCD_CLK_SRC_PLL160M;
-        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz;
 #elif CONFIG_IDF_TARGET_ESP32S3
         mcu->panel_config.clk_src = LCD_CLK_SRC_PLL240M;
-        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz > 16000000 ? 16000000 : display->device_config.rgb.pclk_hz;
 #endif
+        mcu->panel_config.timings.pclk_hz = display->device_config.rgb.pclk_hz > DISPLAY_MAX_PCLK ? DISPLAY_MAX_PCLK : display->device_config.rgb.pclk_hz;
         mcu->panel_config.timings.h_res = display->device_config.rgb.h_res;
         mcu->panel_config.timings.v_res = display->device_config.rgb.v_res;
         mcu->panel_config.timings.hsync_pulse_width = display->device_config.rgb.hsync_pulse_width;
