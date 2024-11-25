@@ -14,7 +14,7 @@
 #ifndef __MODULE_LVGL_HELPER_H_
 #define __MODULE_LVGL_HELPER_H_
 
-#include "module.h"
+#include "module_public.h"
 #if defined(KERNEL_USES_LVGL)
 #include "module/enum/function_return.h"
 #include "module/display/display_common.h"

@@ -14,7 +14,7 @@
 #ifndef __MODULE_SLINT_HELPER_H_
 #define __MODULE_SLINT_HELPER_H_
 
-#include "module.h"
+#include "module_public.h"
 #if defined(KERNEL_USES_SLINT)
 #include "module/enum/function_return.h"
 

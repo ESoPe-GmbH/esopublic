@@ -15,7 +15,7 @@
 #ifndef __DISPLAY__SLD__DISPLAY_SLD_H__
 #define __DISPLAY__SLD__DISPLAY_SLD_H__
 
-#include "module.h"
+#include "module_public.h"
 
 #if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 

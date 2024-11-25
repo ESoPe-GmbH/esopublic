@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-#include "module.h"
+#include "module_public.h"
 
 #if MODULE_ENABLE_DISPLAY
 

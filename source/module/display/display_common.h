@@ -15,7 +15,7 @@
 #ifndef __DISPLAY__DISPLAY_COMMON_H__
 #define __DISPLAY__DISPLAY_COMMON_H__
 
-#include "module.h"
+#include "module_public.h"
 
 #if MODULE_ENABLE_DISPLAY
 
