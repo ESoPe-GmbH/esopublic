@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-#include "module.h"
+#include "module_public.h"
 
 #if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 

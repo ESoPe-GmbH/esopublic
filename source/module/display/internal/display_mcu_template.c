@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-#include "module.h"
+#include "module_public.h"
 
 #if MODULE_ENABLE_DISPLAY && 0 // Replace this by MCU of your mcu.
 
