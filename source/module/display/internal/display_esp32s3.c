@@ -136,6 +136,10 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.timings.flags.pclk_active_neg = display->device_config.rgb.flags.pclk_active_neg;
         mcu->panel_config.timings.flags.pclk_idle_high = display->device_config.rgb.flags.pclk_idle_high;
         mcu->panel_config.data_width = config->rgb.data_width;
+        if(mcu->panel_config.data_width > max_data_width)
+        {
+            mcu->panel_config.data_width = max_data_width;
+        }
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
         mcu->panel_config.dma_burst_size = display->mcu_config.rgb.esp32.dma_burst_size;
 #else // Lower ESP-IDF only for ESP32-S3
@@ -151,10 +155,9 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.disp_gpio_num = P(config->rgb.disp_en);
         mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32.flags.disp_active_low;
         mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
-        
-    if(config->rgb.data_width == 16 || max_data_width == 16)
                                                     * (display->mcu_config.rgb.esp32.bounce_buffer_size_percent / 100.0); // Percentage of the screen used as bounce buffer
                                                             
+    if(config->rgb.data_width == 16)
     {
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
         mcu->panel_config.data_gpio_nums[1]  = P(config->rgb.b[1]);
@@ -173,6 +176,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.data_gpio_nums[14] = P(config->rgb.r[3]);
         mcu->panel_config.data_gpio_nums[15] = P(config->rgb.r[4]);
     }
+#if SOC_LCDCAM_RGB_DATA_WIDTH >= 24
     else if(config->rgb.data_width == 24)
     {
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
@@ -200,6 +204,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.data_gpio_nums[22] = P(config->rgb.r[6]);
         mcu->panel_config.data_gpio_nums[23] = P(config->rgb.r[7]);
     }
+#endif
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
         mcu->panel_config.flags.refresh_on_demand = display->mcu_config.rgb.esp32.flags.relax_on_idle;
