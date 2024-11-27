@@ -37,6 +37,8 @@ static void _lv_tick_interrupt(void *arg) ;
  */
 static void _lv_display_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map);
 
+static IRAM_ATTR bool _display_event(display_handle_t panel, display_event_data_t *edata, void *user_ctx);
+
 static void _read_cb(lv_indev_t* indev, lv_indev_data_t* data);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -83,6 +85,8 @@ static void _task_window(void* param)
     lv_display_set_flush_cb(display, _lv_display_flush_cb);
     lv_display_set_user_data(display, config->display);
     lv_display_set_color_format(display, LV_COLOR_FORMAT_RGB565);
+
+    display_set_event_callback(config->display, _display_event, display);
     
     /* Allocate draw buffers on the heap. In this example we use two partial buffers of 1/10th size of the screen */
     lv_color_t * buf1 = NULL;
@@ -180,7 +184,21 @@ static void _lv_display_flush_cb(lv_display_t * disp, const lv_area_t * area, ui
     int offsety2 = area->y2;
     // pass the draw buffer to the driver
     display_device_draw_bitmap(display_handle, offsetx1, offsety1, offsetx2, offsety2, px_map);
-    lv_display_flush_ready(disp);
+    // lv_display_flush_ready(disp);
+}
+
+static IRAM_ATTR bool _display_event(display_handle_t panel, display_event_data_t *edata, void *user_ctx)
+{
+    switch(edata->event)
+    {
+        case DISPLAY_EVENT_TRANS_DONE:
+            lv_display_flush_ready(user_ctx);
+            break;
+
+        default:
+            break;
+    }
+    return false;
 }
 
 static void _read_cb(lv_indev_t* indev, lv_indev_data_t* data)
