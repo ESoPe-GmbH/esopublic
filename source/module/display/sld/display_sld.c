@@ -156,6 +156,9 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
 #endif
     device->mcu_config.rgb.esp32.flags.fb_in_psram = true;
     device->mcu_config.rgb.esp32.flags.relax_on_idle = false;
+#if KERNEL_USES_SLINT
+    device->mcu_config.rgb.esp32.bounce_buffer_size_percent = 5;
+#endif
 #endif
     //[0] is 0
     ASSERT_RET(eeid[1] == 1, goto error, NULL, "Display with DPI needed\n");

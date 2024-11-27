@@ -166,6 +166,10 @@ typedef union display_mcu_rgb_config_s
                 /// Alignment for framebuffer that allocated in PSRAM 
                 size_t psram_trans_align;
 #endif
+                /// When using psram you can create a bounce buffer that is used to transmit data to the display from the sram.
+                /// If used, the esp copies the data from psram into sram before the data is sent to the display.
+                /// Set the value in percent based on the resolution of the display.
+                float bounce_buffer_size_percent;
             }esp32; // ESP32S3 and P4
         }rgb;
     };

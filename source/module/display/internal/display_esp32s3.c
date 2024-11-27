@@ -155,6 +155,8 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.disp_gpio_num = P(config->rgb.disp_en);
         mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32.flags.disp_active_low;
         mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
+        mcu->panel_config.bounce_buffer_size_px =     mcu->panel_config.timings.h_res   // Width
+                                                    * mcu->panel_config.timings.v_res   // Height
                                                     * (display->mcu_config.rgb.esp32.bounce_buffer_size_percent / 100.0); // Percentage of the screen used as bounce buffer
                                                             
     if(config->rgb.data_width == 16)
