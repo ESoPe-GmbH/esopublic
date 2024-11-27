@@ -63,7 +63,7 @@ typedef enum display_device_e
 /// Enumeration for the different display driver to call in @see display_common_init.
 typedef enum display_event_e
 {
-    // TBD
+    DISPLAY_EVENT_TRANS_DONE,
 
     /// Max value to limit the enum.
     DISPLAY_EVENT_MAX
@@ -94,7 +94,7 @@ typedef struct
  * @param[in] user_ctx User data, passed from `display_lvgl_hardware_t`
  * @return Whether a high priority task has been waken up by this function
  */
-typedef bool (*display_frame_trans_done_cb_t)(display_handle_t panel, display_event_data_t *edata, void *user_ctx);
+typedef bool (*display_event_cb_t)(display_handle_t panel, display_event_data_t *edata, void *user_ctx);
 
 /**
  * @brief Hardware interface structure for connecting a display.
@@ -108,10 +108,6 @@ typedef struct display_common_hardware_s
     DISPLAY_DEVICE_T display;
     /// Select the interface that will be used for the display. Use the corresponding structures of below union according to the interface value.
     DISPLAY_INTERFACE_T interface;
-    /// User data which would be passed to on_frame_trans_done's user_ctx. Leave NULL if you do not need it.
-    void *user_ctx;
-    /// Callback invoked when one frame buffer has transferred done.
-    display_frame_trans_done_cb_t on_frame_trans_done;
     union
     {
         /// For displays using the intel 8080 interface, fill this.
@@ -203,6 +199,14 @@ FUNCTION_RETURN_T display_device_init(display_handle_t display);
  * @return  FUNCTION_RETURN_OK on success
  */
 FUNCTION_RETURN_T display_device_del(display_handle_t display);
+/**
+ * @brief Set a callback for display events.
+ * 
+ * @param[in] display       Display handle, which is created by `display_common_init()`
+ * @param f                 Function that is triggered when a display event occurs. On ESP32, you should mark it with IRAM_ATTR if you activate IRAM safety for rgb
+ * @param ctx               Pointer to user context that is given when callback is called. Can be NULL.
+ */
+void display_set_event_callback(display_handle_t display, display_event_cb_t f, void* ctx);
 /**
  * @brief Retrieve the horizontal resolution of the display in pixel.
  * 

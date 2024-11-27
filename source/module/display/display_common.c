@@ -47,6 +47,11 @@ inline FUNCTION_RETURN_T display_device_del(display_handle_t display)
     return display_mcu_del_device(display->mcu);
 }
 
+inline void display_set_event_callback(display_handle_t display, display_event_cb_t f, void* ctx)
+{
+    return display_mcu_set_event_callback(display->mcu, f, ctx);
+}
+
 int32_t display_device_get_width(display_handle_t display)
 {
     ASSERT_RET_NOT_NULL(display, NO_ACTION, -1);

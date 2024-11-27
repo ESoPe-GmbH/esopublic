@@ -69,6 +69,10 @@ struct display_mcu_data_s
     /// Event callbacks for the panel
     esp_lcd_rgb_panel_event_callbacks_t panel_event_callbacks;
 #endif
+    /// User data which would be passed to on_event's user_ctx. Leave NULL if you do not need it.
+    void *on_event_ctx;
+    /// Callback invoked when one frame buffer has transferred done.
+    display_event_cb_t f_on_event;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +87,7 @@ struct display_mcu_data_s
  * @param[in] user_ctx User data, passed from `esp_lcd_rgb_panel_config_t`
  * @return Whether a high priority task has been waken up by this function
  */
-static bool _on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
+static bool _on_frame_buf_complete_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Functions
@@ -260,7 +264,11 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         DBG_ASSERT(mcu->panel_handle, goto error, NULL, "Cannot create panel handle\n");
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-        mcu->panel_event_callbacks.on_vsync = _on_vsync_event;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+        mcu->panel_event_callbacks.on_frame_buf_complete = _on_frame_buf_complete_event;
+#else
+        mcu->panel_event_callbacks.on_vsync = _on_frame_buf_complete_event;
+#endif
         ret = esp_lcd_rgb_panel_register_event_callbacks(mcu->panel_handle, &mcu->panel_event_callbacks, mcu);
         DBG_ASSERT(ret == ESP_OK, goto error, NULL, "esp_lcd_rgb_panel_register_event_callbacks failed\n");      
 #endif
@@ -315,6 +323,12 @@ error:
     return NULL;
 }
 #undef P
+
+void display_mcu_set_event_callback(display_mcu_handle_t mcu, display_event_cb_t f, void* ctx)
+{
+    mcu->f_on_event = f;
+    mcu->on_event_ctx = ctx;
+}
 
 void display_mcu_rgb_spi_write_command(display_mcu_handle_t mcu, unsigned char command)
 {
@@ -415,14 +429,14 @@ FUNCTION_RETURN_T display_get_esp_panel_handle(display_handle_t display, esp_lcd
 // Internal Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-static bool _on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
+static bool IRAM_ATTR _on_frame_buf_complete_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
 {
     display_mcu_handle_t mcu = user_data;
-    display_event_data_t event = {0};
+    display_event_data_t event = { .event = DISPLAY_EVENT_TRANS_DONE };
     
-    if(mcu && mcu->config && mcu->config->on_frame_trans_done)
+    if(mcu && mcu->f_on_event)
     {
-        return mcu->config->on_frame_trans_done(mcu->display, &event, mcu->config->user_ctx);
+        return mcu->f_on_event(mcu->display, &event, mcu->on_event_ctx);
     }
 
     return false;

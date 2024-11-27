@@ -30,6 +30,10 @@
 struct display_mcu_data_s
 {
     uint8_t dummy;
+    /// User data which would be passed to on_event's user_ctx. Leave NULL if you do not need it.
+    void *on_event_ctx;
+    /// Callback invoked when one frame buffer has transferred done.
+    display_event_cb_t f_on_event;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,6 +44,11 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, c
 {
 
     return NULL;
+}
+
+void display_mcu_set_event_callback(display_mcu_handle_t mcu, display_event_cb_t f, void* ctx)
+{
+
 }
 
 void display_mcu_rgb_spi_write_command(display_mcu_handle_t mcu, unsigned char command)

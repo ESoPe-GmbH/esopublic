@@ -206,6 +206,14 @@ struct display_data_s
  */
 display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, display_handle_t display);
 /**
+ * @brief Set a callback for display events.
+ * 
+ * @param mcu               Handle gained in @see display_mcu_init.
+ * @param f                 Function that is triggered when a display event occurs. On ESP32, you should mark it with IRAM_ATTR if you activate IRAM safety for rgb
+ * @param ctx               Pointer to user context that is given when callback is called. Can be NULL.
+ */
+void display_mcu_set_event_callback(display_mcu_handle_t mcu, display_event_cb_t f, void* ctx);
+/**
  * @brief Function for RGB+SPI to write a configuration byte
  * 
  * @param mcu               Handle gained in @see display_mcu_init.
