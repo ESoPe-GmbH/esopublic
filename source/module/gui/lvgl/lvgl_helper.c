@@ -88,30 +88,41 @@ static void _task_window(void* param)
 
     display_set_event_callback(config->display, _display_event, display);
     
+    uint32_t buf_size = display_device_get_width(config->display) * display_device_get_height(config->display) * lv_color_format_get_size(lv_display_get_color_format(display));
     /* Allocate draw buffers on the heap. In this example we use two partial buffers of 1/10th size of the screen */
     lv_color_t * buf1 = NULL;
     lv_color_t * buf2 = NULL;
 
-    uint32_t buf_size = display_device_get_width(config->display) * display_device_get_height(config->display) * lv_color_format_get_size(lv_display_get_color_format(display));
+    lv_display_render_mode_t rendermode = LV_DISPLAY_RENDER_MODE_DIRECT;
 
-    buf1 = lv_malloc(buf_size);
-    if(buf1 == NULL) 
+    // Try to get the framebuffer of the display if it has some
+    display_get_framebuffer(config->display, 0, (void**)&buf1);
+    display_get_framebuffer(config->display, 1, (void**)&buf2);
+    
+    // If any of the frame buffer were NULL -> Allocate own frame buffer
+    if(buf1 == NULL || buf2 == NULL)
     {
-        DBG_ERROR("display draw buffer malloc failed\n");
-        lv_display_delete(display);
-        vTaskDelete(NULL);
-        return;
+        rendermode = LV_DISPLAY_RENDER_MODE_FULL;
+        buf1 = mcu_heap_calloc(1, buf_size);// lv_malloc(buf_size);
+        if(buf1 == NULL) 
+        {
+            DBG_ERROR("display draw buffer malloc failed\n");
+            lv_display_delete(display);
+            vTaskDelete(NULL);
+            return;
+        }
+
+        buf2 = mcu_heap_calloc(1, buf_size);// lv_malloc(buf_size);
+        if(buf2 == NULL) 
+        {
+            DBG_ERROR("display buffer malloc failed\n");
+            lv_display_delete(display);
+            mcu_heap_free(buf1); // lv_free(buf1);
+            vTaskDelete(NULL);
+            return;
+        }
     }
 
-    buf2 = lv_malloc(buf_size);
-    if(buf2 == NULL) 
-    {
-        DBG_ERROR("display buffer malloc failed\n");
-        lv_display_delete(display);
-        lv_free(buf1);
-        vTaskDelete(NULL);
-        return;
-    }
 
     const mcu_timer_config_t timer_config = 
     {
@@ -125,7 +136,7 @@ static void _task_window(void* param)
 
     mcu_timer_create(&timer_config);
 
-    lv_display_set_buffers(display, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_FULL);
+    lv_display_set_buffers(display, buf1, buf2, buf_size, rendermode);
     
     if(config->touch)
     {
