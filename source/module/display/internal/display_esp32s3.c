@@ -44,6 +44,11 @@
 #endif
 #endif
 
+#ifndef DISPLAY_NUM_FB
+/// Number of frame buffers the display uses
+#define DISPLAY_NUM_FB          0
+#endif
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +136,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.sram_trans_align = display->mcu_config.rgb.esp32.sram_trans_align;
         mcu->panel_config.psram_trans_align = display->mcu_config.rgb.esp32.psram_trans_align;
 #endif
-        mcu->panel_config.num_fbs = 2;
+        mcu->panel_config.num_fbs = DISPLAY_NUM_FB;
 
         mcu->panel_config.hsync_gpio_num = P(config->rgb.hsync);
         mcu->panel_config.vsync_gpio_num = P(config->rgb.vsync);
@@ -142,6 +147,8 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
         
     if(config->rgb.data_width == 16 || max_data_width == 16)
+                                                    * (display->mcu_config.rgb.esp32.bounce_buffer_size_percent / 100.0); // Percentage of the screen used as bounce buffer
+                                                            
     {
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
         mcu->panel_config.data_gpio_nums[1]  = P(config->rgb.b[1]);
