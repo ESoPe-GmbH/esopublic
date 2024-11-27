@@ -40,7 +40,7 @@
 #define DISPLAY_MAX_PCLK        100000000
 #elif CONFIG_IDF_TARGET_ESP32S3
 /// Maximum clock for PCLK is 40MHz on ESP32S3, but only works well with 14MHz. Define other values in config to try out optimizations.
-#define DISPLAY_MAX_PCLK        14000000
+#define DISPLAY_MAX_PCLK        13600000
 #endif
 #endif
 
