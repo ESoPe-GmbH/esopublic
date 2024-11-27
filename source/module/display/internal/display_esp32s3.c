@@ -69,6 +69,8 @@ struct display_mcu_data_s
     /// Event callbacks for the panel
     esp_lcd_rgb_panel_event_callbacks_t panel_event_callbacks;
 #endif
+    /// @brief Pointer to frame buffers
+    void* fb[DISPLAY_NUM_FB];
     /// User data which would be passed to on_event's user_ctx. Leave NULL if you do not need it.
     void *on_event_ctx;
     /// Callback invoked when one frame buffer has transferred done.
@@ -263,6 +265,16 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         DBG_ASSERT(ret == ESP_OK, goto error, NULL, "esp_lcd_new_rgb_panel failed\n");
         DBG_ASSERT(mcu->panel_handle, goto error, NULL, "Cannot create panel handle\n");
 
+        switch(DISPLAY_NUM_FB)
+        {
+            case 1: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0]);  break;
+            case 2: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0], &mcu->fb[1]); break;
+            case 3: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0], &mcu->fb[1], &mcu->fb[2]); break;
+            default:
+                DBG_ERROR("Invalid number of frame buffers\n");
+            break;
+        }
+
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
         mcu->panel_event_callbacks.on_frame_buf_complete = _on_frame_buf_complete_event;
@@ -412,6 +424,20 @@ FUNCTION_RETURN_T display_mcu_disp_off(display_mcu_handle_t mcu, bool off)
 FUNCTION_RETURN_T display_mcu_refresh(display_mcu_handle_t mcu)
 {
     return ESP_OK == esp_lcd_rgb_panel_refresh(mcu->panel_handle) ? FUNCTION_RETURN_OK : FUNCTION_RETURN_UNSUPPORTED;
+}
+
+FUNCTION_RETURN_T display_mcu_get_framebuffer(display_mcu_handle_t mcu, uint8_t index_fb, void** fb)
+{
+    ASSERT_RET_NOT_NULL(mcu, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+#if DISPLAY_NUM_FB > 0
+    ASSERT_RET(index_fb < DISPLAY_NUM_FB, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR, "index_fb = %d does not exist\n", index_fb);
+#else
+    return FUNCTION_RETURN_PARAM_ERROR;
+#endif
+    ASSERT_RET_NOT_NULL(fb, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+    *fb = mcu->fb[index_fb];
+    return FUNCTION_RETURN_OK;
 }
 
 #if MCU_TYPE == MCU_ESP32

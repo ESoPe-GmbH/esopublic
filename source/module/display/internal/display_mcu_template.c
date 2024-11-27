@@ -19,9 +19,13 @@
 #include "../internal/display_internal.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Enumeration
+// Defintion
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#ifndef DISPLAY_NUM_FB
+/// Number of frame buffers the display uses
+#define DISPLAY_NUM_FB          0
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
@@ -29,7 +33,8 @@
 
 struct display_mcu_data_s
 {
-    uint8_t dummy;
+    /// @brief Pointer to frame buffers
+    void* fb[DISPLAY_NUM_FB];
     /// User data which would be passed to on_event's user_ctx. Leave NULL if you do not need it.
     void *on_event_ctx;
     /// Callback invoked when one frame buffer has transferred done.
@@ -116,6 +121,15 @@ FUNCTION_RETURN_T display_mcu_invert_color(display_mcu_handle_t mcu, bool invert
 FUNCTION_RETURN_T display_mcu_disp_off(display_mcu_handle_t mcu, bool off)
 {
     
+    return FUNCTION_RETURN_UNSUPPORTED;
+}
+
+FUNCTION_RETURN_T display_mcu_get_framebuffer(display_mcu_handle_t mcu, uint8_t index_fb, void** fb)
+{
+    ASSERT_RET_NOT_NULL(mcu, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    // ASSERT_RET(index_fb < DISPLAY_NUM_FB, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR, "index_fb = %d does not exist\n", index_fb);
+    ASSERT_RET_NOT_NULL(fb, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
     return FUNCTION_RETURN_UNSUPPORTED;
 }
 

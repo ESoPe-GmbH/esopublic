@@ -142,6 +142,11 @@ inline FUNCTION_RETURN_T display_device_refresh(display_handle_t display)
     return display_mcu_refresh(display->mcu);
 }
 
+inline FUNCTION_RETURN_T display_get_framebuffer(display_handle_t display, uint8_t index_fb, void** fb)
+{
+    return display_mcu_get_framebuffer(display->mcu, index_fb, fb);
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------

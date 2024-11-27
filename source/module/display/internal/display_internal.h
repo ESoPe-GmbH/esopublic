@@ -333,6 +333,17 @@ FUNCTION_RETURN_T display_mcu_disp_off(display_mcu_handle_t display, bool off);
  *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
  */
 FUNCTION_RETURN_T display_mcu_refresh(display_mcu_handle_t display);
+/**
+ * @brief Get an allocated frame buffer of the LCD panel.
+ * 
+ * @param[in] display Display handle, which is created by @c display_mcu_init()
+ * @param index_fb      Index of the frame buffer (0 to (DISPLAY_NUM_FB (default 2)) - 1)
+ * @param fb            Pointer to the pointer where the frame buffer pointer should be stored.
+ *          - FUNCTION_RETURN_OK on success
+ *          - FUNCTION_RETURN_PARAM_ERROR if any pointer is NULL or index_fb is out of range.
+ *          - FUNCTION_RETURN_UNSUPPORTED if this function is not supported by the panel
+ */
+FUNCTION_RETURN_T display_mcu_get_framebuffer(display_mcu_handle_t display, uint8_t index_fb, void** fb);
 
 #endif // MODULE_ENABLE_DISPLAY
 
