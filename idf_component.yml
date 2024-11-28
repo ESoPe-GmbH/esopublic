@@ -1,0 +1,7 @@
+version: "24.1.1"
+description: "esopublic - MCU abstraction and utilities like console, communication and ui driver."
+url: "https://esope.de"
+license: "Apache 2.0"
+repository: "https://github.com/ESoPe-GmbH/esopublic"
+dependencies:
+  idf: ">=5.2"
