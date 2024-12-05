@@ -21,7 +21,16 @@
 // Enforce enables that are needed
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#if CONFIG_ENABLE_ESOPUBLIC
+// Use mcu config from KConfig
+
+#include "module_public_kconfig.h"
+
+#else
+
 #include "module_config.h"
+
+#endif
 
 /// True: FT81x register are used, false: FT800 register are used
 #define EVE_USE_FT81X								(EVE_GENERATION > 1)

@@ -19,7 +19,12 @@ if(NOT DEFINED PROJECT_NAME)
 elseif(DEFINED ESP_PLATFORM)
     file(GLOB_RECURSE publicsrcs "source/*.c")
     
-    set(KERNEL_REQUIRES config esp_lcd nvs_flash driver esp_timer esp_event)
+    set(KERNEL_REQUIRES esp_lcd nvs_flash driver esp_timer esp_event)
+
+    if(!DEFINED CONFIG_ESOPUBLIC_ENABLE)
+        list(APPEND KERNEL_REQUIRES config)
+    endif()
+
     # Auto detect LVGL bases on kproject config variable.
     if(DEFINED CONFIG_LV_COLOR_DEPTH AND NOT DEFINED KERNEL_ADD_DEPENDENCY_LVGL)
         set(KERNEL_ADD_DEPENDENCY_LVGL true)

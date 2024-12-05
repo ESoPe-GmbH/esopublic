@@ -1,0 +1,638 @@
+menu "Esopublic"
+
+    config ESOPUBLIC_ENABLE
+        bool "Enable the configuration of the esopublic via menuconfig."
+        default y
+        help
+            Enable the configuration of the esopublic via menuconfig.
+            If not enabled, you need a "config" component and copy the header files from the template directory into it to configure your application.
+
+    menu "MCU Configuration"
+        depends on ESOPUBLIC_ENABLE
+
+        config MCU_DEBUG_ENABLE
+            bool "Enable/disable debug functions in the mcu.h"
+            default n
+            help
+                This might be supported by some mcu to offer more debug informations when initializing and using peripherals.
+                If disabled, these debug informations are not compiled.
+
+        config MCU_PERIPHERY_ENABLE_WAIT_TIMER
+            bool "Enables/disables the timer used for mcu_wait functions"
+            default y
+
+        config MCU_PERIPHERY_ENABLE_RTC
+            bool "Enable/disable rtc functions."
+            default y
+
+        config MCU_PERIPHERY_ENABLE_EXT_QUARTZ
+            bool "Set this to enable the external quartz for RTC."
+            default n
+
+        config MCU_PERIPHERY_ENABLE_CODE_FLASH
+            bool "Enable/disable functions to write into the code flash."
+            default n
+
+        config MCU_PERIPHERY_ENABLE_DATA_FLASH
+            bool "Enable/disable functions to write into the data flash."
+            default n
+
+        config MCU_PERIPHERY_ENABLE_WATCHDOG
+            bool "Enable/disable Watchdog functions."
+            default n
+
+        config MCU_PERIPHERY_ENABLE_ETHERNET
+            bool "Enable/disable ethernet."
+            default n
+
+        config MCU_PERIPHERY_ENABLE_WIFI
+            bool "Enable/disable wifi of mcu."
+            default n            
+
+        config MCU_PERIPHERY_ENABLE_COMM_MODE_UART
+            bool "Enable/disable comm interface create function for the UART."
+            default y
+
+        config MCU_ENABLE_FREERTOS
+            bool "Enable/disable freertos"
+            default y
+
+        config MCU_PERIPHERY_DEVICE_COUNT_IO_INTERRUPT
+            int "Number of allocated IO Interrupt instances."
+            default 2
+
+        config MCU_PERIPHERY_DEVICE_COUNT_TIMER
+            int "Number of allocated Timer instances."
+            default 1
+
+        config MCU_PERIPHERY_DEVICE_COUNT_UART
+            int "Number of allocated UART instances."
+            default 3
+
+        config MCU_PERIPHERY_DEVICE_COUNT_SPI
+            int "Number of allocated SPI instances."
+            default 1
+
+        config MCU_PERIPHERY_DEVICE_COUNT_I2C
+            int "Number of allocated I2C instances."
+            default 1
+
+        config MCU_PERIPHERY_DEVICE_COUNT_CAN
+            int "Number of allocated CAN instances."
+            default 0
+
+        config MCU_PERIPHERY_DEVICE_COUNT_AD
+            int "Number of allocated AD instances."
+            default 0
+
+        config MCU_PERIPHERY_DEVICE_COUNT_DA
+            int "Number of allocated DA instances."
+            default 0
+
+        config MCU_PERIPHERY_DEVICE_COUNT_PWM
+            int "Number of allocatable PWM instances."
+            default 1
+
+        config MCU_CONTROLLER_PIN_COUNT
+            int "Number of Pins the MCU has."
+            default 100
+            help
+                Not used on espressif controllers, relevant for other mcus
+
+        config MCU_CONTROLLER_ROM_SIZE_KBYTE
+            int "Size of the internal Flash Memory in KBytes."
+            default 256
+            help
+                Not used on espressif controllers, relevant for other mcus
+
+        config MCU_CONTROLLER_INCLUDE_H
+            string "Path to the mcu_controller.h of the mcu that should be used"
+            default "mcu/espressif/esp32/mcu_controller.h"
+            help
+                Set this value to define which mcu should be used
+
+    endmenu
+
+    menu "Module Enable/Configuration"
+
+        config MODULE_PREFER_HEAP
+            depends on ESOPUBLIC_ENABLE
+            bool "Controls the usage of static/dynamic memory using MODULE_ARRAY_DECLARE,  MODULE_ARRAY_CREATE and MODULE_ARRAY_DESTROY"
+            default y
+            help                    
+                True:
+                When using MODULE_ARRAY_DECLARE,  MODULE_ARRAY_CREATE and MODULE_ARRAY_DESTROY arrays are used to see the full size in your RAM configuration.
+                False:
+                When using MODULE_ARRAY_DECLARE,  MODULE_ARRAY_CREATE and MODULE_ARRAY_DESTROY arrays are created using the heap and freed using the heap functions.
+
+        config MODULE_ENABLE_LED
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the led module"
+            default y
+            help
+                Enables the led module that can be used to control leds and let them blink in a specific interval. 
+                The LED module uses protothreads to control the blinking.
+
+        config MODULE_ENABLE_COMM
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the comm module."
+            default y
+            help
+                Enables the comm module that has it's own implementation of printf and can be used with various comm interfaces.
+                These interfaces could also used for mockups or to adapt on redirecting debug prints to a network or an sd card.
+
+        menu "Module/Comm Configuration"
+            depends on MODULE_ENABLE_COMM
+
+            config COMM_MAX_FORMAT_LENGTH
+                int "Maximum number of bytes that can be used in format length."
+                default 600
+                help
+                    For example if %80d is needed this define must be at least 80. Keep it small if you do not need big lines.
+                    Every comm_t object contains a buffer with the size of COMM_MAX_FORMAT_LENGTH. So be careful.
+
+            config COMM_STRING_LENGTH_EXACT
+                bool "If set to true, printf calls like %20s will cut off strings if they are longer than the specified size"
+                default y
+                help
+                    If set to true, printf calls like %20s will cut off strings if they are longer than 20 bytes, so that only the
+                    first 20 Bytes will be printed. If it is set to false, strings longer than 20 bytes will still be printed completely.
+                    This might be needed when writing data on a limited space, like a segmented display.
+
+            choice DEBUG_LEVEL
+                prompt "Setting of the selected debug level."
+                default DEBUG_LEVEL_INFO
+                help
+                    Sets the debug level that is printed for dbg_printf by using DBG_INFO, DBG_VERBOSE or DBG_ERROR.
+                    If set to None, no prints will be included in the software.
+                    On Error, only DBG_ERROR will be included.
+                    On Info, only DBG_ERROR and DBG_INFO will be included.
+                    On Verbose, DBG_ERROR, DBG_INFO and DBG_VERBOSE will be included.
+                    Using dbg_printf directly will be printed regardless of this setting.
+                    
+                config DEBUG_LEVEL_NONE
+                    bool "0: None"
+                config DEBUG_LEVEL_ERROR
+                    bool "1: Error"
+                config DEBUG_LEVEL_INFO
+                    bool "2: Info"
+                config DEBUG_LEVEL_VERBOSE
+                    bool "3: Verbose"
+
+            endchoice
+
+            config DBG_LEVEL
+                int
+                default 0 if DEBUG_LEVEL_NONE
+                default 1 if DEBUG_LEVEL_ERROR
+                default 2 if DEBUG_LEVEL_INFO
+                default 3 if DEBUG_LEVEL_VERBOSE
+
+            config DBG_SYS_MS_COUNT_LETTERS
+                int "Defines how many Letters of the Milliseconds are shown inside dbg_printf."
+                default 9
+            config DBG_STRING_HIDE_PATH
+                bool "If set to true, only the filename of the debug string is shown."
+                default n
+            config DBG_STRING_MIN_LEN
+                int "Can be set to append the debug string with spaces when it is shorter to assure the debug content all have the same start."
+                default 40
+
+        endmenu #comm
+
+        config MODULE_ENABLE_COMM_I2C
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the comm/i2c module for i2c abstraction from mcu."
+            default y
+
+        config MODULE_ENABLE_COMM_SPI
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the comm/spi module for spi abstraction from mcu."
+            default n
+
+        config MODULE_ENABLE_COMM_VCOMM
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the virtual comm interface in the comm module."
+            default n
+
+        config MODULE_ENABLE_COMM_LINE_READER
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the line_reader in the comm module."
+            default n
+
+        menu "Module/Comm Line Reader Configuration"
+            depends on MODULE_ENABLE_COMM_LINE_READER
+
+            config LINE_READER_USE_TASK
+                depends on MODULE_ENABLE_COMM_LINE_READER
+                bool "Enable to use an internal task for line reader or to false if line_reader should be used as a sub protothread."
+                default n
+
+        endmenu #line reader
+
+        config MODULE_ENABLE_CONSOLE
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the console module"
+            default y
+
+        menu "Module/Console Configuration"
+            depends on MODULE_ENABLE_CONSOLE
+
+            config CONSOLE_UART_RECEIVE_BUFFER_SIZE
+                int "Size of the UART Receive Buffer"
+                default 10000
+
+            config CONSOLE_LINE_BUFFER_SIZE
+                int "Size of the Line Buffer that buffers received commands"
+                default 1536
+
+            config CONSOLE_DROP_LINE_MS
+                int "Maximum gap between received characters inside a command."
+                default 1000
+
+            config CONSOLE_MAX_ARGUMENTS
+                int "Maximum number of arguments for a single command."
+                default 40
+
+            config CONSOLE_ENABLE_CRC
+                bool "Enables checking of crc for the console, the last 4 bytes are seen as a 4-character hex string containing the crc."
+                default y
+
+        endmenu # Console
+
+        config MODULE_ENABLE_CONVERT_BASE64
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for base64. Is necessary for multiple other modules."
+            default y
+        
+
+        config MODULE_ENABLE_CONVERT_BCD
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for bcd. Is necessary for multiple other modules."
+            default y
+
+        config MODULE_ENABLE_CONVERT_MATH
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for math. Is necessary for multiple other modules."
+            default y
+
+        menu "Module/Convert Math Configuration"
+            depends on MODULE_ENABLE_CONVERT_MATH
+
+            config MATH_ENABLE_64BIT_OPERATIONS
+                bool "Set to true if 64-Bit operations are needed, otherwise set to false to deactivate the functions."
+                default n
+
+        endmenu # convert math
+
+        config MODULE_ENABLE_CONVERT_SORT
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for sort. Is necessary for multiple other modules."
+            default y
+            
+        config MODULE_ENABLE_CONVERT_STRING
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for string. Is necessary for multiple other modules."
+            default y
+
+        menu "Module/Convert String Configuration"
+            depends on MODULE_ENABLE_CONVERT_STRING
+
+            config STRING_USE_COMM_MINIMUM
+                bool "Defines if only the string functions that are used inside the comm module are built."
+                default n
+                help
+                    true: Only the functions for the comm module are built.
+                    false: All functions will be built.
+
+            config STRING_BUILD_PRINTF
+                bool "Defines if the string_printf function will be included in the built."
+                default y
+                
+        endmenu #convert string
+
+        config MODULE_ENABLE_CONVERT_SWAP
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the convert module for swap. Is necessary for multiple other modules."
+            default y
+
+        config MODULE_ENABLE_CRC
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the crc module which is necessary for other modules like flash info."
+            default y
+
+        menu "Module/CRC Configuration"
+            depends on MODULE_ENABLE_CRC
+
+            config CRC_USE_TABLE_X16_X12_X5_1
+                bool "If set, a constant lookup table will be used for 0x1021 when initialized with crc_init_handler."
+                default n
+
+            config CRC_USE_TABLE_X16_X15_X2_1
+                bool "If set, a constant lookup table will be used for 0x8005 when initialized with crc_init_handler."
+                default y
+
+            config CRC_USE_TABLE_X16_X12_X5_1_REVERSED
+                bool "If set, a constant lookup table will be used for 0x8408 when initialized with crc_init_handler_reversed."
+                default n	
+
+        endmenu #crc
+
+        config MODULE_ENABLE_DEBUG_CONSOLE
+            depends on ESOPUBLIC_ENABLE && MODULE_ENABLE_CONSOLE
+            bool "Enables the debug console module, which can be used for common console commands like io, uart, etc."
+            default y
+
+        menu "Module/Debug Console Configuration"
+            depends on MODULE_ENABLE_DEBUG_CONSOLE
+
+            config DEBUG_BUFFER_SIZE
+                int "Size of a buffer shared by the debug console applications"
+                default 256
+
+            config DEBUG_CONSOLE_ENABLE_ESP
+                bool "Enable / disable console for esp specific commands"
+                default y
+
+            config DEBUG_CONSOLE_ENABLE_FLAG
+                bool "Enable / disable flag API"
+                default y
+
+            config DEBUG_CONSOLE_ENABLE_IDENTIFICATION
+                bool "Enable / disable console for I/O handling"
+                default y
+
+            config DEBUG_CONSOLE_ENABLE_IO
+                bool "Enable / disable PCB testing API"
+                default y
+
+            config DEBUG_CONSOLE_ENABLE_TEST
+                bool "Enable / disable PCB testing API"
+                default y
+
+            config DEBUG_CONSOLE_TEST_PASSWORD
+                depends on DEBUG_CONSOLE_ENABLE_TEST
+                string "Password that has to be sent with test start for it to unlock testing."
+                default "YourPasswordHere"
+
+            config DEBUG_CONSOLE_ENABLE_UART
+                bool "Enable / disable console for UART handling"
+                default y
+
+        endmenu
+
+        config MODULE_ENABLE_EEPROM
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the EEPROM module for small data storage EEPROMs, like identification data."
+            default n
+
+        config MODULE_ENABLE_ENUM
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the enum module. Leave it on, there is no source in this."
+            default y
+
+        config MODULE_ENABLE_FIFO
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the fifo module. This is also needed in mcu like uart or can."
+            default y
+
+        menu "Module/Fifo Configuration"
+            depends on MODULE_ENABLE_FIFO
+
+            config FIFO_USE_MEDIAN
+                bool "fifo_get_median functions are only available if define is set to true. If you do not need them, set the define to false."
+                default n
+
+            config FIFO_USE_AVERAGE
+                bool "fifo_get_average functions are only available if define is set to true. If you do not need them, set the define to false."
+                default n
+
+        endmenu
+
+        config MODULE_ENABLE_GUI
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables gui module to enable the api for showing buttons, etc. on screens via EVE, FT810, etc."
+            default n
+            help
+                When enabling this, you need to create a component named "config" and copy the gui_config.h from the template directory into it.
+                This way, you can set the default colors for multiple eve components like buttons or text.
+
+        menu "Module/GUI Configuration"
+            depends on MODULE_ENABLE_GUI
+
+            choice EVE_GENERATION
+                prompt "Current eve generation that is used"
+                default EVE_GENERATION_4
+
+                config EVE_GENERATION_1
+                    bool "1: FT800 / FT801"
+
+                config EVE_GENERATION_2
+                    bool "2: FT810 / FT811 / FT812 / FT813"
+
+                config EVE_GENERATION_3
+                    bool "3: BT815 / BT816"
+
+                config EVE_GENERATION_4
+                    bool "4: BT817 / BT818"
+
+            endchoice
+            
+            config EVE_GENERATION
+                int 
+                default 1 if EVE_GENERATION_1
+                default 2 if EVE_GENERATION_2
+                default 3 if EVE_GENERATION_3
+                default 4 if EVE_GENERATION_4
+
+            config EVE_DEBUG_SPI_SPEED
+                bool "Shows the SPI speed on the debug interface if set to true."
+                default y
+
+            config EVE_DEBUG_ERROR
+                bool "Shows the eror messages on the debug interface if set to true"
+                default y
+
+            config EVE_SPI_SPEED_INIT
+                int "Maximum SPI speed during power-on (0 - 11 MHz)."
+                default 1000000
+
+            config EVE_SPI_SPEED
+                int "Maximum SPI speed for normal use (0 - 30 MHz)."
+                default 30000000
+
+            config EVE_COPRO_MAX_TAGS
+                int "Maximum number of tags used simultaneously on the visible screen."
+                default 20
+
+            config EVE_COPRO_TOUCH_MIN_MS
+                int "Minimum number of time between touch and release"
+                default 50
+
+            config EVE_COPRO_DEBUG_COMMAND_COUNT
+                bool "Number of bytes written in command buffer is shown if this is true."
+                default n
+
+            config EVE_COPRO_DEBUG_DL_LIST
+                bool "Shows the number of bytes in the dllist after swapping a screen"
+                default n
+
+            config EVE_COPRO_USE_CALIBRATION
+                bool "If set to true the calibration command becomes available."
+                default n
+                help
+                    The calibration command should only be used for new displays and not for recalibration inside a product!
+
+            config EVE_COPRO_ENABLE_SNAPSHOT
+                bool "Enables function eve_copro_snapshot."
+                default n
+
+            config EVE_COPRO_SNAPSHOT_BUFFER_SIZE
+                depends on EVE_COPRO_ENABLE_SNAPSHOT
+                int "Buffer size for eve_copro_snapshot. Only valid when EVE_COPRO_ENABLE_SNAPSHOT is set."
+                default 500
+
+            config EVE_MEMORY_FILES_MAX
+                int "Maximum number of memory files in eve"
+                default 10            
+
+            config EVE_MMC_READ_BUFFER_SIZE
+                int "Buffer size to read files into eve ram."
+                default 200
+
+            config EVE_COPRO_ENABLE_DUMP
+                bool "If enabled, the DL List will be read into the internal RAM before a display swap."
+                default n
+                help
+                    8092 Bytes of RAM are needed to enable this.
+
+            config EVE_COPRO_ENABLE_FLASH_CONSOLE
+                bool "If enable the eve flash commands can be used via console."
+                default y
+
+            config EVE_ENABLE_FONT16
+                bool "Enable / Disable font number 16"
+                default n
+
+            config EVE_ENABLE_FONT17
+                bool "Enable / Disable font number 17"
+                default n
+
+            config EVE_ENABLE_FONT18
+                bool "Enable / Disable font number 18"
+                default n
+
+            config EVE_ENABLE_FONT19
+                bool "Enable / Disable font number 19"
+                default n
+
+            config EVE_ENABLE_FONT20
+                bool "Enable / Disable font number 20"
+                default n
+
+            config EVE_ENABLE_FONT21
+                bool "Enable / Disable font number 21"
+                default n
+
+        endmenu # gui
+
+        config MODULE_ENABLE_LCD_TOUCH
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable the touch abstraction for touch displays"
+            default n
+
+        config MODULE_ENABLE_LCD_TOUCH_DRIVER_ILI2130
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable the touch driver for Ilitek ILI2130"
+            default n
+
+        config MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable the touch driver for Sitronix ST1633i"
+            default n
+
+        config MODULE_ENABLE_SENSOR_LIGHT
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables an abstract light sensor so you do not have to use the concrete light sensor implementations."
+            default n
+
+        config MODULE_ENABLE_SENSOR_MAGNET
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the magnet sensor interface."
+            default n
+
+        config MODULE_ENABLE_SENSOR_PROXIMITY
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations."
+            default n
+
+        config MODULE_ENABLE_SENSOR_TEMPERATURE
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the module for an temperature sensor"
+            default n
+
+        config DISPLAY_ENABLE_SLD
+            depends on ESOPUBLIC_ENABLE
+            select MODULE_ENABLE_EEPROM
+            select MODULE_ENABLE_LCD_TOUCH
+            select MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
+            bool "Enable the display driver for Schukat SLD"
+            default n
+
+        config MODULE_ENABLE_UTIL_COLOR
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable the utility functions for the color."
+            default n
+
+        config MODULE_ENABLE_UTIL_MEM_POOL
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the memory pool utility"
+            default n
+
+    endmenu #module
+
+    menu "Sys"
+
+        config SYSTEM_DEBUG_TASK_TIME_MS
+            depends on ESOPUBLIC_ENABLE
+            int "If set to a value > 0, all Task that take longer than SYSTEM_DEBUG_TASK_TIME_MS milliseconds will be printed by their name."
+            default 0
+
+        config SYSTEM_ENABLE_APP_MAIN_HANDLE
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables/disables use of app_main_handle"
+            default n
+
+        config SYSTEM_ENABLE_DEPRECATED_TASK_FUNCTIONS
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables / disables deprecated task functions."
+            default y
+
+        config SYSTEM_ENABLE_PRINT_STATISTIC
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable / disable the print statistic function"
+            default n
+
+        config SYSTEM_ENABLE_SLEEP_MODE
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable / disable sleep mode functions"
+            default n
+
+        config SYSTEM_ENABLE_DEBUG_PRINTS
+            depends on ESOPUBLIC_ENABLE
+            bool "Enable/disable debug prints during init, add and remove"
+            default n
+
+        config SYSTEM_ENABLE_MONITORING
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables/disables monitoring of tasks"
+            default n
+
+        config SYSTEM_MONITOR_NUM_RECORDINGS
+            depends on SYSTEM_ENABLE_MONITORING
+            int "Number of recordings to store for monitoring the tasks"
+            default 100
+
+    endmenu
+
+endmenu #esopublic

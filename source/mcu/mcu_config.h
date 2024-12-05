@@ -205,8 +205,63 @@
 /// MCU Path: PC
 #define PATH_PC     		"pc/mcu_internal.h"
 
+#if CONFIG_ENABLE_ESOPUBLIC
+// Use mcu config from KConfig
+
+/// Enable/disable debug functions in the mcu.
+#define MCU_DEBUG_ENABLE								(defined(CONFIG_MCU_DEBUG_ENABLE) && CONFIG_MCU_DEBUG_ENABLE)
+/// Enables/disables the timer used for mcu_wait functions
+#define MCU_PERIPHERY_ENABLE_WAIT_TIMER					(defined(CONFIG_MCU_PERIPHERY_ENABLE_WAIT_TIMER) && CONFIG_MCU_PERIPHERY_ENABLE_WAIT_TIMER)
+/// Enable/disable rtc functions.
+#define MCU_PERIPHERY_ENABLE_RTC						(defined(CONFIG_MCU_PERIPHERY_ENABLE_RTC) && CONFIG_MCU_PERIPHERY_ENABLE_RTC)
+/// Set this to enable the external quartz for RTC.
+#define MCU_PERIPHERY_ENABLE_EXT_QUARTZ					(defined(CONFIG_MCU_PERIPHERY_ENABLE_EXT_QUARTZ) && CONFIG_MCU_PERIPHERY_ENABLE_EXT_QUARTZ)
+/// Enable/disable functions to write into the code flash.
+#define MCU_PERIPHERY_ENABLE_CODE_FLASH					(defined(CONFIG_MCU_PERIPHERY_ENABLE_CODE_FLASH) && CONFIG_MCU_PERIPHERY_ENABLE_CODE_FLASH)
+/// Enable/disable functions to write into the data flash.
+#define MCU_PERIPHERY_ENABLE_DATA_FLASH					(defined(CONFIG_MCU_PERIPHERY_ENABLE_DATA_FLASH) && CONFIG_MCU_PERIPHERY_ENABLE_DATA_FLASH)
+/// Enable/disable Watchdog functions.
+#define MCU_PERIPHERY_ENABLE_WATCHDOG					(defined(CONFIG_MCU_PERIPHERY_ENABLE_WATCHDOG) && CONFIG_MCU_PERIPHERY_ENABLE_WATCHDOG)
+/// Enable/disable ethernet.
+#define MCU_PERIPHERY_ENABLE_ETHERNET					(defined(CONFIG_MCU_PERIPHERY_ENABLE_ETHERNET) && CONFIG_MCU_PERIPHERY_ENABLE_ETHERNET)
+/// Enable/disable wifi of mcu.
+#define MCU_PERIPHERY_ENABLE_WIFI						(defined(CONFIG_MCU_PERIPHERY_ENABLE_WIFI) && CONFIG_MCU_PERIPHERY_ENABLE_WIFI)
+/// Enable/disable comm interface create function for the UART.
+#define MCU_PERIPHERY_ENABLE_COMM_MODE_UART				(defined(CONFIG_MCU_PERIPHERY_ENABLE_COMM_MODE_UART) && CONFIG_MCU_PERIPHERY_ENABLE_COMM_MODE_UART)
+/// Enable/disable freertos
+#define MCU_ENABLE_FREERTOS								(defined(CONFIG_MCU_ENABLE_FREERTOS) && CONFIG_MCU_ENABLE_FREERTOS)
+/// Number of allocated IO Interrupt instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_IO_INTERRUPT			CONFIG_MCU_PERIPHERY_DEVICE_COUNT_IO_INTERRUPT
+/// Number of allocated Timer instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_TIMER				CONFIG_MCU_PERIPHERY_DEVICE_COUNT_TIMER
+/// Number of allocated UART instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_UART					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_UART
+/// Number of allocated SPI instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_SPI					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_SPI
+/// Number of allocated I2C instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_I2C					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_I2C
+/// Number of allocated CAN instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_CAN					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_CAN
+/// Number of allocated AD instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_AD					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_AD
+/// Number of allocated DA instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_DA					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_DA
+/// Number of allocatable PWM instances.
+#define MCU_PERIPHERY_DEVICE_COUNT_PWM					CONFIG_MCU_PERIPHERY_DEVICE_COUNT_PWM
+/// Number of Pins the MCU has.
+#define MCU_CONTROLLER_PIN_COUNT						CONFIG_MCU_CONTROLLER_PIN_COUNT
+/// Size of the internal Flash Memory in KBytes.
+#define MCU_CONTROLLER_ROM_SIZE_KBYTE					CONFIG_MCU_CONTROLLER_ROM_SIZE_KBYTE
+// Include selected mcu
+#include CONFIG_MCU_CONTROLLER_INCLUDE_H
+
+#else // CONFIG_ENABLE_ESOPUBLIC
+// Use mcu config from mcu_selection.h in config
+
 // SELECT THE MCU USING THIS INCLUDE!
 #include "mcu_selection.h"
+
+#endif // CONFIG_ENABLE_ESOPUBLIC
 
 /// Enables flash functionality in general if code flash, data flash or both flash functions are needed.
 #define MCU_PERIPHERY_ENABLE_FLASH					(MCU_PERIPHERY_ENABLE_CODE_FLASH || MCU_PERIPHERY_ENABLE_DATA_FLASH)
