@@ -199,7 +199,9 @@ bool mcu_i2c_wr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* rbuf, size_t
 
 end:
     if(err != ESP_OK)
+    {
         DBG_ERROR("I2C Error: %s\n", esp_err_to_name(err));
+    }
 
     i2c_cmd_link_delete(cmd);
 
