@@ -100,6 +100,9 @@
 /// Enable the touch driver for Sitronix ST1633i
 #define MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I          0
 
+/// Enables the rtc module for calculation function on time.
+#define MODULE_ENABLE_RTC								1
+
 /// Enables the module for an temperature sensor
 #define MODULE_ENABLE_SENSOR_TEMPERATURE     			0
 

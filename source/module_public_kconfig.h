@@ -299,5 +299,14 @@
 #define EVE_ENABLE_FONT21				CONFIG_EVE_ENABLE_FONT21
 #endif
 
+#if MODULE_ENABLE_RTC
+//------------------------------------
+// rtc
+//------------------------------------
+/// Synchronization interval in seconds for the rtc, before a synchronized clock is seen as relative.
+#define RTC_SYNCHRONIZE_DURATION    				CONFIG_RTC_SYNCHRONIZE_DURATION
+#endif
+
+#endif // CONFIG_ESOPUBLIC_ENABLE
 
 #endif

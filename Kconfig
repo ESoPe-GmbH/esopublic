@@ -551,6 +551,20 @@ menu "Esopublic"
             bool "Enable the touch driver for Sitronix ST1633i"
             default n
 
+        config MODULE_ENABLE_RTC
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the rtc module for calculation function on time."
+            default y
+
+        menu "Module/RTC Configuration"
+            depends on ESOPUBLIC_ENABLE
+
+            config RTC_SYNCHRONIZE_DURATION
+                int "Synchronization interval in seconds for the rtc, before a synchronized clock is seen as relative."
+                default 3600
+
+        endmenu #rtc
+
         config MODULE_ENABLE_SENSOR_LIGHT
             depends on ESOPUBLIC_ENABLE
             bool "Enables an abstract light sensor so you do not have to use the concrete light sensor implementations."
