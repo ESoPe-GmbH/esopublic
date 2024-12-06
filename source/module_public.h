@@ -15,18 +15,20 @@
 #ifndef __MODULE_MODULE_PUBLIC_H_
 #define __MODULE_MODULE_PUBLIC_H_
 
-#include "module_enable.h"
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Enforce enables that are needed
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#if CONFIG_ENABLE_ESOPUBLIC
+#if CONFIG_ESOPUBLIC_ENABLE
 // Use mcu config from KConfig
 
 #include "module_public_kconfig.h"
 
 #else
+
+#include "module_enable.h"
+
+// Enforce enables that are needed
 
 #include "module_config.h"
 

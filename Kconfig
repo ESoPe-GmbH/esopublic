@@ -381,6 +381,22 @@ menu "Esopublic"
 
         endmenu
 
+        config MODULE_ENABLE_DISPLAY
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the display module that might be used with slint, lvgl or other graphic frameworks."
+            default n
+
+        menu "Module/Display Configuration"
+            depends on MODULE_ENABLE_DISPLAY
+
+            config DISPLAY_ENABLE_SLD
+                select MODULE_ENABLE_EEPROM
+                select MODULE_ENABLE_LCD_TOUCH
+                select MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
+                bool "Enable the display driver for Schukat SLD"
+                default n
+        endmenu
+
         config MODULE_ENABLE_EEPROM
             depends on ESOPUBLIC_ENABLE
             bool "Enables the EEPROM module for small data storage EEPROMs, like identification data."
@@ -583,14 +599,6 @@ menu "Esopublic"
         config MODULE_ENABLE_SENSOR_TEMPERATURE
             depends on ESOPUBLIC_ENABLE
             bool "Enables the module for an temperature sensor"
-            default n
-
-        config DISPLAY_ENABLE_SLD
-            depends on ESOPUBLIC_ENABLE
-            select MODULE_ENABLE_EEPROM
-            select MODULE_ENABLE_LCD_TOUCH
-            select MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
-            bool "Enable the display driver for Schukat SLD"
             default n
 
         config MODULE_ENABLE_UTIL_COLOR

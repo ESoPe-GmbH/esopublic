@@ -82,15 +82,6 @@
 /// When enabled, you need to have a gui_config.h in your config directory. A template can be found in the template directory.
 #define MODULE_ENABLE_GUI								0
 
-/// Enables an abstract light sensor so you do not have to use the concrete light sensor implementations.
-#define MODULE_ENABLE_SENSOR_LIGHT                      0
-
-/// Enables the magnet sensor interface.
-#define MODULE_ENABLE_SENSOR_MAGNET                     0
-
-/// Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations.
-#define MODULE_ENABLE_SENSOR_PROXIMITY                  0
-
 /// Enable the touch abstraction for touch displays
 #define MODULE_ENABLE_LCD_TOUCH                         0
 
@@ -103,11 +94,17 @@
 /// Enables the rtc module for calculation function on time.
 #define MODULE_ENABLE_RTC								1
 
+/// Enables an abstract light sensor so you do not have to use the concrete light sensor implementations.
+#define MODULE_ENABLE_SENSOR_LIGHT                      0
+
+/// Enables the magnet sensor interface.
+#define MODULE_ENABLE_SENSOR_MAGNET                     0
+
+/// Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations.
+#define MODULE_ENABLE_SENSOR_PROXIMITY                  0
+
 /// Enables the module for an temperature sensor
 #define MODULE_ENABLE_SENSOR_TEMPERATURE     			0
-
-/// Enable the display driver for Smart line display
-#define DISPLAY_ENABLE_SLD							    0
 
 /// Enable the utility functions for the color.
 #define MODULE_ENABLE_UTIL_COLOR                        0

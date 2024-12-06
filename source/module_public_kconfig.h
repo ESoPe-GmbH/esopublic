@@ -14,6 +14,7 @@
 #ifndef __MODULE_MODULE_PUBLIC_KCONFIG_H_
 #define __MODULE_MODULE_PUBLIC_KCONFIG_H_
 
+#if CONFIG_ESOPUBLIC_ENABLE
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Modules that are initialized inside board_init -> Modifications of pins are necessary.
@@ -72,6 +73,9 @@
 /// Enables the debug console module
 #define MODULE_ENABLE_DEBUG_CONSOLE						CONFIG_MODULE_ENABLE_DEBUG_CONSOLE
 
+/// Enables the display module that might be used with slint, lvgl or other graphic frameworks.
+#define MODULE_ENABLE_DISPLAY                           CONFIG_MODULE_ENABLE_DISPLAY
+
 /// Enables the EEPROM module for small data storage EEPROMs, like identification data.
 #define MODULE_ENABLE_EEPROM                            CONFIG_MODULE_ENABLE_EEPROM
 
@@ -85,15 +89,6 @@
 /// When enabled, you need to have a gui_config.h in your config directory. A template can be found in the template directory.
 #define MODULE_ENABLE_GUI								CONFIG_MODULE_ENABLE_GUI
 
-/// Enables an abstract light sensor so you do not have to use the concrete light sensor implementations.
-#define MODULE_ENABLE_SENSOR_LIGHT                      CONFIG_MODULE_ENABLE_SENSOR_LIGHT
-
-/// Enables the magnet sensor interface.
-#define MODULE_ENABLE_SENSOR_MAGNET                     CONFIG_MODULE_ENABLE_SENSOR_MAGNET
-
-/// Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations.
-#define MODULE_ENABLE_SENSOR_PROXIMITY                  CONFIG_MODULE_ENABLE_SENSOR_PROXIMITY
-
 /// Enable the touch abstraction for touch displays
 #define MODULE_ENABLE_LCD_TOUCH                         CONFIG_MODULE_ENABLE_LCD_TOUCH
 
@@ -103,11 +98,20 @@
 /// Enable the touch driver for Sitronix ST1633i
 #define MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I          CONFIG_MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
 
+/// Enables the rtc module for calculation function on time.
+#define MODULE_ENABLE_RTC                               CONFIG_MODULE_ENABLE_RTC
+
+/// Enables an abstract light sensor so you do not have to use the concrete light sensor implementations.
+#define MODULE_ENABLE_SENSOR_LIGHT                      CONFIG_MODULE_ENABLE_SENSOR_LIGHT
+
+/// Enables the magnet sensor interface.
+#define MODULE_ENABLE_SENSOR_MAGNET                     CONFIG_MODULE_ENABLE_SENSOR_MAGNET
+
+/// Enables an abstract proximity sensor so you do not have to use the concrete proximity sensor implementations.
+#define MODULE_ENABLE_SENSOR_PROXIMITY                  CONFIG_MODULE_ENABLE_SENSOR_PROXIMITY
+
 /// Enables the module for an temperature sensor
 #define MODULE_ENABLE_SENSOR_TEMPERATURE     			CONFIG_MODULE_ENABLE_SENSOR_TEMPERATURE
-
-/// Enable the display driver for Smart line display
-#define DISPLAY_ENABLE_SLD							    CONFIG_DISPLAY_ENABLE_SLD
 
 /// Enable the utility functions for the color.
 #define MODULE_ENABLE_UTIL_COLOR                        CONFIG_MODULE_ENABLE_UTIL_COLOR
@@ -137,15 +141,15 @@
 // comm/dbg
 //------------------------------------
 /// Is used to print all information
-#define DEBUG_LEVEL_VERBOSE			                CONFIG_DEBUG_LEVEL_VERBOSE
+#define DEBUG_LEVEL_VERBOSE			                3
 /// Is used to print only infos on info or error level
-#define DEBUG_LEVEL_INFO			                CONFIG_DEBUG_LEVEL_INFO
+#define DEBUG_LEVEL_INFO			                2
 /// Is used to print only infos on error level
-#define DEBUG_LEVEL_ERROR			                CONFIG_DEBUG_LEVEL_ERROR
+#define DEBUG_LEVEL_ERROR			                1
 /// Is used to prevent printing any debug information
-#define DEBUG_LEVEL_NONE			                CONFIG_DEBUG_LEVEL_NONE
+#define DEBUG_LEVEL_NONE			                0
 /// Setting of the selected debug level.
-#define DEBUG_LEVEL					                CONFIG_DEBUG_LEVEL
+#define DEBUG_LEVEL					                CONFIG_DBG_LEVEL
 /// Defines how many Letters of the Milliseconds are shown inside dbg_printf.
 #define DBG_SYS_MS_COUNT_LETTERS			        CONFIG_DBG_SYS_MS_COUNT_LETTERS
 /// If set to true, only the filename of the debug string is shown.
@@ -198,6 +202,14 @@
 #define DEBUG_CONSOLE_TEST_PASSWORD				    CONFIG_DEBUG_CONSOLE_TEST_PASSWORD
 /// Enable / disable console for esp specific commands
 #define DEBUG_CONSOLE_ENABLE_ESP					CONFIG_DEBUG_CONSOLE_ENABLE_ESP
+#endif
+
+#if MODULE_ENABLE_DISPLAY
+//------------------------------------
+// display
+//------------------------------------
+/// Enable the display driver for Smart line display
+#define DISPLAY_ENABLE_SLD							    CONFIG_DISPLAY_ENABLE_SLD
 #endif
 
 #if MODULE_ENABLE_CONVERT_MATH

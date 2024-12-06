@@ -132,6 +132,14 @@
 #define CRC_USE_TABLE_X16_X12_X5_1_REVERSED			false		
 #endif
 
+#if MODULE_ENABLE_DISPLAY
+//------------------------------------
+// display
+//------------------------------------
+/// Enable the display driver for Smart line display
+#define DISPLAY_ENABLE_SLD							    0
+#endif
+
 #if MODULE_ENABLE_FIFO
 //------------------------------------
 // fifo
