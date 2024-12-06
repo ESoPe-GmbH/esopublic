@@ -21,7 +21,7 @@ elseif(DEFINED ESP_PLATFORM)
     
     set(KERNEL_REQUIRES esp_lcd nvs_flash driver esp_timer esp_event)
 
-    if(!DEFINED CONFIG_ESOPUBLIC_ENABLE)
+    if(NOT DEFINED CONFIG_ESOPUBLIC_ENABLE)
         list(APPEND KERNEL_REQUIRES config)
     endif()
 
