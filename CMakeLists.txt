@@ -19,7 +19,8 @@ if(NOT DEFINED PROJECT_NAME)
 elseif(DEFINED ESP_PLATFORM)
     file(GLOB_RECURSE publicsrcs "source/*.c")
     
-    set(KERNEL_REQUIRES config esp_lcd nvs_flash driver esp_timer esp_event)
+    set(KERNEL_REQUIRES esp_lcd nvs_flash driver esp_timer esp_event app_update)
+
     # Auto detect LVGL bases on kproject config variable.
     if(DEFINED CONFIG_LV_COLOR_DEPTH AND NOT DEFINED KERNEL_ADD_DEPENDENCY_LVGL)
         set(KERNEL_ADD_DEPENDENCY_LVGL true)
@@ -30,6 +31,12 @@ elseif(DEFINED ESP_PLATFORM)
     endif()
 
     idf_component_register(SRCS ${publicsrcs} INCLUDE_DIRS "source" REQUIRES ${KERNEL_REQUIRES})
+
+    # Alternatively to using the sdkconfig, the config can be inside an extra config component
+    if(EXISTS ../../components/config)
+        message(STATUS "Esopublic uses config from config component")
+        include_directories(../../components/config)
+    endif()
 
     if(${KERNEL_ADD_DEPENDENCY_SLINT})
         include_directories(../../managed_components/slint__slint/include)

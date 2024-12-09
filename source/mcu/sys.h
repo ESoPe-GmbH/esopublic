@@ -42,6 +42,30 @@
 #include "pt/pt.h"
 #include "pt/pt-sem.h"
 
+#if CONFIG_ESOPUBLIC_ENABLE
+
+// Use config from KConfig settings
+
+/// If set to a value > 0, all Task that take longer than SYSTEM_DEBUG_TASK_TIME_MS milliseconds will be printed by their name.
+#define SYSTEM_DEBUG_TASK_TIME_MS					CONFIG_SYSTEM_DEBUG_TASK_TIME_MS
+/// Enables/disables use of app_main_handle
+#define SYSTEM_ENABLE_APP_MAIN_HANDLE				(CONFIG_SYSTEM_ENABLE_APP_MAIN_HANDLE)
+/// Enables / disables deprecated task functions.
+#define SYSTEM_ENABLE_DEPRECATED_TASK_FUNCTIONS		(CONFIG_SYSTEM_ENABLE_DEPRECATED_TASK_FUNCTIONS)
+/// Enable / disable the print statistic function
+#define SYSTEM_ENABLE_PRINT_STATISTIC				(CONFIG_SYSTEM_ENABLE_PRINT_STATISTIC)
+/// Enable / disable sleep mode functions
+#define SYSTEM_ENABLE_SLEEP_MODE					(CONFIG_SYSTEM_ENABLE_SLEEP_MODE)
+/// Enable/disable debug prints during init, add and remove
+#define SYSTEM_ENABLE_DEBUG_PRINTS					(CONFIG_SYSTEM_ENABLE_DEBUG_PRINTS)
+/// Enables/disables monitoring of tasks
+#define SYSTEM_ENABLE_MONITORING					(CONFIG_SYSTEM_ENABLE_MONITORING)
+/// Number of recordings to store for monitoring the tasks
+#define SYSTEM_MONITOR_NUM_RECORDINGS				CONFIG_SYSTEM_MONITOR_NUM_RECORDINGS
+
+#else // CONFIG_ESOPUBLIC_ENABLE
+
+// Use sys_config.h from config
 #include "sys_config.h"
 
 #ifndef SYSTEM_DEBUG_TASK_TIME_MS
@@ -85,6 +109,8 @@
 #define SYSTEM_MONITOR_NUM_RECORDINGS				100
 #endif
 #endif
+
+#endif // CONFIG_ESOPUBLIC_ENABLE
 
 #if SYSTEM_ENABLE_PRINT_STATISTIC
 #include "module/comm/comm_type.h"

@@ -118,7 +118,7 @@
 #define DBG_VERBOSE(...)		dbg_printf(DBG_STRING, __VA_ARGS__)
 #endif
 #else
-#define DBG_VERBOSE(...)		
+#define DBG_VERBOSE(...)		do{}while(0)
 #endif
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_INFO
@@ -129,7 +129,7 @@
 #define DBG_INFO(...)		dbg_printf(DBG_STRING, __VA_ARGS__)
 #endif
 #else
-#define DBG_INFO(...)			
+#define DBG_INFO(...)			do{}while(0)
 #endif
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_ERROR
@@ -140,7 +140,7 @@
 #define DBG_ERROR(...)		dbg_printf(DBG_STRING, __VA_ARGS__)
 #endif
 #else
-#define DBG_ERROR(...)			
+#define DBG_ERROR(...)			do{}while(0)
 #endif
 
 #if !MODULE_ENABLE_MMC

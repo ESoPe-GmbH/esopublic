@@ -15,13 +15,24 @@
 #ifndef __MODULE_MODULE_PUBLIC_H_
 #define __MODULE_MODULE_PUBLIC_H_
 
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
+
+#if CONFIG_ESOPUBLIC_ENABLE
+// Use mcu config from KConfig
+
+#include "module_public_kconfig.h"
+
+#else
+
 #include "module_enable.h"
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Enforce enables that are needed
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #include "module_config.h"
+
+#endif
 
 /// True: FT81x register are used, false: FT800 register are used
 #define EVE_USE_FT81X								(EVE_GENERATION > 1)

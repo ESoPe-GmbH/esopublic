@@ -132,6 +132,14 @@
 #define CRC_USE_TABLE_X16_X12_X5_1_REVERSED			false		
 #endif
 
+#if MODULE_ENABLE_DISPLAY
+//------------------------------------
+// display
+//------------------------------------
+/// Enable the display driver for Smart line display
+#define DISPLAY_ENABLE_SLD							    0
+#endif
+
 #if MODULE_ENABLE_FIFO
 //------------------------------------
 // fifo
@@ -198,6 +206,13 @@
 #define EVE_ENABLE_FONT21				false
 #endif
 
+#if MODULE_ENABLE_RTC
+//------------------------------------
+// rtc
+//------------------------------------
+/// Synchronization interval in seconds for the rtc, before a synchronized clock is seen as relative.
+#define RTC_SYNCHRONIZE_DURATION    				(60 * 60)
+#endif
 
 
 #endif // __MODULE_CONFIG_H_GUARD__
