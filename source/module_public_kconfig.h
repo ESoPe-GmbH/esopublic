@@ -153,9 +153,9 @@
 /// Defines how many Letters of the Milliseconds are shown inside dbg_printf.
 #define DBG_SYS_MS_COUNT_LETTERS			        CONFIG_DBG_SYS_MS_COUNT_LETTERS
 /// If set to true, only the filename of the debug string is shown.
-#define _DBG_STRING_HIDE_PATH				        CONFIG__DBG_STRING_HIDE_PATH
+#define _DBG_STRING_HIDE_PATH				        CONFIG_DBG_STRING_HIDE_PATH
 /// Can be set to append the debug string with spaces when it is shorter to assure the debug content all have the same start.
-#define _DBG_STRING_MIN_LEN					        CONFIG__DBG_STRING_MIN_LEN
+#define _DBG_STRING_MIN_LEN					        CONFIG_DBG_STRING_MIN_LEN
 #endif
 
 #if MODULE_ENABLE_COMM_LINE_READER
