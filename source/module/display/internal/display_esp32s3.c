@@ -274,6 +274,7 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
 
         switch(DISPLAY_NUM_FB)
         {
+            case 0: break;
             case 1: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0]);  break;
             case 2: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0], &mcu->fb[1]); break;
             case 3: esp_lcd_rgb_panel_get_frame_buffer(mcu->panel_handle, DISPLAY_NUM_FB, &mcu->fb[0], &mcu->fb[1], &mcu->fb[2]); break;
