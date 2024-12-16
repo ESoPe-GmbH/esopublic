@@ -75,6 +75,13 @@ void mcu_init(uint32_t frq_ext, uint32_t frq_cpu, uint32_t frq_peripheral)
 	gpio_reset_pin(GPIO42);
 #endif
 
+#if CONFIG_IDF_TARGET_ESP32P4
+	gpio_reset_pin(GPIO2);
+	gpio_reset_pin(GPIO3);
+	gpio_reset_pin(GPIO4);
+	gpio_reset_pin(GPIO5);
+#endif
+
 #if MCU_PERIPHERY_ENABLE_WATCHDOG
 	system_task_init_handle(&_task, true, _watchdog_handle, NULL);
 	
