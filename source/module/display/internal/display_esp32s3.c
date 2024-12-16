@@ -100,7 +100,7 @@ static bool _on_frame_buf_complete_event(esp_lcd_panel_handle_t panel, const esp
 display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, display_handle_t display)
 {
     esp_err_t ret;
-    display_mcu_handle_t mcu = mcu_heap_calloc(1, sizeof(struct display_mcu_data_s));
+    display_mcu_handle_t mcu = heap_caps_calloc(1, sizeof(struct display_mcu_data_s), MALLOC_CAP_INTERNAL);
     DBG_ASSERT(mcu, NO_ACTION, NULL, "Cannot create display mcu pointer\n");
 
     DBG_VERBOSE("Copy mcu config\n");
