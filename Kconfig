@@ -425,6 +425,52 @@ menu "Esopublic"
 
         endmenu
 
+        config MODULE_ENABLE_FLASH_INFO
+            depends on ESOPUBLIC_ENABLE
+            bool "Enables the flash info module for setting and getting the hardware id."
+            default y
+        
+        menu "Module/Flash Info Configuration"
+            config FLASH_INFO_DEBUG
+                depends on MODULE_ENABLE_FLASH_INFO
+                bool "Enables/Disables debug prints in flash info."
+                default n
+
+            config FLASH_SAVE_TRIES
+                depends on MODULE_ENABLE_FLASH_INFO
+                int "Number of tries for saving and verifying data before flash_info_save returns false."
+                default 3
+
+            config FLASH_DATA_SIZE
+                depends on MODULE_ENABLE_FLASH_INFO
+                int "Size of the flash info data for the device. Contains hardware id and testing date."
+                default 32
+
+            config FLASH_USE_CUSTOM_DATA
+                depends on MODULE_ENABLE_FLASH_INFO
+                bool "Defines if custom data is used. If it is false all custom data will be lost when flash_data_save is triggered."
+                default n
+
+            config FLASH_CUSTOM_DATA_SIZE
+                depends on FLASH_USE_CUSTOM_DATA
+                int "Size of the flash info data for the user."
+                default 480
+                help
+                    Should not be changed after the first use inside a project, because old data will not be read if this size changes. 
+                    On some microcontrollers it needs to be a multiple of some value (e.g. 8 byte for R32C)
+
+            config FLASH_CUSTOM_DATA_READ_ONLY
+                depends on FLASH_USE_CUSTOM_DATA
+                bool "Indicates whether custom data is read only without checking"
+                default n
+                help
+                    If true: 	Custom data is read at the beginning without checking the CRC or content.
+                     			This mode is used in the pcb test software so, that the custom data is not changed
+                     			When a new hardware id or test date is saved inside the flash.
+                    If false:	Custom data is read at the beginning with checking the CRC and its content.
+
+        endmenu #Flash Info
+
         config MODULE_ENABLE_GUI
             depends on ESOPUBLIC_ENABLE
             bool "Enables gui module to enable the api for showing buttons, etc. on screens via EVE, FT810, etc."

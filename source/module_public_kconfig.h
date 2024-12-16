@@ -85,6 +85,9 @@
 /// Enables the fifo module. This is also needed in mcu like uart or can.
 #define MODULE_ENABLE_FIFO								CONFIG_MODULE_ENABLE_FIFO
 
+/// Enables the flash info module
+#define MODULE_ENABLE_FLASH_INFO						CONFIG_MODULE_ENABLE_FLASH_INFO
+
 /// Enables gui module to enable the api for showing buttons, etc. on screens via EVE, FT810, etc.
 /// When enabled, you need to have a gui_config.h in your config directory. A template can be found in the template directory.
 #define MODULE_ENABLE_GUI								CONFIG_MODULE_ENABLE_GUI
@@ -253,6 +256,33 @@
 #define FIFO_USE_MEDIAN					            CONFIG_FIFO_USE_MEDIAN
 /// fifo_get_average functions are only available if define is set to true. If you do not need them, set the define to false.
 #define FIFO_USE_AVERAGE				            CONFIG_FIFO_USE_AVERAGE
+#endif
+
+#if MODULE_ENABLE_FLASH_INFO
+//------------------------------------
+// flash_info
+//------------------------------------
+/// Enables/Disables debug prints
+#define FLASH_INFO_DEBUG						    CONFIG_FLASH_INFO_DEBUG					
+/// Number of tries for saving and verifying data before flash_info_save returns false.
+#define FLASH_SAVE_TRIES						    CONFIG_FLASH_SAVE_TRIES
+/// Size of the flash info data for the device. Contains hardware id and testing date.
+#define FLASH_DATA_SIZE							    CONFIG_FLASH_DATA_SIZE
+/// Defines if custom data is used. If it is false all custom data will be lost when flash_data_save is triggered.
+#define FLASH_USE_CUSTOM_DATA					    CONFIG_FLASH_USE_CUSTOM_DATA
+#if FLASH_USE_CUSTOM_DATA
+/// Size of the flash info data for the user. Should not be changed after the first use inside a project, because old data will not be read
+/// if this size changes. On some microcontrollers it needs to be a multiple of some value (e.g. 8 byte for R32C)
+#define FLASH_CUSTOM_DATA_SIZE					    CONFIG_FLASH_CUSTOM_DATA_SIZE
+/// If true: 	Custom data is read at the beginning without checking the CRC or content.
+/// 			This mode is used in the pcb test software so, that the custom data is not changed
+/// 			When a new hardware id or test date is saved inside the flash.
+/// If false:	Custom data is read at the beginning with checking the CRC and its content.
+#define FLASH_CUSTOM_DATA_READ_ONLY				    CONFIG_FLASH_CUSTOM_DATA_READ_ONLY
+#else
+/// Custom Data size is 0 for calculation.
+#define FLASH_CUSTOM_DATA_SIZE				        0						
+#endif
 #endif
 
 #if MODULE_ENABLE_GUI

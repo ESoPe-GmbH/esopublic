@@ -13,14 +13,6 @@
 #define __MODULE_ENABLE_H_GUARD__
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
-// Modules that are initialized inside board_init -> Modifications of pins are necessary.
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-/// Enables the led module
-/// Init function should be in board_init.
-#define MODULE_ENABLE_LED								1
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Modules that have no global initialization, but could have an object initialization.
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -78,6 +70,9 @@
 /// Enables the fifo module. This is also needed in mcu like uart or can.
 #define MODULE_ENABLE_FIFO								1
 
+/// Enables the flash info module
+#define MODULE_ENABLE_FLASH_INFO						1
+
 /// Enables gui module to enable the api for showing buttons, etc. on screens via EVE, FT810, etc.
 /// When enabled, you need to have a gui_config.h in your config directory. A template can be found in the template directory.
 #define MODULE_ENABLE_GUI								0
@@ -90,6 +85,9 @@
 
 /// Enable the touch driver for Sitronix ST1633i
 #define MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I          0
+
+/// Enables the led module
+#define MODULE_ENABLE_LED								1
 
 /// Enables the rtc module for calculation function on time.
 #define MODULE_ENABLE_RTC								1
