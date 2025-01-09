@@ -100,6 +100,10 @@ typedef struct display_sld_s
 #endif
     /// Screen diagonal of the display in inch as read from EEPROM e.g. "2.4"
     char screen_diagonal[6];
+    /// Bit depth of the display. Is needed to ensure the buffer is correct with uint16_t or uint32_t.
+    uint16_t data_width;
+    /// Is set when a display with touch controller is connected.
+    bool supports_touch;
 }display_sld_t;
 
 /// @brief Handle for the SmartLineDisplay
@@ -126,9 +130,10 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
  * @param config        Hardware configuration for the connection to the display.
  * @param eeid          Pointer to eeid where data will be extracted from.
  * @param eeid_length   Length of the eeid data-
+ * @param handle        Optional handle to fill with information, can be NULL.
  * @return display_handle_t     Handle used for display functions.
  */
-display_handle_t display_sld_init(const display_common_hardware_t* config, const uint8_t *eeid, uint8_t eeid_length);
+display_handle_t display_sld_init(const display_common_hardware_t* config, const uint8_t *eeid, uint8_t eeid_length, display_sld_handle_t handle);
 
 /**
  * @brief Sets the backlight brightness in percent.

@@ -85,7 +85,7 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     string_nprintf(device->screen_diagonal, sizeof(device->screen_diagonal), "%x.%x", (uint32_t)eeid[6], (uint32_t)eeid[7]);
 
-    device->display = display_sld_init(&config->display, eeid, sizeof(eeid));
+    display_sld_init(&config->display, eeid, sizeof(eeid), device);
     DBG_ASSERT(device->display, goto error, NULL, "Failed to initialize display\n");
 
     bool rotate = device->display->device_config.rgb.v_res > device->display->device_config.rgb.h_res;
@@ -135,12 +135,13 @@ error:
 }
 #endif
 
-display_handle_t display_sld_init(const display_common_hardware_t* config, const uint8_t *eeid, uint8_t eeid_length)
+display_handle_t display_sld_init(const display_common_hardware_t* config, const uint8_t *eeid, uint8_t eeid_length, display_sld_handle_t handle)
 {
     DBG_ASSERT(config, NO_ACTION, NULL, "config cannot be NULL\n");
     DBG_ASSERT(eeid, NO_ACTION, NULL, "eeid cannot be NULL\n");
     DBG_ASSERT(eeid_length > 27, NO_ACTION, NULL, "eeid_length must be greater than 27\n");
     bool has_touch;
+    uint16_t color_depth;
     display_handle_t device = mcu_heap_calloc(1, sizeof(struct display_data_s));
     DBG_ASSERT(device, NO_ACTION, NULL, "Cannot create display device pointer\n");
 
@@ -166,11 +167,10 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     ASSERT_RET(eeid[3] == 'S' && eeid[4] == 'W', goto error, NULL, "Invalid EEID content\n");
     // [5] = Manufacturer revision
     // [7:6] = Physical size in format xxh.xxh
-    DBG_INFO("Initialize %x.%x\" Display with%s touch\n", (uint32_t)eeid[6], (uint32_t)eeid[7], has_touch ? "" : "out");
     device->device_config.rgb.h_res = _uint16_from_eeid(eeid, 8);
     device->device_config.rgb.v_res = _uint16_from_eeid(eeid, 10);
     device->device_config.rgb.pclk_hz = _pclk_from_eeid(eeid, 12);
-    // [14] = Color depth
+    color_depth = eeid[14]; // [14] = Color depth
     device->device_config.rgb.hsync_back_porch = _uint16_from_eeid(eeid, 15);
     device->device_config.rgb.hsync_pulse_width = eeid[17];
     device->device_config.rgb.hsync_front_porch = _uint16_from_eeid(eeid, 18);
@@ -183,8 +183,72 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
     device->device_config.rgb.flags.pclk_active_neg = (eeid[25] & 0x20) == 0x20;
     device->device_config.rgb.flags.pclk_idle_high = false;
 
-    device->mcu = display_mcu_init(config, device);
+    DBG_INFO("Initialize %x.%x\" Display (%d-Bit) with%s touch\n", (uint32_t)eeid[6], (uint32_t)eeid[7], (uint32_t)color_depth, has_touch ? "" : "out");
+
+    device->mcu = NULL;
+
+    if(config->interface == DISPLAY_INTERFACE_RGB)
+    {
+        // Displays can be 16-Bit and 24-Bit Interface, but HW on PCB is probably fixed to 16-Bit or 24-Bit RGB.
+        // Ensure compatibility
+        if(color_depth != config->rgb.data_width)
+        {
+            if(handle)
+            {
+                handle->data_width = MATH_MIN(color_depth, config->rgb.data_width);
+            }
+            if(color_depth == 16 && config->rgb.data_width == 24)
+            {
+                // Only use 16-Bit of 24-Bit interface
+                display_common_hardware_t config2;
+                memcpy(&config2, config, sizeof(display_common_hardware_t));
+
+                config2.rgb.data_width = 16;
+
+                config2.rgb.r[0] = config->rgb.r[3];
+                config2.rgb.r[1] = config->rgb.r[4];
+                config2.rgb.r[2] = config->rgb.r[5];
+                config2.rgb.r[3] = config->rgb.r[6];
+                config2.rgb.r[4] = config->rgb.r[7];
+                config2.rgb.r[5] = PIN_NONE;
+                config2.rgb.r[6] = PIN_NONE;
+                config2.rgb.r[7] = PIN_NONE;
+
+                config2.rgb.g[0] = config->rgb.g[2];
+                config2.rgb.g[1] = config->rgb.g[3];
+                config2.rgb.g[2] = config->rgb.g[4];
+                config2.rgb.g[3] = config->rgb.g[5];
+                config2.rgb.g[4] = config->rgb.g[6];
+                config2.rgb.g[5] = config->rgb.g[7];
+                config2.rgb.g[6] = PIN_NONE;
+                config2.rgb.g[7] = PIN_NONE;
+
+                config2.rgb.b[0] = config->rgb.b[3];
+                config2.rgb.b[1] = config->rgb.b[4];
+                config2.rgb.b[2] = config->rgb.b[5];
+                config2.rgb.b[3] = config->rgb.b[6];
+                config2.rgb.b[4] = config->rgb.b[7];
+                config2.rgb.b[5] = PIN_NONE;
+                config2.rgb.b[6] = PIN_NONE;
+                config2.rgb.b[7] = PIN_NONE;
+            }
+        }
+
+    }
+
+    if(device->mcu == NULL)
+    {
+        // Initialize display with original config
+        device->mcu = display_mcu_init(config, device);
+    }
     ASSERT_RET(device->mcu, goto error, NULL, "Cannot create mcu device pointer\n");
+
+    if(handle)
+    {
+        handle->data_width = color_depth;
+        handle->supports_touch = has_touch;
+        handle->display = device;
+    }
 
     return device;
 
