@@ -193,10 +193,6 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
         // Ensure compatibility
         if(color_depth != config->rgb.data_width)
         {
-            if(handle)
-            {
-                handle->data_width = MATH_MIN(color_depth, config->rgb.data_width);
-            }
             if(color_depth == 16 && config->rgb.data_width == 24)
             {
                 // Only use 16-Bit of 24-Bit interface
@@ -245,7 +241,7 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
 
     if(handle)
     {
-        handle->data_width = color_depth;
+        handle->data_width = MATH_MIN(color_depth, config->rgb.data_width);
         handle->supports_touch = has_touch;
         handle->display = device;
     }
