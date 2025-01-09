@@ -23,7 +23,11 @@
 #include "mcu/common/mcu_internal.h"
 
 #include "driver/uart.h"
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#include "driver/i2c_master.h"
+#else
 #include "driver/i2c.h"
+#endif
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_timer.h"

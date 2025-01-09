@@ -31,8 +31,19 @@ struct mcu_i2c_s
     uint8_t num;
     /// Address of the slave device
     uint8_t address;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    /// Config of the ESP32 i2c master driver.
+    i2c_master_bus_config_t conf;
+    /// @brief Bus handle of i2c master driver
+    i2c_master_bus_handle_t bus_handle;
+    /// @brief Config for the device -> Contains address and frequency
+    i2c_device_config_t dev_conf;
+    /// @brief Handle for the device
+    i2c_master_dev_handle_t dev_handle;
+#else
     /// Config of the ESP32 i2c driver.
     i2c_config_t conf;
+#endif
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -77,6 +88,23 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
 
     i2c->initialized = true;
     i2c->num = num;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    i2c->conf.i2c_port = num;
+    i2c->conf.sda_io_num = sda;
+    i2c->conf.scl_io_num = scl;
+    i2c->conf.flags.enable_internal_pullup = 1;
+    i2c->conf.clk_source = I2C_CLK_SRC_DEFAULT;
+    i2c->dev_conf.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+
+    err = i2c_new_master_bus(&i2c->conf, &i2c->bus_handle);
+
+    if(err != ESP_OK)
+    {
+        DBG_ERROR("Error creating master: %d\n", err);
+        return NULL;
+    }
+
+#else
     i2c->conf.mode = I2C_MODE_MASTER;
     i2c->conf.sda_io_num = sda;
     i2c->conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
@@ -99,6 +127,7 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
         DBG_ERROR("Error initializing i2c: %d\n", err);
         return NULL;
     }
+#endif
 
     DBG_INFO("Initialized MCU I2C interface %d on SDA=%d SCL=%d\n", num, sda, scl);
 
@@ -107,9 +136,17 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
 }
 
 void mcu_i2c_free(mcu_i2c_t h)
-{
+{    
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    if(h->bus_handle)
+    {
+        i2c_del_master_bus(h->bus_handle);
+        h->bus_handle = NULL;        
+    }
+#else
     // Clear the i2c driver
     i2c_driver_delete(h->num);
+#endif
     // Reset the SDA and SCL pin
     gpio_reset_pin(h->conf.scl_io_num);
     gpio_reset_pin(h->conf.sda_io_num);
@@ -120,11 +157,13 @@ void mcu_i2c_free(mcu_i2c_t h)
 
 void mcu_i2c_set_frq(mcu_i2c_t i2c, uint32_t frequency)
 {    
-    esp_err_t err;
-
     if(i2c == NULL)
         return;
 
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    i2c->dev_conf.scl_speed_hz = frequency;
+#else
+    esp_err_t err;
     // If already correct, stop configuration
     if(i2c->conf.master.clk_speed == frequency)
         return;
@@ -137,6 +176,7 @@ void mcu_i2c_set_frq(mcu_i2c_t i2c, uint32_t frequency)
     {
         DBG_ERROR("Error setting i2c parameter: %d\n", err);
     }
+#endif
 }
 
 uint32_t mcu_i2c_get_frq(mcu_i2c_t i2c)
@@ -144,7 +184,11 @@ uint32_t mcu_i2c_get_frq(mcu_i2c_t i2c)
     if(i2c == NULL)
         return 0;
 
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    return i2c->dev_conf.scl_speed_hz;
+#else
     return i2c->conf.master.clk_speed;
+#endif
 }
 
 void mcu_i2c_set_address(mcu_i2c_t i2c, uint8_t address)
@@ -152,12 +196,41 @@ void mcu_i2c_set_address(mcu_i2c_t i2c, uint8_t address)
     if(i2c == NULL)
         return;
 
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    i2c->dev_conf.device_address = address;
+#endif
     i2c->address = address << 1;
 }
 
 bool mcu_i2c_wr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* rbuf, size_t rlen)
 {        
     esp_err_t err = ESP_OK;
+
+    if((wbuf == NULL || wlen == 0) && (rbuf == NULL || rlen == 0))
+    {
+        // Nothing to write and nothing to read is invalid
+        return false;
+    }
+
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    err = i2c_master_bus_add_device(i2c->bus_handle, &i2c->dev_conf, &i2c->dev_handle);
+
+    if(rbuf == NULL || rlen == 0)
+    {
+        err = i2c_master_transmit(i2c->dev_handle, wbuf, wlen, 100);
+    }
+    else if(wbuf == NULL || wlen == 0)
+    {
+        err = i2c_master_receive(i2c->dev_handle, rbuf, rlen, 100);
+    }
+    else
+    {
+        err = i2c_master_transmit_receive(i2c->dev_handle, wbuf, wlen, rbuf, rlen, 100);
+    }
+
+    err = i2c_master_bus_rm_device(i2c->dev_handle);
+    i2c->dev_handle = NULL;
+#else
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
     if(wlen > 0)
@@ -205,12 +278,41 @@ end:
 
     i2c_cmd_link_delete(cmd);
 
+#endif
     return err == ESP_OK;
 }
 
 bool mcu_i2c_wwr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* w2buf, size_t w2len, uint8_t* rbuf, size_t rlen)
 {        
     esp_err_t err = ESP_OK;
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+    err = i2c_master_bus_add_device(i2c->bus_handle, &i2c->dev_conf, &i2c->dev_handle);
+
+    if(wbuf && wlen > 0 && w2buf && w2len > 0)
+    {
+        i2c_master_transmit_multi_buffer_info_t buf[2] = {
+            {.write_buffer = wbuf, .buffer_size = wlen},
+            {.write_buffer = w2buf, .buffer_size = w2len}
+        };
+        err = i2c_master_multi_buffer_transmit(i2c->dev_handle, buf, 2, 100);
+    }
+    else if(wbuf && wlen > 0)
+    {
+        err = i2c_master_transmit(i2c->dev_handle, wbuf, wlen, 100);
+    }
+    else if(w2buf && w2len > 0)
+    {
+        err = i2c_master_transmit(i2c->dev_handle, w2buf, w2len, 100);
+    }
+
+    if(rbuf && rlen > 0)
+    {
+        err = i2c_master_receive(i2c->dev_handle, rbuf, rlen, 100);
+    }
+
+    err = i2c_master_bus_rm_device(i2c->dev_handle);
+    i2c->dev_handle = NULL;
+#else
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
     if(wlen > 0)
@@ -263,6 +365,7 @@ end:
 
     i2c_cmd_link_delete(cmd);
 
+#endif
     return err == ESP_OK;
 }
 
