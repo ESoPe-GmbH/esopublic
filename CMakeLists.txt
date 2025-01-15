@@ -33,9 +33,9 @@ elseif(DEFINED ESP_PLATFORM)
     idf_component_register(SRCS ${publicsrcs} INCLUDE_DIRS "source" REQUIRES ${KERNEL_REQUIRES})
 
     # Alternatively to using the sdkconfig, the config can be inside an extra config component
-    if(EXISTS ../../components/config)
+    if(EXISTS ../config)
         message(STATUS "Esopublic uses config from config component")
-        include_directories(../../components/config)
+        include_directories(../config)
     endif()
 
     if(${KERNEL_ADD_DEPENDENCY_SLINT})
