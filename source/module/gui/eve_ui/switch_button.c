@@ -57,7 +57,7 @@ void switch_button_init(switch_button_t* obj, int32_t x, int32_t y, uint16_t wid
 	component_init((component_t*)obj, COMPONENT_TYPE_SWITCH_BUTTON, (component_paint_cb_t)switch_button_paint);
 
 	// Set callback for the function that is called when the button is pressed.
-	obj->component.pressed_callback = (void(*)(void*, bool))switch_button_set_pressed;
+	obj->component.pressed_callback = (component_pressed_cb_t)switch_button_set_pressed;
 	// Set coordinates
 	obj->component.origin.x = x;
 	obj->component.origin.y = y;

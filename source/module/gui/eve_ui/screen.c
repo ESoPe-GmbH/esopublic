@@ -739,7 +739,6 @@ static void screen_internal_repaint(screen_device_t* obj)
 			.device = obj,
 			.screen = obj->screen_current_object
 		};
-		component_t* comp = &obj->screen_current_object->component.next_component;
 		
 		component_trigger_event(&obj->screen_last_painted_object->component, COMPONENT_EVENT_UNLOAD, &event_data);
 		component_trigger_event(&obj->screen_last_painted_object->component, COMPONENT_EVENT_LOAD, &event_data);
@@ -832,7 +831,7 @@ static void screen_internal_repaint(screen_device_t* obj)
 	// Check to paint the top panel
 	if(obj->show_pnl_top && obj->pnl_top != NULL && ((screen_t*)obj->screen_current_object)->show_pnl_top)
 	{
-		obj->pnl_top->component.parent_component = obj->screen_current_object;
+		obj->pnl_top->component.parent_component = &obj->screen_current_object->component;
 		obj->pnl_top->component.paint_function(&obj->pnl_top->component, (eve_ui_point_t){0});
 	}
 
@@ -912,7 +911,7 @@ static void screen_paint_toast(screen_device_t* obj)
 	else
 		obj->toast.panel.component.origin.y = screen_device_get_height(obj) - obj->toast.panel.component.size.height - 10;
 
-	obj->toast.panel.component.parent_component = obj->screen_current_object;
+	obj->toast.panel.component.parent_component = &obj->screen_current_object->component;
 
 //	eve_copro_set_color_alpha(&obj->eve, SCREEN_TOAST_ALPHA);
 	obj->toast.panel.component.paint_function(&obj->toast.panel.component, (eve_ui_point_t){0});

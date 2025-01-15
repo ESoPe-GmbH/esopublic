@@ -126,7 +126,7 @@ temperature_value_t* temperature_alloc_array(temperature_handle_t t)
     if((o.columns + o.rows) == 0)
         return NULL;
     
-    return mcu_heap_calloc(sizeof(temperature_value_t), o.columns * o.rows);
+    return mcu_heap_calloc(o.columns * o.rows, sizeof(temperature_value_t));
 }
 
 void temperature_free_array(temperature_value_t* values)
