@@ -36,10 +36,13 @@ elseif(DEFINED ESP_PLATFORM)
 
     idf_component_register(SRCS ${publicsrcs} INCLUDE_DIRS "source" REQUIRES ${KERNEL_REQUIRES})
 
+    set(CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../config)
     # Alternatively to using the sdkconfig, the config can be inside an extra config component
-    if(EXISTS ../config)
+    if(EXISTS ${CONFIG_DIR})
         message(STATUS "Esopublic uses config from config component")
-        include_directories(../config)
+        include_directories(${CONFIG_DIR})
+    else()
+        message(STATUS "No config directory found at " ${CONFIG_DIR})
     endif()
 
     if(${KERNEL_ADD_DEPENDENCY_SLINT})
