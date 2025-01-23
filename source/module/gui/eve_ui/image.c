@@ -422,22 +422,32 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 	eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
 	eve_copro_write_command(eve, EVE_BITMAP_SOURCE(obj->component.mem_file_ptr->address));
 	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT(obj->format, obj->stride, obj->raw_h));
+#if EVE_USE_FT81X
+	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT_H(obj->stride, obj->raw_h));		
+#endif
 	eve_copro_write_command(eve, EVE_BITMAP_SIZE(obj->filter, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height));
+#if EVE_USE_FT81X
+	eve_copro_write_command(eve, EVE_BITMAP_SIZE_H(obj->component.size.width, obj->component.size.height));		
+#endif
 
+#if EVE_USE_FT81X
 	if(obj->scale_x != 256)//If scale is not 1.0
 		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(obj->scale_x));
 	if(obj->scale_y != 256)//If scale is not 1.0
 		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(obj->scale_y));
+#endif
 
 	p = component_get_origin(&obj->component, p);
 
 	eve_copro_write_command(eve, EVE_VERTEX2F( p.x, p.y));
 	eve_copro_write_command(eve, EVE_END());
 
+#if EVE_USE_FT81X
 	if(obj->scale_x != 256)//If scale is not 1.0
 		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(256));
 	if(obj->scale_y != 256)//If scale is not 1.0
 		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(256));
+#endif
 
 	if(obj->action_callback != NULL)
 		eve_copro_clear_tag(eve);
