@@ -385,6 +385,30 @@ FUNCTION_RETURN_T mcu_spi_transaction_add(mcu_spi_t h, mcu_spi_transaction_t t)
 
 	// Transmit!
 	ret = spi_device_queue_trans(h->dev, &t_esp->base, portMAX_DELAY);
+	if(ret == ESP_ERR_NO_MEM)
+	{
+		bool loaded_transaction;
+		// The transaction could not be added due to memory. So we try to get rid of a queued transaction and try to add it again
+		do
+		{
+			spi_transaction_t *t2 = NULL;
+			ret = spi_device_get_trans_result(h->dev, &t2, portMAX_DELAY);
+			if(ret != ESP_OK)
+			{
+				loaded_transaction = false;
+				DBG_ERROR("Invalid transaction result %04x\n", ret);
+			}
+			else
+			{
+				mcu_heap_free(t2);
+				// There was a successfull transaction
+				loaded_transaction = true;
+				h->transaction_count--;
+				ret = spi_device_queue_trans(h->dev, &t_esp->base, portMAX_DELAY);
+			}
+		}
+		while(h->transaction_count > 0 && ret == ESP_ERR_NO_MEM && loaded_transaction);
+	}
 	ASSERT_RET(ret == ESP_OK, mcu_heap_free(t_esp), FUNCTION_RETURN_EXECUTION_ERROR, "Cannot queue transaction: ret=%04x wlen=%u rlen=%u\n", ret, t.w_buf_length, t.r_buf_length);	
 	h->transaction_count++;
 	//Should have had no issues.
