@@ -186,7 +186,7 @@
  * @param l		Bitmap linestride, in bytes.
  * @param h		Bitmap height, in lines
  */
-#define EVE_BITMAP_LAYOUT_H(l, h)				(0x28000000 | ((uint32_t)(((l) & 0xC00) >> 10) << 2) | ((h)  & 0x600) >> 9)
+#define EVE_BITMAP_LAYOUT_H(l, h)				(0x28000000 | ((uint32_t)(((l) & 0xC00) >> 10) << 2) | (((h)  & 0x600) >> 9))
 
 /**
  *	Specify the source bitmap memory format and layout for the current handle.
@@ -197,14 +197,14 @@
  * @param w		Drawn bitmap width, in pixels
  * @param h		Drawn bitmap height, in pixels
  */
-#define EVE_BITMAP_SIZE(f, wx, wy, w, h)		(0x08000000 | ((uint32_t)(f) << 20)  | ((uint32_t)(wx) << 19) | ((uint32_t)(wy) << 18) | ((uint32_t)((w) & 0x3FF) << 9) | ((h) & 0x1FF))
+#define EVE_BITMAP_SIZE(f, wx, wy, w, h)		(0x08000000 | ((uint32_t)(f) << 20)  | ((uint32_t)(wx) << 19) | ((uint32_t)(wy) << 18) | ((uint32_t)((w) & 0x1FF) << 9) | ((h) & 0x1FF))
 
 /**
  * Specify the 2 most significant bits of bitmaps dimension for the current handle.
  * @param w		Drawn bitmap width, in pixels
  * @param h		Drawn bitmap height, in pixels
  */
-#define EVE_BITMAP_SIZE_H(w, h)				(0x29000000 | ((uint32_t)(((w) & 0xC00) >> 10) << 2) | (((h)  & 0x600) >> 9))
+#define EVE_BITMAP_SIZE_H(w, h)				(0x29000000 | ((uint32_t)(((w) & 0x600) >> 9) << 2) | (((h)  & 0x600) >> 9))
 
 /**
  * @brief Specify the source address of bitmap data in EVE graphics memory RAM_G.
