@@ -959,25 +959,28 @@ static void screen_finish_painting(screen_device_t* obj)
 
 static void screen_touch_callback(screen_device_t* obj, bool b, int32_t x, int32_t y)
 {
-	if(obj == NULL || !b)
+	if(obj == NULL)
 		return;
 
-#if SCREEN_ENABLE_FINGER_TRACING
-	obj->x = x;
-	obj->y = y;
-	obj->touch_timestamp = system_get_tick_count();
-#endif
-
-//	dbg_printf(DBG_STRING, "Screen touch callback (%d) %d / %d\n", b, x, y);
-	if(obj->toast.is_shown)
+	if(b)
 	{
-		if(x >= obj->toast.panel.component.origin.x
-				&& x <= (obj->toast.panel.component.origin.x + obj->toast.panel.component.size.width)
-				&& y >= obj->toast.panel.component.origin.y
-				&& y <= (obj->toast.panel.component.origin.y + obj->toast.panel.component.size.height)
-				)
+	#if SCREEN_ENABLE_FINGER_TRACING
+		obj->x = x;
+		obj->y = y;
+		obj->touch_timestamp = system_get_tick_count();
+	#endif
+
+	//	dbg_printf(DBG_STRING, "Screen touch callback (%d) %d / %d\n", b, x, y);
+		if(obj->toast.is_shown)
 		{
-			screen_hide_toast(obj);
+			if(x >= obj->toast.panel.component.origin.x
+					&& x <= (obj->toast.panel.component.origin.x + obj->toast.panel.component.size.width)
+					&& y >= obj->toast.panel.component.origin.y
+					&& y <= (obj->toast.panel.component.origin.y + obj->toast.panel.component.size.height)
+					)
+			{
+				screen_hide_toast(obj);
+			}
 		}
 	}
 
