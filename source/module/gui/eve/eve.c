@@ -649,6 +649,10 @@ static bool eve_init_chip(eve_t* obj)
 #endif
 
 	mcu_spi_set_clock(obj->hw.spi, EVE_SPI_SPEED);
+	
+#if EVE_USE_FT81X
+	obj->spi_width_flags = MCU_SPI_TRANS_FLAGS_NONE;
+#endif
 
 	// 300ms max startup time, then 0x7C must be readable!
 	tmp32 = system_get_tick_count();
@@ -670,6 +674,24 @@ static bool eve_init_chip(eve_t* obj)
 
 		return false;
 	}
+
+#if EVE_USE_FT81X
+	obj->spi_width_flags = MCU_SPI_TRANS_FLAGS_NONE;
+	if(obj->hw.enable_quad_spi)
+	{
+		// eve_spi_write_32(obj, EVE_REG_SPI_WIDTH, 2);
+		// uint32_t val = eve_spi_read_32(obj, EVE_REG_SPI_WIDTH);
+		// if(val == 2)
+		// {
+			// DBG_INFO("Use Quad SPI\n");
+		// 	obj->spi_width_flags = MCU_SPI_TRANS_FLAGS_QIO;
+		// }
+		// else
+		// {
+		// 	DBG_INFO("No Quad SPI, value: %02x\n", val);
+		// }
+	}
+#endif
 
 	switch(obj->type)
 	{

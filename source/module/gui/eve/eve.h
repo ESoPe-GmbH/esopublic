@@ -93,6 +93,10 @@ typedef struct
 	MCU_IO_PIN io_pd;
 	/// @brief I/O pin that might be needed to enable the sound externally.
 	mcu_io_handler_t io_sound_enable;
+#if EVE_USE_FT81X
+	/// @brief If true, eve uses spi in quad mode for faster communication.
+	bool enable_quad_spi;
+#endif
 }eve_hw_interface_t;
 
 /**
@@ -237,6 +241,9 @@ typedef struct
 
 	/// Flag indicating whether the display has touch
 	bool has_touch;
+
+	/// @brief Flag indicating whether quad/dual spi can be used for communication. Is set to none by default
+	MCU_SPI_TRANS_FLAGS_T spi_width_flags;
 
 	/// EVE Command List Index -> Used for the Address of Co-processor commands. Must always be a multiple of 4.
 	uint32_t eve_copro_cli;

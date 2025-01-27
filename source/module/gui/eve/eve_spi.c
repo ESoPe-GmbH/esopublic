@@ -65,23 +65,23 @@ uint16_t eve_spi_write_str_data(eve_t* obj, uint32_t address, char *data, bool a
 	if(data[0])
 	{		
 		cnt = len + 1;
-		mcu_spi_transaction_add_(obj->hw.spi, .addr = address, .addr_length = 3, .w_buf = (uint8_t*)data, .w_buf_length = cnt);
+		mcu_spi_transaction_add_(obj->hw.spi, .flags = obj->spi_width_flags, .addr = address, .addr_length = 3, .w_buf = (uint8_t*)data, .w_buf_length = cnt);
 		
 		if(add_padding && cnt & 3)
 		{
 			// Add padding bytes 
 			// tx_data will be initialized with 0.
-			mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA, .w_buf_length = 4 - (cnt & 3));
+			mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags, .w_buf_length = 4 - (cnt & 3));
 		}
 	}
 	else if(add_padding)
 	{
-		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA, .w_buf_length = 4);
+		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags, .w_buf_length = 4);
 		cnt = 4;
 	}
 	else
 	{
-		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA, .w_buf_length = 1);
+		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags, .w_buf_length = 1);
 		cnt = 1;
 	}
 	mcu_spi_transaction_end(obj->hw.spi);
@@ -137,7 +137,7 @@ void eve_spi_write_data(eve_t* obj, uint32_t address, const uint8_t *data, uint3
 	if(add_padding && len & 3)
 	{
 		// Add padding bytes 
-		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA, .w_buf_length = 4 - (len & 3));
+		mcu_spi_transaction_add_(obj->hw.spi, .flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags, .w_buf_length = 4 - (len & 3));
 	}
 	mcu_spi_transaction_end(obj->hw.spi);
 #else		
@@ -177,6 +177,7 @@ void eve_spi_write_multi_data(eve_t* obj, uint32_t address, const uint8_t **data
 				
 			// mcu_spi_transaction_add(obj->hw.spi, (uint8_t*)&data[offset], NULL, len_a);	
 			mcu_spi_transaction_t t = {
+				.flags = obj->spi_width_flags,
 				.w_buf = (uint8_t*)&data[k][offset], 
 				.w_buf_length = len_a
 			};
@@ -221,7 +222,7 @@ void eve_spi_write_8(eve_t* obj, uint32_t address, uint8_t value)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
-		.flags = MCU_SPI_TRANS_FLAGS_TXDATA,
+		.flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.w_data = {value, 0, 0, 0},
@@ -242,12 +243,13 @@ void eve_spi_write_16(eve_t* obj, uint32_t address, uint16_t value)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
-		.flags = MCU_SPI_TRANS_FLAGS_TXDATA,
+		.flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.w_data = {value & 0xFF, (value >> 8) & 0xFF, 0, 0},
 		.w_buf_length = 2
 	};
+
 	mcu_spi_transaction_add(obj->hw.spi, t);	
 	mcu_spi_transaction_end(obj->hw.spi);
 #else
@@ -263,7 +265,7 @@ void eve_spi_write_32(eve_t* obj, uint32_t address, uint32_t value)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
-		.flags = MCU_SPI_TRANS_FLAGS_TXDATA,
+		.flags = MCU_SPI_TRANS_FLAGS_TXDATA | obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.w_buf_length = 4,
@@ -284,7 +286,7 @@ void eve_spi_read_data(eve_t* obj, uint32_t address, uint8_t *data, uint16_t len
 	// DBG_INFO("Read %06x: %u\n", address, len);
 	uint32_t offset = 0;
 	mcu_spi_transaction_start(obj->hw.spi);
-	mcu_spi_transaction_add_(obj->hw.spi, .addr = address, .addr_length = 3, .dummy_length = 1);
+	mcu_spi_transaction_add_(obj->hw.spi, .flags = obj->spi_width_flags, .addr = address, .addr_length = 3, .dummy_length = 1);
 	// mcu_spi_transaction_add(obj->hw.spi, (uint8_t[3]){((uint8_t*)&address)[2], ((uint8_t*)&address)[1], ((uint8_t*)&address)[0]}, NULL, 3);
 	do
 	{
@@ -292,7 +294,7 @@ void eve_spi_read_data(eve_t* obj, uint32_t address, uint8_t *data, uint16_t len
 		if(len_a > 4000)
 			len_a = 4000;
 			
-		mcu_spi_transaction_add_(obj->hw.spi, .r_buf = (uint8_t*)&data[offset], .r_buf_length = len_a);
+		mcu_spi_transaction_add_(obj->hw.spi, .flags = obj->spi_width_flags, .r_buf = (uint8_t*)&data[offset], .r_buf_length = len_a);
 		offset += len_a;
 	}while(offset < len);
 	mcu_spi_transaction_end(obj->hw.spi);
@@ -317,6 +319,7 @@ uint8_t eve_spi_read_8(eve_t* obj, uint32_t address)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
+		.flags = obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.dummy_length = 1,
@@ -341,6 +344,7 @@ uint16_t eve_spi_read_16(eve_t* obj, uint32_t address)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
+		.flags = obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.dummy_length = 1,
@@ -377,6 +381,7 @@ uint32_t eve_spi_read_32(eve_t* obj, uint32_t address)
 	mcu_spi_transaction_start(obj->hw.spi);
 
 	mcu_spi_transaction_t t = {
+		.flags = obj->spi_width_flags,
 		.addr = address,
 		.addr_length = 3,
 		.dummy_length = 1,
