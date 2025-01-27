@@ -178,6 +178,16 @@ typedef struct pmod_s
 
     union
     {
+        /// @brief Options for spi
+        struct
+        {
+            /// @brief Indicates if the SPI interface should be used in quad mode.
+            bool use_quad_spi;
+        }spi_options;
+    };
+
+    union
+    {
         struct
         {
             /// @brief Handler for SPI (CS) interface in case of @c interface = @c PMOD_INTERFACE_SPI.

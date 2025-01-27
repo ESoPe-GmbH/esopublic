@@ -43,22 +43,33 @@ FUNCTION_RETURN pmod_init(pmod_t* pmod)
 
 #if MCU_PERIPHERY_DEVICE_COUNT_SPI > 0
         case PMOD_INTERFACE_SPI:
-            pmod->device = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs);
-            pmod->spi = pmod->device;
-            
-            if(pmod->is_extended)
+
+            if(pmod->spi_options.use_quad_spi && pmod->is_extended)
             {
-                if(pmod->spi_cs2 != PIN_NONE)
-                {
-                    pmod->spi2 = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs2);
-                }
-                if(pmod->spi_cs3 != PIN_NONE)
-                {
-                    pmod->spi3 = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs3);
-                }
-                
+                pmod->device = mcu_spi_init_quad(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs, pmod->spi_cs2, pmod->spi_cs3);
+                    
                 // TODO: INT and Reset
             }
+            else
+            {
+                pmod->device = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs);
+                
+                if(pmod->is_extended)
+                {
+                    if(pmod->spi_cs2 != PIN_NONE)
+                    {
+                        pmod->spi2 = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs2);
+                    }
+                    if(pmod->spi_cs3 != PIN_NONE)
+                    {
+                        pmod->spi3 = mcu_spi_init(pmod->interface_num, pmod->spi_mosi, pmod->spi_miso, pmod->spi_sck, pmod->spi_cs3);
+                    }
+                    
+                    // TODO: INT and Reset
+                }
+            }
+
+            pmod->spi = pmod->device;
             break;
 #endif
 
