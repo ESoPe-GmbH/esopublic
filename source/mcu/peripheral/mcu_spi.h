@@ -210,6 +210,29 @@ MCU_RESULT mcu_spi_init(mcu_spi_t h, MCU_IO_PIN cs);
 #else
 /**
  * @brief 	Creates an SPI handler for the corresponding i/o ports. If the spi handler cannot be created NULL is returnd and the mcu_get_last_error function should be checked.
+ * 			Quad SPI is only available for using mcu_spi_transaction_t. Normal SPI is available for using mcu_spi_transaction_t and mcu_spi_send.
+ * 			Not every controller supports quad spi. If it is not supported, the function will return NULL.
+ *
+ *			The following errors can be set:
+ * 							MCU_ERROR_SPI_NOT_AVAILABLE: 	All SPI interfaces are in use.
+ *															The MCU_PERIPHERY_DEVICE_COUNT_SPI define in mcu_config.h might be too low. Check it out.
+ * 							MCU_ERROR_SPI_INVALID: 			There is no spi interface on the given i/o ports.
+ *	
+ * @pre		Check if MCU_PERIPHERY_DEVICE_COUNT_SPI is high enough.
+ *
+ * @param num				Number of the SPI interface.
+ * @param tx      			I/O for MOSI / TX.
+ * @param rx				I/O for MISO / RX.
+ * @param clk				I/O for the generated Clock.
+ * @param cs				I/O for Chip select.
+ * @param io2				I/O for IO2.
+ * @param io3				I/O for IO3.
+ * @return					NULL: No SPI handler could be created.
+ *							Else: Pointer to the SPI handler needed for other functions.
+ */
+mcu_spi_t mcu_spi_init_quad(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, MCU_IO_PIN clk, MCU_IO_PIN cs, MCU_IO_PIN io2, MCU_IO_PIN io3);
+/**
+ * @brief 	Creates an SPI handler for the corresponding i/o ports. If the spi handler cannot be created NULL is returnd and the mcu_get_last_error function should be checked.
  *
  *			The following errors can be set:
  * 							MCU_ERROR_SPI_NOT_AVAILABLE: 	All SPI interfaces are in use.

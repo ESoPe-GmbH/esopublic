@@ -21,6 +21,11 @@ struct mcu_spi_interface_s mcu_spi_interface_handler[MCU_SPI_TOTAL_COUNT] = {0};
 struct mcu_spi_s mcu_spi_handler[MCU_PERIPHERY_DEVICE_COUNT_SPI] = {0};
 
 mcu_spi_t mcu_spi_init(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, MCU_IO_PIN clk, MCU_IO_PIN cs)
+{
+	return mcu_spi_init_quad(num, tx, rx, clk, cs, PIN_NONE, PIN_NONE);
+}
+
+mcu_spi_t mcu_spi_init_quad(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, MCU_IO_PIN clk, MCU_IO_PIN cs, MCU_IO_PIN io2, MCU_IO_PIN io3)
 {	
 	esp_err_t ret;	
 	struct mcu_spi_interface_s* handle;
@@ -63,9 +68,10 @@ mcu_spi_t mcu_spi_init(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, MCU_IO_PIN clk
 		handle->bus.miso_io_num = rx;
 		handle->bus.mosi_io_num = tx;
 		handle->bus.sclk_io_num = clk;
-		handle->bus.quadwp_io_num = -1;
-		handle->bus.quadhd_io_num = -1;
+		handle->bus.data2_io_num = io2 == PIN_NONE ? -1 : io2;
+		handle->bus.data3_io_num = io3 == PIN_NONE ? -1 : io3;
 		handle->bus.max_transfer_sz = 4092;
+		handle->bus.flags = SPICOMMON_BUSFLAG_MASTER | (rx != PIN_NONE ? SPICOMMON_BUSFLAG_DUAL : 0) | (io2 != PIN_NONE && io3 != PIN_NONE ? SPICOMMON_BUSFLAG_QUAD : 0);
 
 		handle->initialized = true;
 		//Initialize the SPI bus
@@ -350,6 +356,24 @@ FUNCTION_RETURN_T mcu_spi_transaction_add(mcu_spi_t h, mcu_spi_transaction_t t)
 	t_esp->base.addr = t.addr;
 	t_esp->address_bits = t.addr_length * 8;
 	t_esp->dummy_bits = t.dummy_length * 8;
+	
+	if(t.flags & MCU_SPI_TRANS_FLAGS_DIO)
+	{
+		t_esp->base.flags |= SPI_TRANS_MODE_DIO;
+		if(t.addr_length)
+		{
+			t_esp->base.flags |= SPI_TRANS_MODE_DIOQIO_ADDR;
+		}
+	}
+	
+	if(t.flags & MCU_SPI_TRANS_FLAGS_QIO)
+	{
+		t_esp->base.flags |= SPI_TRANS_MODE_QIO;
+		if(t.addr_length)
+		{
+			t_esp->base.flags |= SPI_TRANS_MODE_DIOQIO_ADDR;
+		}
+	}
 
 	// If flag is set, copy w_data
 	if(t.flags & MCU_SPI_TRANS_FLAGS_TXDATA)
