@@ -68,6 +68,9 @@
 /// Type for linechart components.
 #define COMPONENT_TYPE_LINECHART			12
 
+/// Type for circle components
+#define COMPONENT_TYPE_CIRCLE				13
+
 /// Type for custom components, created by the user
 #define COMPONENT_TYPE_CUSTOM				255
 
