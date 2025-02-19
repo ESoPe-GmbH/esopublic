@@ -82,7 +82,7 @@ static void image_set_pressed(image_t* obj, bool b);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //#if IMAGE_MMC_READ_BUFFER_SIZE > 0
-bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT format, const char* filename)
+bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename)
 {
 	if(obj == NULL)
 		return false;
@@ -110,7 +110,15 @@ bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uin
 	image_parse_fileformat(obj);
 	image_calculate_stride(obj);
 
-	obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, NULL, (obj->stride * obj->component.size.height));
+	if(obj->fileformat == IMAGE_FILEFORMAT_JPG)
+	{		
+		// TODO: Load filesize from mmc
+		// obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, (const uint8_t*)obj->buffer_ptr, obj->buffer_length);
+	}
+	else
+	{
+		obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, NULL, (obj->stride * obj->component.size.height));
+	}
 
 //	// Register reset action to reload the image to the ram of the eve.
 //	obj->reset_action.f = (void(*)(void*,void*))image_load_from_file;
@@ -123,7 +131,7 @@ bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uin
 }
 //#endif
 
-bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT format, const char* filename, const uint8_t* buffer_ptr, uint32_t buffer_length)
+bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename, const uint8_t* buffer_ptr, uint32_t buffer_length)
 {
 	if(obj == NULL)
 		return false;
@@ -152,7 +160,15 @@ bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, u
 	image_parse_fileformat(obj);
 	image_calculate_stride(obj);
 
-	obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, (uint8_t*)buffer_ptr, (obj->stride * obj->component.size.height));
+	if(obj->fileformat == IMAGE_FILEFORMAT_JPG)
+	{		
+		obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, (const uint8_t*)obj->buffer_ptr, obj->buffer_length);
+	}
+	else
+	{
+		obj->component.mem_file_ptr = eve_memory_register(&screen_get_default_device()->eve, filename, (uint8_t*)buffer_ptr, (obj->stride * obj->component.size.height));
+	}
+
 
 //	// Register reset action to reload the image to the ram of the eve.
 //	obj->reset_action.f = (void(*)(void*,void*))image_load_from_flash;
@@ -214,6 +230,10 @@ static void image_parse_fileformat(image_t* obj)
 		obj->fileformat = IMAGE_FILEFORMAT_RAW;
 	else if(string_ends_with(obj->filename, ".bin"))
 		obj->fileformat = IMAGE_FILEFORMAT_BIN;
+	else if(string_ends_with(obj->filename, ".jpg") || string_ends_with(obj->filename, ".jpeg"))
+		obj->fileformat = IMAGE_FILEFORMAT_JPG;
+	else if(string_ends_with(obj->filename, ".png"))
+		obj->fileformat = IMAGE_FILEFORMAT_PNG;
 	else
 		obj->fileformat = IMAGE_FILEFORMAT_INVALID;
 }
@@ -399,55 +419,92 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 		return;
 	}
 
-	if(!eve_memory_write_file_to(eve, obj->component.mem_file_ptr))
-	{
-#if IMAGE_DEBUG_ERROR
-		dbg_printf(DBG_STRING, "Cannot load image Object (%8x / %8x)\n", eve, obj);
-#endif
-		return;
-	}
-//
-//	if(!eve_copro_loadimage(eve, obj))
-//		return;
-
 	if(obj->action_callback != NULL)
 		eve_copro_add_tag(eve, &obj->component);
-//
-//	eve_copro_write_command(eve, EVE_COLOR_RGB(0xFF, 0xFF, 0xFF));
-//	eve_copro_write_command(eve, EVE_COLOR_A(0xFF));
-	eve_copro_set_color(eve, color_get_argb(0xFF, 0xFF, 0xFF, 0xFF));
-	eve_copro_write_command(eve, EVE_VERTEX_FORMAT(0)); // Pixel precision: 1
-	// Set image on display
-	eve_copro_write_command(eve, EVE_BEGIN(EVE_BITMAPS));		// Draw bitmap
-	eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
-	eve_copro_write_command(eve, EVE_BITMAP_SOURCE(obj->component.mem_file_ptr->address));
-	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT(obj->format, obj->stride, obj->raw_h));
-#if EVE_USE_FT81X
-	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT_H(obj->stride, obj->raw_h));		
-#endif
-	eve_copro_write_command(eve, EVE_BITMAP_SIZE(obj->filter, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height));
-#if EVE_USE_FT81X
-	eve_copro_write_command(eve, EVE_BITMAP_SIZE_H(obj->component.size.width, obj->component.size.height));		
-#endif
 
 #if EVE_USE_FT81X
-	if(obj->scale_x != 256)//If scale is not 1.0
-		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(obj->scale_x));
-	if(obj->scale_y != 256)//If scale is not 1.0
-		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(obj->scale_y));
+	if(obj->fileformat == IMAGE_FILEFORMAT_JPG)
+	{
+		eve_copro_loadimage(eve, obj->component.mem_file_ptr->address, 0, obj->component.mem_file_ptr->data, obj->component.mem_file_ptr->data_length);
+		
+		p = component_get_origin(&obj->component, p);
+
+		// DBG_INFO("Image: %d/%d\n", p.x, p.y);
+
+		eve_copro_set_color(eve, color_get(COLOR_WHITE));
+		uint32_t commands[3] = {
+			EVE_BEGIN(EVE_BITMAPS),
+			EVE_VERTEX2II(p.x, p.y, 0, 0),
+			EVE_END()
+		};
+
+		eve_copro_write_commands(eve, commands, 3);
+	}
+	else
 #endif
+	{
+		if(!eve_memory_write_file_to(eve, obj->component.mem_file_ptr))
+		{
+	#if IMAGE_DEBUG_ERROR
+			dbg_printf(DBG_STRING, "Cannot load image Object (%8x / %8x)\n", eve, obj);
+	#endif
+			return;
+		}
+	//
+	//	if(!eve_copro_loadimage(eve, obj))
+	//		return;
+	//
+	//	eve_copro_write_command(eve, EVE_COLOR_RGB(0xFF, 0xFF, 0xFF));
+	//	eve_copro_write_command(eve, EVE_COLOR_A(0xFF));
+		eve_copro_set_color(eve, color_get_argb(0xFF, 0xFF, 0xFF, 0xFF));
+		// eve_copro_write_command(eve, EVE_VERTEX_FORMAT(0)); // Pixel precision: 1
+		// eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
+		eve_copro_set_bitmap(eve, obj->component.mem_file_ptr->address, obj->format, obj->component.size.width, obj->component.size.height);
+		// Set image on display
+		eve_copro_write_command(eve, EVE_BEGIN(EVE_BITMAPS));		// Draw bitmap
+	// 	eve_copro_write_command(eve, EVE_BITMAP_SOURCE(obj->component.mem_file_ptr->address));
+	// #if EVE_USE_FT81X
+	// 	uint8_t format = obj->format;
+	// 	if(obj->format > IMAGE_FORMAT_L2)
+	// 	{
+	// 		eve_copro_write_command(eve, EVE_BITMAP_EXT_FORMAT(obj->format));
+	// 		format = 31; // GLFORMAT
+	// 	}
 
-	p = component_get_origin(&obj->component, p);
+	// 	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT(format, obj->stride, obj->raw_h));
+	// #else
+	// 	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT(obj->format, obj->stride, obj->raw_h));
+	// #endif
+	// #if EVE_USE_FT81X
+	// 	eve_copro_write_command(eve, EVE_BITMAP_LAYOUT_H(obj->stride, obj->raw_h));		
+	// #endif
+	// 	eve_copro_write_command(eve, EVE_BITMAP_SIZE(obj->filter, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height));
+	// #if EVE_USE_FT81X
+	// 	eve_copro_write_command(eve, EVE_BITMAP_SIZE_H(obj->component.size.width, obj->component.size.height));		
+	// #endif
 
-	eve_copro_write_command(eve, EVE_VERTEX2F( p.x, p.y));
-	eve_copro_write_command(eve, EVE_END());
+	#if EVE_USE_FT81X
+		if(obj->scale_x != 256)//If scale is not 1.0
+			eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(obj->scale_x));
+		if(obj->scale_y != 256)//If scale is not 1.0
+			eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(obj->scale_y));
+	#endif
 
-#if EVE_USE_FT81X
-	if(obj->scale_x != 256)//If scale is not 1.0
-		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(256));
-	if(obj->scale_y != 256)//If scale is not 1.0
-		eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(256));
-#endif
+		p = component_get_origin(&obj->component, p);
+
+		eve_copro_write_command(eve, EVE_VERTEX2II( p.x, p.y, 0, 0));
+		// eve_copro_write_command(eve, EVE_VERTEX2F( p.x, p.y));
+		eve_copro_write_command(eve, EVE_END());
+
+	#if EVE_USE_FT81X
+		if(obj->scale_x != 256)//If scale is not 1.0
+			eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_A_8_8(256));
+		if(obj->scale_y != 256)//If scale is not 1.0
+			eve_copro_write_command(eve, EVE_BITMAP_TRANSFORM_E_8_8(256));
+	#endif
+
+	}
+
 
 	if(obj->action_callback != NULL)
 		eve_copro_clear_tag(eve);
@@ -458,14 +515,46 @@ static void image_calculate_stride(image_t* obj)
 	switch(obj->format)
 	{
 		case IMAGE_FORMAT_ARGB1555:		obj->stride = obj->component.size.width * 2;		break;
-		case IMAGE_FORMAT_L1:			obj->stride = obj->component.size.width / 8;		break;
-		case IMAGE_FORMAT_L4:			obj->stride = obj->component.size.width / 2;		break;
-		case IMAGE_FORMAT_L8:			obj->stride = obj->component.size.width;			break;
-		case IMAGE_FORMAT_RGB332:		obj->stride = obj->component.size.width;			break;
 		case IMAGE_FORMAT_ARGB2:		obj->stride = obj->component.size.width;			break;
 		case IMAGE_FORMAT_ARGB4:		obj->stride = obj->component.size.width * 2;		break;
-		case IMAGE_FORMAT_RGB565:		obj->stride = obj->component.size.width * 2;		break;
+#if EVE_USE_FT81X
+		case IMAGE_FORMAT_BARGRAPH:		obj->stride = obj->component.size.width;			break;
+#endif
+		case IMAGE_FORMAT_L1:			obj->stride = obj->component.size.width / 8;		break;
+#if EVE_USE_FT81X
+		case IMAGE_FORMAT_L2:			obj->stride = obj->component.size.width / 4;		break;		
+#endif
+		case IMAGE_FORMAT_L4:			obj->stride = obj->component.size.width / 2;		break;
+		case IMAGE_FORMAT_L8:			obj->stride = obj->component.size.width;			break;
+#if !EVE_USE_FT81X
 		case IMAGE_FORMAT_PALETTED:		obj->stride = obj->component.size.width * 4;		break;
+#endif
+#if EVE_USE_FT81X
+		case IMAGE_FORMAT_PALETTED565:	obj->stride = obj->component.size.width;			break;
+		case IMAGE_FORMAT_PALETTED4444:	obj->stride = obj->component.size.width;			break;
+		case IMAGE_FORMAT_PALETTED8:	obj->stride = obj->component.size.width;			break;
+#endif
+		case IMAGE_FORMAT_RGB332:		obj->stride = obj->component.size.width;			break;
+		case IMAGE_FORMAT_RGB565:		obj->stride = obj->component.size.width * 2;		break;
+#if EVE_USE_FT81X
+		case IMAGE_FORMAT_TEXT8X8:		obj->stride = obj->component.size.width;			break;
+		case IMAGE_FORMAT_TEXTVGA:		obj->stride = obj->component.size.width;			break;
+
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_4x4_KHR:		obj->stride = obj->component.size.width;											break;		
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_5x4_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 6.40 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_5x5_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 5.12 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_6x5_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 4.27 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_6x6_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 3.56 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x5_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 3.20 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x6_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 2.67 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x8_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 2.00 / 8.0);			break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x5_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 2.56 / 8.0);		break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x6_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 2.13 / 8.0);		break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x8_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 1.60 / 8.0);		break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x10_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 1.28 / 8.0);		break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_12x10_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 1.07 / 8.0);		break;
+		case IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_12x12_KHR:		obj->stride = (uint16_t)((float)obj->component.size.width * 0.89 / 8.0);		break;
+#endif
 		default:						obj->stride = 0; /* Invalid or unsupported*/break;
 	}
 }

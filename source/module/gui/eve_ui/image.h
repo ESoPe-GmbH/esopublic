@@ -43,7 +43,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * @enum IMAGE_FORMAT
+ * @enum IMAGE_FORMAT_T
  * Is used to set the format of the image.
  */
 typedef enum
@@ -72,16 +72,59 @@ typedef enum
 	/// 2-byte per pixel: 5-bit red, 6-bit green, 5-bit blue
 	IMAGE_FORMAT_RGB565 = 7,
 
+#if !EVE_USE_FT81X
 	/// 4-byte per pixel: 8 Bit Alpha, 8-bit red, 8-bit green, 8-bit blue (FT80X only)
 	IMAGE_FORMAT_PALETTED = 8,
+#endif
+#if EVE_USE_FT81X
 
+	IMAGE_FORMAT_TEXT8X8 = 9,
+
+	IMAGE_FORMAT_TEXTVGA = 10,
+
+	IMAGE_FORMAT_BARGRAPH = 11,
+
+	IMAGE_FORMAT_PALETTED565 = 14,
+
+	IMAGE_FORMAT_PALETTED4444 = 15,
+
+	IMAGE_FORMAT_PALETTED8 = 16,
 	/// 2 bit per pixel: Black or white with grey tones (FT81X only)
-	IMAGE_FORMAT_L2 = 9
+	IMAGE_FORMAT_L2 = 17,
+	/// @brief 8.0 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_4x4_KHR = 37808,
+	/// @brief 6.40 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_5x4_KHR = 37809,
+	/// @brief 5.12 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_5x5_KHR = 37810,
+	/// @brief 4.27 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_6x5_KHR = 37811,
+	/// @brief 3.56 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_6x6_KHR = 37812,
+	/// @brief 3.20 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x5_KHR = 37813,
+	/// @brief 2.67 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x6_KHR = 37814,
+	/// @brief 2.00 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_8x8_KHR = 37815,
+	/// @brief 2.56 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x5_KHR = 37816,
+	/// @brief 2.13 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x6_KHR = 37817,
+	/// @brief 1.60 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x8_KHR = 37818,
+	/// @brief 1.28 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_10x10_KHR = 37819,
+	/// @brief 1.07 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_12x10_KHR = 37820,
+	/// @brief 0.89 Bits per Pixel
+	IMAGE_FORMAT_COMPRESSED_RGBA_ASTC_12x12_KHR = 37821,
+#endif
 
-}IMAGE_FORMAT;
+}IMAGE_FORMAT_T;
 
 /**
- * @enum IMAGE_FILEFORMAT
+ * @enum IMAGE_FILEFORMAT_T
  * Is used to set the fileformat which is needed to check if the image is compressed.
  */
 typedef enum
@@ -101,7 +144,7 @@ typedef enum
 	/// @brief PNG fileformat is used for compressed images that will be inflated by eve. Can have alpha channel. If any PNG is used, EVE uses last 40k Byte of RAM as buffer for inflation.
 	IMAGE_FILEFORMAT_PNG
 
-}IMAGE_FILEFORMAT;
+}IMAGE_FILEFORMAT_T;
 
 /**
  * @enum IMAGE_FILTER_T
@@ -134,10 +177,10 @@ typedef struct
 	uint16_t raw_h;
 
 	/// Format of the image.
-	IMAGE_FORMAT format;
+	IMAGE_FORMAT_T format;
 
 	/// Format of the file indicating if the content is compressed.
-	IMAGE_FILEFORMAT fileformat;
+	IMAGE_FILEFORMAT_T fileformat;
 
 	/// Pointer to the filename of the image file.
 	char* filename;
@@ -204,7 +247,7 @@ typedef struct
  * @return					true: Image was loaded into the eve successfully.
  * 							false: Image could not be loaded into the eve.
  **/
-bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT format, const char* filename);
+bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename);
 
 /**
  * @brief	Initializes the image object and sets the parameters into it.
@@ -222,7 +265,7 @@ bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uin
  * @return					true: Image was loaded into the eve successfully.
  * 							false: Image could not be loaded into the eve.
  */
-bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT format, const char* filename, const uint8_t* buffer_ptr, uint32_t buffer_length);
+bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename, const uint8_t* buffer_ptr, uint32_t buffer_length);
 
 /**
  * @brief	Sets the image visible or invisible.
