@@ -74,6 +74,17 @@
 #define EVE_MMC_READ_BUFFER_SIZE 				0
 #endif
 
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+	#define EVE_ENABLE_SLD			1
+#else 
+	#define EVE_ENABLE_SLD			0
+#endif
+
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+#include "module/lcd_touch/lcd_touch.h"
+#include "module/lcd_touch/driver/st1633i/st1633i.h"
+#endif
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -97,6 +108,10 @@ typedef struct
 	/// @brief If true, eve uses spi in quad mode for faster communication.
 	bool enable_quad_spi;
 #endif
+	// /// @brief Pointer to an external i2c for touch interface. In case of SMM Displays, this is the i2c of the eeprom to read edid for automatic configuration.
+	// i2c_t* i2c_touch;
+	/// Hardware config for external touch that is connected to host cpu. To enable it, set an i2c handler to the i2c pointer. Is needed for SMM Displays.
+	st1633i_hw_config_t external_touch;
 }eve_hw_interface_t;
 
 /**
@@ -121,6 +136,10 @@ typedef enum
 	EVE_DISPLAY_TYPE_ETML050023UDRA,	
 	/// 7 inch display with a resolution of 800 x 480
 	EVE_DISPLAY_TYPE_ETML070023UDBA,
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+	/// Schukat SMM Displays, with I2C EEPROM to read out the configuration and set it internally.
+	EVE_DISPLAY_TYPE_SMM,
+#endif // MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 #endif
 	/// Limiter for display type enumeration.
 	EVE_DISPLAY_TYPE_MAX
@@ -348,6 +367,14 @@ typedef struct
 	/// level 1 is BT815 compatible
 	/// level 2 is BT817/8 compatible
 	uint8_t api_level;
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+	/// @brief Pointer to the touch driver that is used for the touch interface.
+	lcd_touch_device_handle_t touch_device;
+	/// @brief Handle for the touch
+	lcd_touch_handle_t touch;
+	/// @brief Touch to handle an external connected touch driver to write values into eve chip
+	system_task_t touch_task;
+#endif
 }eve_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -453,6 +480,13 @@ FUNCTION_RETURN_T eve_init_flash(eve_t* eve);
  * @return EVE_FLASH_STATUS_T 	See @see EVE_FLASH_STATUS_T for possible values.
  */
 EVE_FLASH_STATUS_T eve_get_flash_status(eve_t* eve);
+/**
+ * @brief The value indicates the capacity of attached flash, in Mbytes. 
+ * 
+ * @param eve 	Pointer to eve data context.
+ * @return uint32_t The value indicates the capacity of attached flash, in Mbytes. 
+ */
+uint32_t eve_get_flash_size(eve_t* eve);
 #endif
 
 #endif

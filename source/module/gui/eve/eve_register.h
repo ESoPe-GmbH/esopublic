@@ -162,6 +162,14 @@
 
 #define EVE_SCISSOR_SIZE(w, h)				(0x1C000000 | ((w) << 12) | (h))
 
+/***
+ * @brief Specify the extended format of the bitmap
+ * If BITMAP_LAYOUT specifies a format for GLFORMAT (31), then the format is taken from BITMAP_EXT_FORMAT instead.
+ * 
+ * @param f		Bitmap pixel format. See @see IMAGE_FORMAT_T
+ */
+#define EVE_BITMAP_EXT_FORMAT(f)				(0x2E000000 | (f & 0xFFFF))
+
 /**
  * Handles 16 to 31 are defined by the EVE for built-in font and handle 15 is defined in the co-processor engine
  * commands CMD_GRADIENT, CMD_BUTTON and CMD_KEYS. Users can define new bitmaps using handles from 0 to 14.
@@ -745,6 +753,54 @@ typedef enum
 #define EVE_REG_CMDB_WRITE		0x00302578		///< 32 Bits	w/o		Command DL (bulk) write
 
 #if EVE_GENERATION > 2
+
+/// Touch x coordinate
+#define EVE_REG_EHOST_TOUCH_X			0x0030210C
+/// Touch y coordinate 
+#define EVE_REG_EHOST_TOUCH_Y			0x00302118
+/// Touch ID / phase
+#define EVE_REG_EHOST_TOUCH_ID			0x00302114
+/// Acknowledgement
+#define EVE_REG_EHOST_TOUCH_ACK			0x00302170
+
+/// Touch screen sampling Mode 
+#define EVE_REG_CTOUCH_MODE			0x00302104
+/// Select ADC working mode
+#define EVE_REG_CTOUCH_EXTENDED		0x00302108
+/// Coordinate of first touch point 
+#define EVE_REG_CTOUCH_TOUCH_XY		0x00302124
+/// Coordinate of second touch point 
+#define EVE_REG_CTOUCH_TOUCH1_XY	0x0030211C
+/// Coordinate of third touch point
+#define EVE_REG_CTOUCH_TOUCH2_XY	0x0030218C
+/// Coordinate of fourth touch point
+#define EVE_REG_CTOUCH_TOUCH3_XY	0x00302190
+/// X Coordinate of fifth touch point
+#define EVE_REG_CTOUCH_TOUCH4_X		0x0030216C
+/// Y Coordinate of fifth touch point
+#define EVE_REG_CTOUCH_TOUCH4_Y		0x00302120
+/// Coordinate used to calculate the tag of first touch point 
+#define EVE_REG_CTOUCH_TAG_XY		0x00302128
+/// Touch screen Tag result of fist touch point 
+#define EVE_REG_CTOUCH_TAG			0x0030212C
+/// XY used to tag of second touch point
+#define EVE_REG_CTOUCH_TAG1_XY		0x00302130
+/// Tag result of second touch point
+#define EVE_REG_CTOUCH_TAG1			0x00302134
+/// XY used to tag of third touch point
+#define EVE_REG_CTOUCH_TAG2_XY		0x00302138
+/// Tag result of third touch point
+#define EVE_REG_CTOUCH_TAG2			0x0030213C
+/// XY used to tag of fourth touch point
+#define EVE_REG_CTOUCH_TAG3_XY		0x00302140
+/// Tag result of fourth touch point
+#define EVE_REG_CTOUCH_TAG3			0x00302144
+/// XY used to tag of fifth touch point
+#define EVE_REG_CTOUCH_TAG4_XY		0x00302148
+/// Tag result of fifth touch point
+#define EVE_REG_CTOUCH_TAG4			0x0030214C
+
+#define EVE_REG_FLASH_STATUS		0x003025F0		
 
 /// 2 Bits	r/w		Flash Status
 #define EVE_REG_FLASH_STATUS		0x003025F0		

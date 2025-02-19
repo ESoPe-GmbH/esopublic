@@ -356,11 +356,16 @@ void eve_copro_set_bitmap(eve_t* eve, uint32_t address, uint32_t format, uint16_
 		return;
 
 	eve_copro_check_command_buffer(eve, 16);
-	eve_copro_internal_write_command(eve, 0xffffff43);
-	eve_copro_internal_write_command(eve, address);
-	eve_copro_internal_write_command(eve, format | ((uint32_t)width << 16));
-	eve_copro_internal_write_command(eve, height);
+	uint32_t options[3] = {
+		address,
+		(format & 0xFFFF) | ((uint32_t)(width & 0xFFFF) << 16),
+		height
+	};
+
+	eve_copro_internal_write_command_data(eve, 0xffffff43, options, 3, NULL, 0);
 }
+
+// TODO: eve_copro_loadimage_mmc -> Filename instead of buffer and loads the data from mmc 
 
 void eve_copro_loadimage(eve_t* eve, uint32_t ptr, EVE_OPT_IMAGE opt_image, const uint8_t* data, uint32_t length)
 {

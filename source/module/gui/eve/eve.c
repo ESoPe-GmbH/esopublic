@@ -13,6 +13,13 @@
 #include <string.h>
 #include "../eve_ui/font.h"
 #include "module/comm/dbg.h"
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+#include "module/display/sld/sld_edid.h"
+#endif
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+#include "module/lcd_touch/driver/st1633i/st1633i.h"
+#endif
+#include <math.h>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal definitions
@@ -78,6 +85,8 @@ static void eve_throw_error(eve_t* obj, EVE_ERROR err, const char* msg);
  */
 static void _write_touch_fw(eve_t* obj, const uint8_t* touch_fw, size_t size_of_touch_fw);
 
+static int _touch_task(struct pt* pt);
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Module Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,6 +108,8 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 	bool is_new_pd = true;
 	if(obj == NULL)
 		return false;
+
+	system_task_init_protothread(&obj->touch_task, false, _touch_task, obj);
 
 	// Initialize variables
 	obj->eve_dli = 0;
@@ -205,6 +216,47 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 
 void eve_init_touch(eve_t* obj)
 {
+	if(obj->hw.external_touch.i2c)
+	{
+		// External touch connected to eve
+
+		DBG_INFO("External touch connected to eve\n");
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+		if(obj->touch_device)
+		{
+			st1633i_free(obj->touch_device);
+			obj->touch_device = NULL;
+		}
+		if(obj->touch)
+		{
+			lcd_touch_free(&obj->touch);
+		}
+
+        // Capacitive touch is used
+		obj->touch_device = st1633i_create(&obj->hw.external_touch);
+        if(obj->touch_device)
+        {
+            // TODO: Set flags based on display
+            struct lcd_touch_config_s touch_config = 
+            {
+                .flags = {.mirror_x = false, .mirror_y = false, .swap_xy = false},
+                .x_max = obj->eve_display_width,
+                .y_max = obj->eve_display_height
+            };
+            lcd_touch_create(obj->touch_device, &st1633i_lcd_touch_interface, &touch_config, &obj->touch);
+			
+			eve_spi_write_8(obj, EVE_REG_CPURESET, 2);
+			eve_spi_write_32(obj, EVE_REG_TOUCH_CONFIG, 0x00004000);
+			eve_spi_write_8(obj, EVE_REG_CPURESET, 0);
+
+			system_task_add(&obj->touch_task);
+        }
+
+#else
+		DBG_ERROR("Touch is not supported\n");
+#endif
+		return;
+	}
 //	dbg_printf(DBG_STRING, "eve_init_touch(%d)\n", obj->type);
 	switch(obj->type)
 	{
@@ -624,6 +676,11 @@ EVE_FLASH_STATUS_T eve_get_flash_status(eve_t* eve)
 	return eve_spi_read_8(eve, EVE_REG_FLASH_STATUS);
 }
 
+uint32_t eve_get_flash_size(eve_t* eve)
+{
+	return eve_spi_read_32(eve, EVE_REG_FLASH_SIZE);
+}
+
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -632,7 +689,9 @@ EVE_FLASH_STATUS_T eve_get_flash_status(eve_t* eve)
 
 static bool eve_init_chip(eve_t* obj)
 {
-	uint8_t pclk_divider = 5;
+	// uint8_t pclk_divider = 5;
+	// PCLK Frequency to calculate the register for
+	uint32_t pclk_hz = 0;
 	uint32_t tmp32;
 	uint8_t regval = 0;
 
@@ -711,7 +770,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 10);
 
-			pclk_divider = 5;
+			pclk_hz = 12000000;
 
 		break;
 
@@ -731,7 +790,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 3);
 
-			pclk_divider = 8;
+			pclk_hz = 7500000;
 
 		break;
 
@@ -751,7 +810,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 8);
 
-			pclk_divider = 7;
+			pclk_hz = 8500000;
 
 			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 3);
 			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 1);
@@ -774,7 +833,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 8);
 
-			pclk_divider = 4;
+			pclk_hz = 15000000;
 
 			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 3);
 			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 0);
@@ -799,7 +858,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 3);
 
-			pclk_divider = 2; // 60MHz / 2 = 30MHz
+			pclk_hz = 30000000;
 
 			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 0);
 			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 1);
@@ -825,7 +884,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 8);
 
-			pclk_divider = 2; // 60MHz / 2 = 30MHz
+			pclk_hz = 30000000;
 
 			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 3);
 			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 1);
@@ -851,7 +910,7 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
 			eve_spi_write_16(obj, EVE_REG_VSYNC1, 43);
 
-			pclk_divider = 2; // 60MHz / 2 = 30MHz
+			pclk_hz = 30000000;
 
 			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 3);
 			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 0);
@@ -859,6 +918,48 @@ static bool eve_init_chip(eve_t* obj)
 			eve_spi_write_8(obj, EVE_REG_DITHER, 1);
 
 		break;
+
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+		case EVE_DISPLAY_TYPE_SMM:
+		{			
+			DBG_ASSERT(obj->hw.external_touch.i2c, NO_ACTION, false, "I2C is missing for auto configuration\n");
+			sld_edid_t edid;
+			FUNCTION_RETURN ret = sld_edid_read(obj->hw.external_touch.i2c, &edid);
+			DBG_ASSERT(ret == FUNCTION_RETURN_OK, NO_ACTION, false, "Read EDID failed\n");
+
+			sld_debug_print(&edid);
+
+			obj->has_touch = (edid.touch == SLD_TOUCH_INTERFACE_CAPACITIVE);
+
+			obj->eve_display_width = edid.rgb.h_res;
+			obj->eve_display_height = edid.rgb.v_res;
+
+			eve_spi_write_16(obj, EVE_REG_HCYCLE, edid.rgb.h_res + edid.rgb.hsync_front_porch + edid.rgb.hsync_back_porch);
+			eve_spi_write_16(obj, EVE_REG_HOFFSET, edid.rgb.hsync_back_porch);
+			eve_spi_write_16(obj, EVE_REG_HSIZE, edid.rgb.h_res);
+			eve_spi_write_16(obj, EVE_REG_HSYNC0, 0);
+			eve_spi_write_16(obj, EVE_REG_HSYNC1, edid.rgb.hsync_front_porch);
+
+			eve_spi_write_16(obj, EVE_REG_VCYCLE, edid.rgb.v_res + edid.rgb.vsync_front_porch + edid.rgb.vsync_back_porch);
+			eve_spi_write_16(obj, EVE_REG_VOFFSET, edid.rgb.vsync_back_porch);
+			eve_spi_write_16(obj, EVE_REG_VSIZE, edid.rgb.v_res);
+			eve_spi_write_16(obj, EVE_REG_VSYNC0, 0);
+			eve_spi_write_16(obj, EVE_REG_VSYNC1, edid.rgb.vsync_front_porch);
+
+			pclk_hz = edid.rgb.pclk_hz;
+			// Limit PCLK to 30MHz, because we had some issues with higher frequencies
+			if(pclk_hz > 30000000)//(edid.rgb.v_res * edid.rgb.h_res * 60))
+			{
+				pclk_hz = 30000000;//(edid.rgb.v_res * edid.rgb.h_res * 60);
+			}
+
+			eve_spi_write_8(obj, EVE_REG_SWIZZLE, 0);
+			eve_spi_write_8(obj, EVE_REG_PCLK_POL, 0);
+			eve_spi_write_8(obj, EVE_REG_CSPREAD, 0);
+			eve_spi_write_8(obj, EVE_REG_DITHER, 1);
+		}
+		break;
+#endif // MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 
 #endif
 
@@ -881,7 +982,52 @@ static bool eve_init_chip(eve_t* obj)
 	eve_spi_write_32(obj, EVE_RAM_DL + 8, EVE_DISPLAY());
 	eve_spi_write_8(obj, EVE_REG_DLSWAP, EVE_VAL_DLSWAP_FRAME);
 
-	eve_spi_write_8(obj, EVE_REG_PCLK, pclk_divider);	// Set PCLK Divider
+	// Calculate pclk
+	{
+		double pll;
+		uint32_t best_reg_pll = 0;
+		uint32_t best_reg_pclk = 0;
+		double best_error = 228000000.0;
+
+		// PLL Multiplier maximum = 19, because 228MHz is maximum PLL frequency
+		for (int pll_reg = 1; pll_reg <= 19; pll_reg++) 
+		{
+			pll = 12000000.0 * pll_reg;
+
+			for (int pclk_reg = 1; pclk_reg <= 255; pclk_reg++) 
+			{ 
+				double pclk = pll / (pclk_reg * 2.0);
+				double error = (double)pclk_hz - pclk;
+
+				if (error < best_error && error >= 0.0) 
+				{
+					// DBG_INFO("PCLK: %u, PLL: %u, PCLK_DIV: %u, Error: %m, Best Error: %m\n", (uint32_t)(pclk), pll_reg, pclk_reg, (int32_t)(error * 100.0), (int32_t)(best_error * 100.0));
+					best_error = error;
+					best_reg_pll = pll_reg;
+					best_reg_pclk = pclk_reg;
+				}
+			}
+		}
+		uint16_t reg_pclk_freq = (best_reg_pll << 4) | best_reg_pclk;
+		if(best_reg_pll >= 14) // [11:10] = 3 for PLL 160 - 228 MHz
+		{
+			reg_pclk_freq |= 0xC00;
+		}
+		else if(best_reg_pll >= 7) // [11:10] = 2 for PLL 80 - 160MHz
+		{
+			reg_pclk_freq |= 0x800;
+		}
+		else if(best_reg_pll >= 4) // [11:10] = 1 for PLL 40 - 80MHz
+		{
+			reg_pclk_freq |= 0x400;
+		}
+
+		DBG_INFO("PCLK: %u, PLL: %u, PCLK_DIV: %u, REG: %3X\n", (uint32_t)((12000000 * best_reg_pll) / (2 * best_reg_pclk)), best_reg_pll, best_reg_pclk, reg_pclk_freq);
+		
+		// Set PCLK Divider to 1 to use PLL
+		eve_spi_write_8(obj, EVE_REG_PCLK, 1);	
+		eve_spi_write_16(obj, EVE_REG_PCLK_FREQ, reg_pclk_freq);
+	}
 
 	eve_spi_write_8(obj, EVE_REG_ROTATE, obj->eve_display_is_rotated); // Rotate the display if necessary
 
@@ -1018,6 +1164,74 @@ static void _write_touch_fw(eve_t* obj, const uint8_t* touch_fw, size_t size_of_
 	{
 		finished_update = (eve_spi_read_16_twice(obj, EVE_REG_CMD_READ) == eve_spi_read_16_twice(obj, EVE_REG_CMD_WRITE));
 	}while( (system_get_tick_count() - timestamp) < 500 && !finished_update);
+}
+
+static int _touch_task(struct pt* pt)
+{
+	static uint16_t x_old[5] = {0};
+	static uint16_t y_old[5] = {0};
+	static uint16_t strength_old[5] = {0};
+	static uint8_t point_num_old = 0;
+	static int i;
+
+	eve_t* eve = pt->obj;
+
+	PT_BEGIN(pt);
+
+	// Write a touch released once to start the touch engine
+	eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_X, 0x8000);
+	eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_Y, 0x8000);
+	eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, 0);
+	eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, 0xF);
+
+	while(1)
+	{
+		PT_YIELD_MS(pt, 10);
+		lcd_touch_read_data(eve->touch);
+		uint16_t x[5] = {0};
+		uint16_t y[5] = {0};
+		uint16_t strength[5] = {0};
+		uint8_t point_num = 0;
+		lcd_touch_get_xy(eve->touch, x, y, strength, &point_num, 5);
+
+		bool changed = (point_num != point_num_old);
+		changed |= (memcmp(x, x_old, sizeof(x)) != 0);
+		changed |= (memcmp(y, y_old, sizeof(y)) != 0);
+		changed |= (memcmp(strength, strength_old, sizeof(strength)) != 0);
+		
+		if(changed)
+		{
+			memcpy(x_old, x, sizeof(x));
+			memcpy(y_old, y, sizeof(y));
+			memcpy(strength_old, strength, sizeof(strength));
+			point_num_old = point_num;
+
+			// Wait until touch engine is ready to accept a touch
+			PT_YIELD_UNTIL(pt, eve_spi_read_8(eve, EVE_REG_EHOST_TOUCH_ACK) == 1);
+
+			if(point_num_old == 0)
+			{
+				// Set this for a touch release event
+				eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_X, 0x8000);
+				eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_Y, 0x8000);
+				eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, 0);
+				eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, 0xF);
+			}
+			else
+			{
+				// Write all touches to the touch engine
+				for(i = 0; i < point_num_old; i++)
+				{
+					eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_X, x_old[i]);
+					eve_spi_write_16(eve, EVE_REG_EHOST_TOUCH_Y, y_old[i]);
+					eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, i);
+					eve_spi_write_8(eve, EVE_REG_EHOST_TOUCH_ID, 0xF);					
+				}
+			}
+		}		
+	}
+
+	PT_END(pt);
 }
 
 #endif
