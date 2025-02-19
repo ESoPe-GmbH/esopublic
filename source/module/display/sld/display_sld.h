@@ -74,8 +74,10 @@ typedef struct display_sld_hardware_s
 {
     /// Hardware configuration for the connection to the display.
     display_common_hardware_t display;
+#if MCU_PERIPHERY_DEVICE_COUNT_PWM > 0
     /// Hardware configuration for a PWM used for the backlight of the display.
     mcu_pwm_config_hw_t backlight;
+#endif
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
     /// Hardware configuration for the touch interface I2C is used for touch and eeprom.
     st1633i_hw_config_t touch;

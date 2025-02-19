@@ -78,7 +78,9 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     DBG_ASSERT(ret == FUNCTION_RETURN_OK, goto error, NULL, "Failed to read eeprom\n");
 
+#if MCU_PERIPHERY_DEVICE_COUNT_PWM > 0
     device->backlight = mcu_pwm_create(&config->backlight, NULL);
+#endif
 
     mcu_io_set_dir(config->display.rgb.disp_en, MCU_IO_DIR_OUT);
     mcu_io_set(config->display.rgb.disp_en, 1);
@@ -264,7 +266,9 @@ error:
 
 void display_sld_set_backlight(display_sld_handle_t device, float pwm)
 {
+#if MCU_PERIPHERY_DEVICE_COUNT_PWM > 0
     mcu_pwm_set_duty_cycle(device->backlight, (uint32_t)(pwm * 100.0));
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
