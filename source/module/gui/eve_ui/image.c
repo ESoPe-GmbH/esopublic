@@ -170,6 +170,8 @@ bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, u
 	}
 
 
+	DBG_INFO("%s -> x: %d, y: %d ptr: %u\n", filename, x, y, obj->component.mem_file_ptr->address);
+
 //	// Register reset action to reload the image to the ram of the eve.
 //	obj->reset_action.f = (void(*)(void*,void*))image_load_from_flash;
 //	obj->reset_action.p1 = &screen_get_default_device()->eve;
@@ -409,7 +411,7 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 {
 	eve_t* eve = component_get_eve((component_t*)obj);
 //#if IMAGE_DEBUG_ERROR
-//		dbg_printf(DBG_STRING, "Image:%s, Pointer:%d\n", obj->filename, obj->ptr);	// TIKO: THAT IS NO ERROR PRINT!!!!!!!
+	// dbg_printf(DBG_STRING, "Image:%s, Pointer:%u\n", obj->filename, obj->component.mem_file_ptr->address);	// TIKO: THAT IS NO ERROR PRINT!!!!!!!
 //#endif
 	if(eve == NULL || obj == NULL)
 	{
@@ -422,6 +424,9 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 	if(obj->action_callback != NULL)
 		eve_copro_add_tag(eve, &obj->component);
 
+	eve_copro_write_command(eve, EVE_VERTEX_FORMAT(0)); // Pixel precision: 1
+	eve_copro_set_color(eve, color_get_argb(0xFF, 0xFF, 0xFF, 0xFF));
+
 #if EVE_USE_FT81X
 	if(obj->fileformat == IMAGE_FILEFORMAT_JPG)
 	{
@@ -431,10 +436,9 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 
 		// DBG_INFO("Image: %d/%d\n", p.x, p.y);
 
-		eve_copro_set_color(eve, color_get(COLOR_WHITE));
 		uint32_t commands[3] = {
 			EVE_BEGIN(EVE_BITMAPS),
-			EVE_VERTEX2II(p.x, p.y, 0, 0),
+			EVE_VERTEX2F(p.x, p.y),
 			EVE_END()
 		};
 
@@ -456,8 +460,6 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 	//
 	//	eve_copro_write_command(eve, EVE_COLOR_RGB(0xFF, 0xFF, 0xFF));
 	//	eve_copro_write_command(eve, EVE_COLOR_A(0xFF));
-		eve_copro_set_color(eve, color_get_argb(0xFF, 0xFF, 0xFF, 0xFF));
-		// eve_copro_write_command(eve, EVE_VERTEX_FORMAT(0)); // Pixel precision: 1
 		// eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
 		eve_copro_set_bitmap(eve, obj->component.mem_file_ptr->address, obj->format, obj->component.size.width, obj->component.size.height);
 		// Set image on display
@@ -492,8 +494,8 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 
 		p = component_get_origin(&obj->component, p);
 
-		eve_copro_write_command(eve, EVE_VERTEX2II( p.x, p.y, 0, 0));
-		// eve_copro_write_command(eve, EVE_VERTEX2F( p.x, p.y));
+		// eve_copro_write_command(eve, EVE_VERTEX2II( p.x, p.y, 0, 0));
+		eve_copro_write_command(eve, EVE_VERTEX2F( p.x, p.y));
 		eve_copro_write_command(eve, EVE_END());
 
 	#if EVE_USE_FT81X
