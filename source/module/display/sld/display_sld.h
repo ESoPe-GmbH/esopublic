@@ -51,7 +51,6 @@
             .data_width = 16,    \
             .disp_en = GPIO42    \
         },    \
-        .on_frame_trans_done = NULL    \
     },    \
     .backlight =     \
     {    \
