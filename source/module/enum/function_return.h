@@ -87,6 +87,7 @@ typedef enum FUNCTION_RETURN_E
 }FUNCTION_RETURN_T;
 
 /// Definition for legacy compatibility @see FUNCTION_RETURN_T.
+/// @deprecated Use FUNCTION_RETURN_T instead.
 #define FUNCTION_RETURN		FUNCTION_RETURN_T
 
 #endif /* FUNCTION_RETURN_H_ */
