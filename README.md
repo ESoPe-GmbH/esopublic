@@ -4,6 +4,24 @@
 
 To use this library with an ESP32 you need to use the ESP-IDF. It is tested to work with version 4.4.6 and 5.2.1.
 
+### Using the ESP Component Registry
+
+This module is listed in the [ESP Component Registry](https://components.espressif.com/components/esope-gmbh/esopublic). To add it to your ESP-IDF project just open a terminal in the root directory of your project and run the following command:
+
+```bash
+idf.py add-dependency "esope-gmbh/esopublic"
+```
+
+Afterwards edit the `CMakeLists.txt` in the `main` directory to require the `esopublic` component. For example:
+
+```cmake
+idf_component_register(SRCS "main.c" INCLUDE_DIRS "." REQUIRES esopublic)
+```
+
+For more information about the ESP Component Registry check out the [documentation](https://docs.espressif.com/projects/idf-component-manager/en/latest/)
+
+### As a git submodule
+
 Create a folder called `components` in the root directory of your ESP-IDF project if it is not already present and copy this folder into it or link the repository as a git submodule by running the following command in the root directory of the project
 
 ```bash
