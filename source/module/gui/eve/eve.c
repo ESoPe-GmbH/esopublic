@@ -84,9 +84,9 @@ static void eve_throw_error(eve_t* obj, EVE_ERROR err, const char* msg);
  * @param size_of_touch_fw 	Size of the touch firmware in byte, as retrieved by sizeof(touch_fw).
  */
 static void _write_touch_fw(eve_t* obj, const uint8_t* touch_fw, size_t size_of_touch_fw);
-
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 static int _touch_task(struct pt* pt);
-
+#endif
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Module Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -108,9 +108,9 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 	bool is_new_pd = true;
 	if(obj == NULL)
 		return false;
-
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 	system_task_init_protothread(&obj->touch_task, false, _touch_task, obj);
-
+#endif
 	// Initialize variables
 	obj->eve_dli = 0;
 	obj->eve_display_width = 0;
@@ -216,12 +216,13 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 
 void eve_init_touch(eve_t* obj)
 {
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 	if(obj->hw.external_touch.i2c)
 	{
 		// External touch connected to eve
 
 		DBG_INFO("External touch connected to eve\n");
-#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
+
 		if(obj->touch_device)
 		{
 			st1633i_free(obj->touch_device);
@@ -251,12 +252,12 @@ void eve_init_touch(eve_t* obj)
 
 			system_task_add(&obj->touch_task);
         }
-
-#else
-		DBG_ERROR("Touch is not supported\n");
-#endif
 		return;
 	}
+#else
+		DBG_ERROR("Touch is not supported\n");
+		return;
+#endif
 //	dbg_printf(DBG_STRING, "eve_init_touch(%d)\n", obj->type);
 	switch(obj->type)
 	{
@@ -1166,6 +1167,7 @@ static void _write_touch_fw(eve_t* obj, const uint8_t* touch_fw, size_t size_of_
 	}while( (system_get_tick_count() - timestamp) < 500 && !finished_update);
 }
 
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 static int _touch_task(struct pt* pt)
 {
 	static uint16_t x_old[5] = {0};
@@ -1233,5 +1235,6 @@ static int _touch_task(struct pt* pt)
 
 	PT_END(pt);
 }
+#endif
 
 #endif
