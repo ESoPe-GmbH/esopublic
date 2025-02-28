@@ -22,8 +22,13 @@
 
 #include "mcu/common/mcu_internal.h"
 
+// Note: We deactivate the new api for now, because we encounter lots of timeouts with it and possible deadlocks when timeouts occur.
+// #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL\(5, 4, 0\)
+// #define USE_I2C_MASTER_API		1
+// #endif
+
 #include "driver/uart.h"
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
 #include "driver/i2c_master.h"
 #else
 #include "driver/i2c.h"

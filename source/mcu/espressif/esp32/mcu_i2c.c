@@ -31,7 +31,7 @@ struct mcu_i2c_s
     uint8_t num;
     /// Address of the slave device
     uint8_t address;
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     /// Config of the ESP32 i2c master driver.
     i2c_master_bus_config_t conf;
     /// @brief Bus handle of i2c master driver
@@ -88,7 +88,7 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
 
     i2c->initialized = true;
     i2c->num = num;
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     i2c->conf.i2c_port = num;
     i2c->conf.sda_io_num = sda;
     i2c->conf.scl_io_num = scl;
@@ -137,7 +137,7 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
 
 void mcu_i2c_free(mcu_i2c_t h)
 {    
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     if(h->bus_handle)
     {
         i2c_del_master_bus(h->bus_handle);
@@ -160,7 +160,7 @@ void mcu_i2c_set_frq(mcu_i2c_t i2c, uint32_t frequency)
     if(i2c == NULL)
         return;
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     i2c->dev_conf.scl_speed_hz = frequency;
 #else
     esp_err_t err;
@@ -184,7 +184,7 @@ uint32_t mcu_i2c_get_frq(mcu_i2c_t i2c)
     if(i2c == NULL)
         return 0;
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     return i2c->dev_conf.scl_speed_hz;
 #else
     return i2c->conf.master.clk_speed;
@@ -196,7 +196,7 @@ void mcu_i2c_set_address(mcu_i2c_t i2c, uint8_t address)
     if(i2c == NULL)
         return;
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     i2c->dev_conf.device_address = address;
 #endif
     i2c->address = address << 1;
@@ -212,7 +212,7 @@ bool mcu_i2c_wr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* rbuf, size_t
         return false;
     }
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     err = i2c_master_bus_add_device(i2c->bus_handle, &i2c->dev_conf, &i2c->dev_handle);
 
     if(rbuf == NULL || rlen == 0)
@@ -285,7 +285,7 @@ end:
 bool mcu_i2c_wwr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* w2buf, size_t w2len, uint8_t* rbuf, size_t rlen)
 {        
     esp_err_t err = ESP_OK;
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
+#if USE_I2C_MASTER_API
     err = i2c_master_bus_add_device(i2c->bus_handle, &i2c->dev_conf, &i2c->dev_handle);
 
     if(wbuf && wlen > 0 && w2buf && w2len > 0)
