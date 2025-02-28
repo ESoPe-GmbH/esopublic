@@ -110,8 +110,10 @@ typedef struct
 #endif
 	// /// @brief Pointer to an external i2c for touch interface. In case of SMM Displays, this is the i2c of the eeprom to read edid for automatic configuration.
 	// i2c_t* i2c_touch;
+#if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 	/// Hardware config for external touch that is connected to host cpu. To enable it, set an i2c handler to the i2c pointer. Is needed for SMM Displays.
 	st1633i_hw_config_t external_touch;
+#endif
 }eve_hw_interface_t;
 
 /**
