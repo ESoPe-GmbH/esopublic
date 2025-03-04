@@ -215,11 +215,11 @@ typedef struct
 //	/// re-initialized.
 //	eve_reset_action_t reset_action;
 
-	/// Scaling factor for the image. 256 is no scaling, < 256 is upscaling, > 256 is downscaling. Format ist 8.8 Bit
-	uint16_t scale_x;
+	/// Scaling factor for the image. (drawn width / source width)
+	float scale_x;
 
-	/// Scaling factor for the image. 256 is no scaling, < 256 is upscaling, > 256 is downscaling. Format ist 8.8 Bit
-	uint16_t scale_y;
+	/// Scaling factor for the image.  (drawn height / source height)
+	float scale_y;
 
 	/// Memory object for the image. Is needed for handling multiple images on the screen of the same image. Ensures
 	/// that it is stored in memory only once.
@@ -288,15 +288,11 @@ void image_set_visible(image_t* obj, bool b);
 void image_set_action(image_t* obj, void(*pressed_callback)(image_t*));
 
 /**
- * @brief 	Sets the inverse scaling of the image in fixed 8.8bit notation
- * 			If you write the scaling as a hex number the encoding becomes more transparent:
- * 			0x0200 = 2.0 -> Half the original size
- * 			0x0201 = 2.00391
- * 			0x0080 = 0.5 -> Double the original size
- *
+ * @brief 	Sets the target size of the image that is shown. The source image is transformed to match this values.
  *
  * @param obj					Pointer to the button object.
- * @param scale_factor			The scaling of the image in fixed 8.8bit notation (e.g 1.0 = 0x0100 = 256)
+ * @param width					Width of the image that is shown
+ * @param width					Height of the image that is shown
  */
 void image_set_scale(image_t* obj, uint16_t width, uint16_t height);
 
