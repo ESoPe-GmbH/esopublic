@@ -114,8 +114,8 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
 
     display_device_reset(device->display);
     display_device_init(device->display);    
-    display_device_mirror(device->display, rotate, false);
-    display_device_swap_xy(device->display, rotate);
+    display_device_mirror(device->display, false, false);
+    display_device_swap_xy(device->display, false);
 
     return device;
 error:
