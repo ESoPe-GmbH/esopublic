@@ -12,6 +12,7 @@
 #include "../eve/eve_copro.h"
 #include "../eve/eve_memory.h"
 #include "screen.h"
+#include "module/comm/dbg.h"
 #include "module/convert/string.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -70,6 +71,7 @@ static const uint8_t _font_21[] = {
 
 void font_initalize_default_fonts(eve_t* eve)
 {
+	DBG_INFO("Font initialize defaults\n");
 	uint8_t i;
 
 	for(i = 0; i < 16; i++)
@@ -79,8 +81,10 @@ void font_initalize_default_fonts(eve_t* eve)
 
 	eve->memory.metric_address = eve_spi_read_32(eve, EVE_ROM_FONT_ADDR);
 //	dbg_printf(DBG_STRING, "Metric Address %08x\n", eve->memory.metric_address);
-	for(i = 16; i < 32; i++)
-		eve->memory.font[i].height = eve_spi_read_32(eve, eve->memory.metric_address + (148 * (i-16)) + 140);
+	for(i = 0; i < 16; i++)
+		eve->memory.font[i].height = eve_spi_read_32(eve, eve->memory.metric_address + (148 * i + 140));
+	// for(i = 16; i < 32; i++)
+	// 	eve->memory.font[i].height = eve_spi_read_32(eve, eve->memory.metric_address + (148 * (i-16)) + 140);
 
 #if EVE_ENABLE_FONT16
 	_INIT_FONT(16);
