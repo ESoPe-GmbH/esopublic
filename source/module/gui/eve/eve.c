@@ -580,14 +580,14 @@ FUNCTION_RETURN_T eve_init_flash(eve_t* eve)
 		flash_status = eve_get_flash_status(eve);
 	}
 
-	if(flash_status == EVE_FLASH_STATUS_BASIC)
-	{
-		result = eve_copro_flash_fast(eve);
-		if(result != 0)
-			DBG_ERROR("Flash Fast: %04x\n", result);
+	// if(flash_status == EVE_FLASH_STATUS_BASIC)
+	// {
+	// 	result = eve_copro_flash_fast(eve);
+	// 	if(result != 0)
+	// 		DBG_ERROR("Flash Fast: %04x\n", result);
 		
-		flash_status = eve_get_flash_status(eve);
-	}	
+	// 	flash_status = eve_get_flash_status(eve);
+	// }	
 	
 
 	if(flash_status == EVE_FLASH_STATUS_BASIC)
@@ -596,24 +596,34 @@ FUNCTION_RETURN_T eve_init_flash(eve_t* eve)
 		uint32_t ptr_ram = EVE_RAM_G + EVE_RAM_SIZE - 4096;
 		uint32_t ptr_flash = 0;
 		uint32_t length = 4096;
+		
+		eve_copro_flash_read_to_ram(eve, 0x00080000, 0, 4096);
+		eve_spi_read_data(eve, 0x00080000, buffer, 4096);
+
+		bool is_correct = memcmp(buffer, eve_blob_content, 4096) == 0;
+
+		DBG_INFO("Blob: %s\n", is_correct ? "is ok" : "is not ok");
 
 		// Write blob to RAM
 		eve_spi_write_data(eve, ptr_ram, eve_blob_content, length, false);
-		
-		DBG_INFO("Update Flash\n");
 
-		// Update one sector from ram
-		eve_copro_flash_update_from_ram(eve, ptr_ram, ptr_flash, length);
-		
-		flash_status = eve_get_flash_status(eve);
-
-		if(flash_status != EVE_FLASH_STATUS_BASIC)
+		if(!is_correct)
 		{
-			DBG_INFO("Attach flash\n");
-			eve_copro_flash_attach(eve);
-
+			DBG_INFO("Update Flash\n");
+	
+			// Update one sector from ram
+			eve_copro_flash_update_from_ram(eve, ptr_ram, ptr_flash, length);
+			
 			flash_status = eve_get_flash_status(eve);
-		}	
+	
+			if(flash_status != EVE_FLASH_STATUS_BASIC)
+			{
+				DBG_INFO("Attach flash\n");
+				eve_copro_flash_attach(eve);
+	
+				flash_status = eve_get_flash_status(eve);
+			}	
+		}		
 
 		// Free the buffer again
 		mcu_heap_free(buffer);
