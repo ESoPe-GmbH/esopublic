@@ -900,7 +900,7 @@ void eve_copro_number(eve_t* eve, int32_t x, int32_t y, uint16_t font, EVE_OPT_T
 //	eve_copro_write_string(eve, obj->text, len);
 //}
 
-void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, uint16_t option, uint16_t font, char* text)
+void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, EVE_OPT_SLIDER option, uint16_t font, char* text)
 {
 	uint16_t len;
 
@@ -920,6 +920,24 @@ void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, 
 	eve_copro_internal_write_command(eve, w | ((uint32_t)h << 16));
 	eve_copro_internal_write_command(eve, font | ((uint32_t)option << 16));
 	eve_copro_write_string(eve, text, len);
+}
+
+void eve_copro_slider(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, EVE_OPT_SLIDER option, uint16_t value, uint16_t range)
+{
+	uint16_t len;
+
+	if(eve == NULL)
+		return;
+
+	uint32_t options[4] = 
+	{
+		x | ((uint32_t)y << 16),
+		w | ((uint32_t)h << 16),
+		option | ((uint32_t)value << 16),
+		range
+	};
+
+	eve_copro_internal_write_command_data(eve, 0xffffff10, options, 4, NULL, 0);
 }
 
 void eve_copro_add_tag(eve_t* eve, component_t* obj)

@@ -121,6 +121,13 @@ typedef enum
 	EVE_OPT_GAUGE_NOPOINTER = 0x4000		///< The Co-processor gauge has no pointer
 }EVE_OPT_GAUGE;
 
+typedef enum
+{
+	EVE_OPT_SLIDER_DEFAULT = 	0x0000,		///< 3D-effect
+	EVE_OPT_SLIDER_3D 		= 	0x0000,		///< 3D-effect
+	EVE_OPT_SLIDER_FLAT 	= 	0x0100,		///< Slider is flat without 3D-effect
+}EVE_OPT_SLIDER;
+
 /**
  * @enum eve_opt_playvideo_e
  * 
@@ -508,6 +515,20 @@ void eve_copro_number(eve_t* eve, int32_t x, int32_t y, uint16_t font, EVE_OPT_T
  * @param y			y-offset of the parent component.
  */
 void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, uint16_t option, uint16_t font, char* text);
+
+/**
+ * @brief This command is to draw a slider. 
+ * 
+ * @param eve 
+ * @param x 		x-coordinate of slider top-left, in pixels 
+ * @param y 		y-coordinate of slider top-left, in pixels
+ * @param w 		width of slider, in pixels. If width is greater than height, the scroll bar is drawn horizontally 
+ * @param h 		height of slider, in pixels. If height is greater than width, the scroll bar is drawn vertically 
+ * @param option 	By default, the slider is drawn with a 3D effect. OPT_FLAT removes the 3D effect 
+ * @param value 	Displayed value of slider, between 0 and range inclusive 
+ * @param range 	Maximum value 
+ */
+void eve_copro_slider(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, EVE_OPT_SLIDER option, uint16_t value, uint16_t range);
 
 /**
  * @brief	Adds a tag number to the next drawn co-processor commands until eve_copro_clear_tag() is called.
