@@ -68,4 +68,26 @@ int math_log2_int(int value)
 	return 31 - __builtin_clz(value);
 }
 
+uint32_t math_sum_u32(uint32_t* array, size_t num)
+{
+	uint32_t sum = 0;
+	while(num > 0)
+	{
+		sum += array[num-1];
+		num--;
+	}
+	return sum;
+}
+
+int32_t math_sum_i32(int32_t* array, size_t num)
+{
+	int32_t sum = 0;
+	while(num > 0)
+	{
+		sum += array[num-1];
+		num--;
+	}
+	return sum;
+}
+
 #endif

@@ -91,6 +91,24 @@ uint8_t math_hexlen(uint32_t value);
  */
 int math_log2_int(int value);
 
+/**
+ * @brief Calculates the sum of an array from uint32_t values.
+ * 
+ * @param array         Pointer to the array
+ * @param num           Number of elements in the array
+ * @return uint32_t     Sum of the elements in the array.
+ */
+uint32_t math_sum_u32(uint32_t* array, size_t num);
+
+/**
+ * @brief Calculates the sum of an array from int32_t values.
+ * 
+ * @param array         Pointer to the array
+ * @param num           Number of elements in the array
+ * @return int32_t     Sum of the elements in the array.
+ */
+int32_t math_sum_i32(int32_t* array, size_t num);
+
 #endif
 
 #endif
