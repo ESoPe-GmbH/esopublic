@@ -900,7 +900,7 @@ void eve_copro_number(eve_t* eve, int32_t x, int32_t y, uint16_t font, EVE_OPT_T
 //	eve_copro_write_string(eve, obj->text, len);
 //}
 
-void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, EVE_OPT_SLIDER option, uint16_t font, char* text)
+void eve_copro_button(eve_t* eve, int32_t x, int32_t y, uint16_t w, uint16_t h, uint16_t option, uint16_t font, char* text)
 {
 	uint16_t len;
 
