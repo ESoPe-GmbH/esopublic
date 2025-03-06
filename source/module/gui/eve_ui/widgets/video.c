@@ -151,6 +151,7 @@ static void _paint(video_t* c, eve_ui_point_t p)
             eve_copro_playvideo(eve, options, NULL, 0);
             // Video is stored at the beginning of the RAM and overwrites existing images at this place. Therefore we need to clear all memory pointers and reserve.
             eve_memory_clear(eve);
+            
             // Read the size of the ram that was allocated for the video.
             // uint32_t size = eve_copro_getptr(eve);
             // Update memory file pointer
@@ -178,6 +179,10 @@ static void _paint(video_t* c, eve_ui_point_t p)
             eve_spi_write_8(eve, EVE_REG_PLAY_CONTROL, 0);
         }
         // Other cases are ignored, since nothing will be played.
+    }
+    else if(c->control == VIDEO_CONTROL_PLAY)
+    {
+        // Do nothing
     }
     else // Stop
     {

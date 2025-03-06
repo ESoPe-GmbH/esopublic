@@ -282,6 +282,15 @@ void eve_copro_swap(eve_t* eve);
 // TODO: Description
 void eve_copro_set_bitmap(eve_t* eve, uint32_t address, uint32_t format, uint16_t width, uint16_t height);
 
+/**
+ * @brief This command is used to apply a scale to the current matrix (bitmap).abs
+ * 
+ * @param eve 		Pointer to the eve handler.
+ * @param scale_x 	Scale factor on x-axis
+ * @param scale_y 	Scale factor on y-axis
+ */
+void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y);
+
 // TODO: Description
 void eve_copro_loadimage(eve_t* eve, uint32_t ptr, EVE_OPT_IMAGE opt_image, const uint8_t* data, uint32_t length);
 /**

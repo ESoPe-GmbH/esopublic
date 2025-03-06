@@ -14,6 +14,7 @@
 #include "../eve_ui/screen.h"
 #include "mcu/sys.h"
 #include "module/comm/dbg.h"
+#include "module/convert/math.h"
 
 #if EVE_COPRO_ENABLE_SNAPSHOT && MODULE_ENABLE_MMC && MODULE_ENABLE_IMAGE
 #include "module/mmc/mmc.h"
@@ -363,6 +364,30 @@ void eve_copro_set_bitmap(eve_t* eve, uint32_t address, uint32_t format, uint16_
 	};
 
 	eve_copro_internal_write_command_data(eve, 0xffffff43, options, 3, NULL, 0);
+}
+
+void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y)
+{
+	if(eve == NULL)
+		return;
+
+	uint32_t commands[2] = 
+	{
+		EVE_BITMAP_TRANSFORM_A_8_8((uint32_t)roundf(256.0f * scale_x)),
+		EVE_BITMAP_TRANSFORM_E_8_8((uint32_t)roundf(256.0f * scale_y))
+	};
+	eve_copro_write_commands(eve, commands, 2);
+
+	DBG_INFO("Scale x %d.%d x %d.%d\n", (commands[0] & 0xFF00) >> 8, (commands[0] & 0xFF) * 100 / 256, (commands[1] & 0xFF00) >> 8, (commands[1] & 0xFF) * 100 / 256);
+
+	// Below is used when loadidentity and setmatrix are also used, above is used for current bitmap
+
+	// uint32_t options[2] = {
+	// 	(uint32_t)round(65536.0 * scale_x),
+	// 	(uint32_t)round(65536.0 * scale_y)
+	// };
+
+	// eve_copro_internal_write_command_data(eve, 0xffffff28, options, 2, NULL, 0);
 }
 
 // TODO: eve_copro_loadimage_mmc -> Filename instead of buffer and loads the data from mmc 
