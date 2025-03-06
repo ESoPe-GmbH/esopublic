@@ -692,6 +692,84 @@ uint32_t eve_get_flash_size(eve_t* eve)
 	return eve_spi_read_32(eve, EVE_REG_FLASH_SIZE);
 }
 
+FUNCTION_RETURN_T eve_flash_read_asset_infos(eve_t* eve, eve_asset_infos_handle_t* infos)
+{
+	eve_asset_infos_handle_t h = NULL;
+	uint16_t buffer[2] = {0};
+
+	return FUNCTION_RETURN_UNSUPPORTED; // For now not ready
+
+	ASSERT_RET_NOT_NULL(eve, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+	ASSERT_RET_NOT_NULL(infos, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+	EVE_FLASH_STATUS_T status = eve_get_flash_status(eve);
+	ASSERT_RET(status == EVE_FLASH_STATUS_BASIC || status == EVE_FLASH_STATUS_FULL, NO_ACTION, FUNCTION_RETURN_DEVICE_ERROR, "Flash not initialized\n");
+
+	h = mcu_heap_calloc(1, sizeof(eve_asset_infos_t));
+	ASSERT_RET(h, NO_ACTION, FUNCTION_RETURN_INSUFFICIENT_MEMORY, "Cannot allocate buffer\n");
+
+	eve_copro_flash_read_to_ram(eve, EVE_RAM_G, 4096, 4);
+	eve_spi_read_data(eve, EVE_RAM_G, (uint8_t*)buffer, sizeof(buffer));
+	
+	DBG_INFO("Flash assets: %4Q -> %d %d\n", buffer, buffer[0], buffer[1]);
+
+	ASSERT_RET(buffer[1] == sizeof(eve_asset_info_t), goto error, FUNCTION_RETURN_INVALID_VALUE, "Invalid asset info size\n");
+
+	h->number_of_infos = buffer[0];
+	h->infos = mcu_heap_calloc(buffer[0], buffer[1]);
+	ASSERT_RET(h->infos, goto error, FUNCTION_RETURN_INSUFFICIENT_MEMORY, "Cannot allocate buffer\n");
+
+	// uint32_t block_size = (uint32_t)buffer[0] * (uint32_t)buffer[1];
+	// uint8_t* ptr = (uint8_t*)h->infos;
+
+	// int offset = 4;
+	// for(int o = 0; o < block_size; o += 4096)
+	// {
+	// 	uint32_t len = block_size - o;
+	// 	if(len > 4096)
+	// 	{
+	// 		len = 4096;
+	// 	}
+	// 	eve_copro_flash_read_to_ram(eve, EVE_RAM_G, 4096 + o, len);
+	// 	eve_spi_read_data(eve, EVE_RAM_G, &ptr[offset], len);
+	// 	offset += len;
+	// }
+
+	// for(int i = 0; i < h->number_of_infos; i++)
+	// {
+	// 	ASSERT_RET(h->infos[i].assetID == i, goto error, FUNCTION_RETURN_READ_ERROR, "Invalid asset ID %d at %d\n", h->infos[i].assetID, i);
+	// 	DBG_INFO("%d: Type %d Subtype %d Width %d Height %d\n", i, h->infos[i].type, h->infos[i].subType, h->infos[i].width, h->infos[i].height);
+	// }
+
+	*infos = h;
+
+	return FUNCTION_RETURN_OK;
+error:
+	if(h)
+	{
+		if(h->infos)
+		{
+			mcu_heap_free(h->infos);
+			h->infos = NULL;
+		}
+		mcu_heap_free(h);
+	}
+	return FUNCTION_RETURN_EXECUTION_ERROR;
+}
+
+void eve_free_asset_infos(eve_asset_infos_handle_t* infos)
+{
+	if(infos)
+	{
+		mcu_heap_free((*infos)->infos);
+		(*infos)->number_of_infos = 0;
+		(*infos)->infos = NULL;
+		mcu_heap_free(*infos);
+		*infos = NULL;
+		infos = NULL;
+	}
+}
+
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------

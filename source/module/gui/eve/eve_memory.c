@@ -71,7 +71,7 @@ void eve_memory_clear(eve_t* eve)
 	uint16_t i;
 	memset(&eve->memory, 0, sizeof(eve_memory_t));
 	// TODO: Implement logic
-	eve->memory.ram_pointer = EVE_RAM_G;
+	eve->memory.ram_pointer = EVE_RAM_G + 4096; // First 4096 for temporary buffering between flash and ram
 	dbg_printf(DBG_STRING, "EVE Memory Clear\n");
 
 	for(i = 0; i < EVE_MEMORY_FILES_MAX; i++)

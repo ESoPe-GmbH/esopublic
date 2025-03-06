@@ -379,6 +379,41 @@ typedef struct
 #endif
 }eve_t;
 
+#pragma pack(push, 1)
+/// @brief Describes a single asset in the flash
+typedef struct eve_asset_info_s
+{
+	/// @brief ID of the asset
+	uint16_t  assetID;
+	/// @brief Offset from 0
+	uint32_t  startAddress;       
+	/// @brief count in bytes
+	uint32_t  size;
+	/// @brief 0: raw (no compression), 1: bin (deflation)
+	uint8_t   compressionMethod;
+	/// @brief refer to Table 1 in User Guide of EVE Asset Builder
+	uint8_t   type;
+	/// @brief refer to Table 2, 3 in User Guide of EVE Asset Builder
+	uint16_t  subType;
+	/// @brief Width of the image / video
+	uint16_t  width;
+	/// @brief Height of the image / video
+	uint16_t  height;
+}eve_asset_info_t;
+#pragma pack(pop)
+
+/// @brief Contains all asset informations in the flash
+typedef struct eve_asset_infos_s
+{
+	/// @brief Number of elements in the information array
+	uint32_t number_of_infos;
+	/// @brief Array containing the information
+	eve_asset_info_t* infos;
+}eve_asset_infos_t;
+
+/// @brief Handle for the asset informations
+typedef eve_asset_infos_t* eve_asset_infos_handle_t;
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -489,6 +524,20 @@ EVE_FLASH_STATUS_T eve_get_flash_status(eve_t* eve);
  * @return uint32_t The value indicates the capacity of attached flash, in Mbytes. 
  */
 uint32_t eve_get_flash_size(eve_t* eve);
+/**
+ * @brief Reads the asset informations from flash if created using EVE Asset Builder with enabled EDF Block
+ * 
+ * @param eve 	Pointer to eve data context.
+ * @param infos 			Pointer to a handle for the asset infos. The asset info structure is allocated internally for it.
+ * @return FUNCTION_RETURN_T 	FUNCTION_RETURN_OK on success, other on reading error.
+ */
+FUNCTION_RETURN_T eve_flash_read_asset_infos(eve_t* eve, eve_asset_infos_handle_t* infos);
+/**
+ * @brief Free the handle for asset informations, that was created using @c eve_flash_read_asset_infos.
+ * 
+ * @param infos 	Pointer to a handle for the asset infos, that was created using @c eve_flash_read_asset_infos.
+ */
+void eve_free_asset_infos(eve_asset_infos_handle_t* infos);
 #endif
 
 #endif
