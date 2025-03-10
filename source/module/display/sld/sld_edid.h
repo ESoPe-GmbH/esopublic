@@ -14,7 +14,7 @@
 #ifndef __MODULE_SLD_EDID_H_
 #define __MODULE_SLD_EDID_H_
 
-#include "module.h"
+#include "module_public.h"
 #if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
 #include "module/comm/i2c/i2c.h"
 #include "module/enum/function_return.h"
