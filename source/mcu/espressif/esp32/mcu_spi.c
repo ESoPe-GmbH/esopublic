@@ -65,9 +65,9 @@ mcu_spi_t mcu_spi_init_quad(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, MCU_IO_PI
 		handle->semaphore = xSemaphoreCreateMutex();
 
 		handle->num = num;
-		handle->bus.miso_io_num = rx;
-		handle->bus.mosi_io_num = tx;
-		handle->bus.sclk_io_num = clk;
+		handle->bus.miso_io_num = rx == PIN_NONE ? -1 : rx;
+		handle->bus.mosi_io_num = tx == PIN_NONE ? -1 : tx;
+		handle->bus.sclk_io_num = clk == PIN_NONE ? -1 : clk;
 		handle->bus.data2_io_num = io2 == PIN_NONE ? -1 : io2;
 		handle->bus.data3_io_num = io3 == PIN_NONE ? -1 : io3;
 		handle->bus.max_transfer_sz = 4092;
