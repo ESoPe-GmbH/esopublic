@@ -378,7 +378,7 @@ void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y)
 	};
 	eve_copro_write_commands(eve, commands, 2);
 
-	DBG_INFO("Scale x %d.%d x %d.%d\n", (commands[0] & 0xFF00) >> 8, (commands[0] & 0xFF) * 100 / 256, (commands[1] & 0xFF00) >> 8, (commands[1] & 0xFF) * 100 / 256);
+	// DBG_INFO("Scale x %d.%d x %d.%d\n", (commands[0] & 0xFF00) >> 8, (commands[0] & 0xFF) * 100 / 256, (commands[1] & 0xFF00) >> 8, (commands[1] & 0xFF) * 100 / 256);
 
 	// Below is used when loadidentity and setmatrix are also used, above is used for current bitmap
 
