@@ -142,7 +142,7 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 	void* ptr_param;					// Temporary pointer where the type is not needed
 #endif
 
-	if(h==NULL || h->interface==NULL || h->interface->xputc==NULL)	
+	if(h==NULL || str == NULL || h->interface==NULL || h->interface->xputc==NULL)	
 		return;	// Cancel if it cannot be used.
 
 	h->format_len = 0;
