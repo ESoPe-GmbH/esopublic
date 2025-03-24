@@ -76,7 +76,6 @@
 
 #include "common.h"
 
-#include "gui_config.h"
 #include "color.h"
 #include "component.h"
 #include "panel.h"

@@ -596,6 +596,347 @@ menu "Esopublic"
                 bool "Enable / Disable font number 21"
                 default n
 
+            menu "EVE UI defaults"
+                
+                config EVE_UI_DEFAULT_SCREEN_BACKCOLOR
+                    hex "Default screen background color"
+                    default 0xFFFFFF
+
+                config EVE_UI_DEFAULT_FONT
+                    int "Default font"
+                    default 26
+                    help
+                        This option sets the default font for buttons, switch buttons, and text.
+                
+                config EVE_UI_DEFAULT_LINE_SKIP
+                    int "Default line skip"
+                    default 5
+                    help
+                        This option sets the default line skip in multi-line text and button objects.
+                
+                config EVE_UI_ENABLE_FOCUS
+                    bool "Enable focus"
+                    default y
+                    help
+                        This option enables focus for components to show a border on selected components.
+                
+                config EVE_UI_FOCUS_BORDER_SIZE
+                    int "Focus border size"
+                    default 1
+                    help
+                        This option sets the size of the border for focused components.
+                
+                config EVE_UI_FOCUS_BORDER_COLOR
+                    hex "Focus border color"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default color for the border of focused components.
+                
+                choice EVE_UI_BUTTON_DEFAULT_TYPE
+                    prompt "Default button type"
+                    default EVE_UI_BUTTON_TYPE_API
+
+                    config EVE_UI_BUTTON_TYPE_API
+                        bool "1: Use buttons from the API"
+
+                    config EVE_UI_BUTTON_TYPE_RECT
+                        bool "2: Create flat buttons from rectangles"
+
+                    config EVE_UI_BUTTON_TYPE_ROUND
+                        bool "3: Create round buttons"
+
+                    config EVE_UI_BUTTON_TYPE_API_LIKE
+                        bool "4: API-like Button, but created by the library"
+
+                endchoice
+                
+                config EVE_UI_BUTTON_DEFAULT_TYPE
+                    int "Default button type"
+                    default 0 if EVE_UI_BUTTON_TYPE_API
+                    default 1 if EVE_UI_BUTTON_TYPE_RECT
+                    default 2 if EVE_UI_BUTTON_TYPE_ROUND
+                    default 3 if EVE_UI_BUTTON_TYPE_API_LIKE
+                    help
+                        This option sets the default button type.
+                
+                config EVE_UI_BUTTON_DEFAULT_BACKGROUND_COLOR
+                    hex "Default button background color"
+                    default 0xA9A9A9
+                    help
+                        This option sets the default background color for buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_BACKGROUND_COLOR_DISABLED
+                    hex "Default button background color (disabled)"
+                    default 0x696969
+                    help
+                        This option sets the default background color for disabled buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_BACKGROUND_COLOR_PRESSED
+                    hex "Default button background color (pressed)"
+                    default 0x696969
+                    help
+                        This option sets the default background color for pressed buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_TEXT_COLOR
+                    hex "Default button text color"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default text color for buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_TEXT_COLOR_DISABLED
+                    hex "Default button text color (disabled)"
+                    default 0xA9A9A9
+                    help
+                        This option sets the default text color for disabled buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_TEXT_COLOR_PRESSED
+                    hex "Default button text color (pressed)"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default text color for pressed buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_TEXT_FONT
+                    int "Default button text font"
+                    default 26
+                    help
+                        This option sets the default button and switch button font.
+                
+                config EVE_UI_BUTTON_DEFAULT_SHADOW_COLOR
+                    hex "Default button shadow color"
+                    default 0x000000
+                    help
+                        This option sets the default shadow color for buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_HIGHLIGHT_COLOR
+                    hex "Default button highlight color"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default highlight color for buttons.
+                
+                config EVE_UI_BUTTON_DEFAULT_LINE_SKIP
+                    int "Default button line skip"
+                    default 5
+                    help
+                        This option sets the default line skip in multi-line button objects.
+                
+                config EVE_UI_CIRCLE_DEFAULT_BACKGROUND
+                    hex "Default circle background color"
+                    default 0x000000
+                    help
+                        This option sets the default background color for circles.
+                
+                config EVE_UI_RECT_DEFAULT_BACKGROUND
+                    hex "Default rectangle background color"
+                    default 0x000000
+                    help
+                        This option sets the default background color for rectangles.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_BACKGROUND_COLOR
+                    hex "Default switch button background color"
+                    default 0x1E1E1E
+                    help
+                        This option sets the default background color for switch buttons.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_FOREGROUND_COLOR
+                    hex "Default switch button foreground color"
+                    default 0xC0C0C0
+                    help
+                        This option sets the default foreground color for switch buttons.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_TEXT_COLOR
+                    hex "Default switch button text color"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default text color for switch buttons.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_BACKGROUND_COLOR_DISABLED
+                    hex "Default switch button background color (disabled)"
+                    default 0x696969
+                    help
+                        This option sets the default background color for disabled switch buttons.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_TEXT_COLOR_DISABLED
+                    hex "Default switch button text color (disabled)"
+                    default 0xA9A9A9
+                    help
+                        This option sets the default text color for disabled switch buttons.
+                
+                config EVE_UI_SWITCH_BUTTON_DEFAULT_TEXT_FONT
+                    int "Default switch button text font"
+                    default 26
+                    help
+                        This option sets the default switch button font.
+                
+                config EVE_UI_TEXT_DEFAULT_COLOR
+                    hex "Default text color"
+                    default 0x000000
+                    help
+                        This option sets the default color for text objects.
+                
+                config EVE_UI_TEXT_DEFAULT_COLOR_DISABLED
+                    hex "Default text color (disabled)"
+                    default 0x808080
+                    help
+                        This option sets the default color for disabled text.
+                
+                config EVE_UI_TEXT_DEFAULT_FONT
+                    int "Default text font"
+                    default 26
+                    help
+                        This option sets the default text font.
+                
+                config EVE_UI_TEXT_DEFAULT_LINE_SKIP
+                    int "Default text line skip"
+                    default 5
+                    help
+                        This option sets the default line skip in multi-line text objects.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_COLOR_UNFOCUSED
+                    hex "Default edit text color (unfocused)"
+                    default 0x000000
+                    help
+                        This option sets the default color for the text in the edit box when unfocused.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_COLOR_FOCUSED
+                    hex "Default edit text color (focused)"
+                    default 0x000000
+                    help
+                        This option sets the default color for the text in the edit box when focused.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_COLOR_HIDE_TEXT
+                    hex "Default edit text hidden color"
+                    default 0x808080
+                    help
+                        This option sets the default color of the hidden text.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_FONT
+                    int "Default edit text font"
+                    default 28
+                    help
+                        This option sets the default text font for edit text objects.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_BACKGROUND_COLOR_UNFOCUSED
+                    hex "Default edit text background color (unfocused)"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default background color when edit text is not focused.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_BACKGROUND_COLOR_FOCUSED
+                    hex "Default edit text background color (focused)"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default background color when edit text is focused.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_BACKGROUND_COLOR_DISABLED
+                    hex "Default edit text background color (disabled)"
+                    default 0x808080
+                    help
+                        This option sets the default background color when edit text is disabled.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_COLOR_DISABLED
+                    hex "Default edit text color (disabled)"
+                    default 0x696969
+                    help
+                        This option sets the default text color when edit text is disabled.
+                
+                config EVE_UI_EDIT_TEXT_DEFAULT_COLOR_BORDER
+                    hex "Default edit text border color"
+                    default 0x000000
+                    help
+                        This option sets the default border color for edit text.
+                
+                config EVE_UI_TOAST_DEFAULT_DURATION
+                    int "Default toast duration"
+                    default 5000
+                    help
+                        This option sets the number of milliseconds a toast is shown by default.
+                
+                config EVE_UI_TOAST_DEFAULT_BACKGROUND_COLOR
+                    hex "Default toast background color"
+                    default 0xFFFFFF
+                    help
+                        This option sets the background color of the toast.
+                
+                config EVE_UI_TOAST_DEFAULT_BORDER_COLOR
+                    hex "Default toast border color"
+                    default 0x000000
+                    help
+                        This option sets the border color of the toast.
+                
+                config EVE_UI_TOAST_DEFAULT_BACKGROUND_ALPHA
+                    hex "Default toast background alpha"
+                    default 0xB0
+                    help
+                        This option sets the alpha value for the toast to make it transparent.
+                
+                config EVE_UI_TOAST_DEFAULT_TEXT_COLOR
+                    hex "Default toast text color"
+                    default 0x000000
+                    help
+                        This option sets the default text color of a toast.
+                
+                config EVE_UI_TOAST_DEFAULT_FONT
+                    int "Default toast font"
+                    default 26
+                    help
+                        This option sets the default font of a toast to use.
+                
+                config EVE_UI_KEY_DEFAULT_BACKGROUND_COLOR
+                    hex "Default key background color"
+                    default 0xC0C0C0
+                    help
+                        This option sets the default background color for keys.
+                
+                config EVE_UI_KEY_DEFAULT_BACKGROUND_COLOR_DISABLED
+                    hex "Default key background color (disabled)"
+                    default 0x696969
+                    help
+                        This option sets the default background color for disabled keys.
+                
+                config EVE_UI_KEY_DEFAULT_BACKGROUND_COLOR_PRESSED
+                    hex "Default key background color (pressed)"
+                    default 0xFF0000
+                    help
+                        This option sets the default background color for pressed keys.
+                
+                config EVE_UI_KEY_DEFAULT_TEXT_COLOR
+                    hex "Default key text color"
+                    default 0x000000
+                    help
+                        This option sets the default text color for keys.
+                
+                config EVE_UI_KEY_DEFAULT_TEXT_COLOR_DISABLED
+                    hex "Default key text color (disabled)"
+                    default 0xA9A9A9
+                    help
+                        This option sets the default text color for disabled keys.
+                
+                config EVE_UI_KEY_DEFAULT_TEXT_COLOR_PRESSED
+                    hex "Default key text color (pressed)"
+                    default 0xFFFFFF
+                    help
+                        This option sets the default text color for pressed keys.
+                
+                config EVE_UI_KEY_DEFAULT_TEXT_FONT
+                    int "Default key text font"
+                    default 26
+                    help
+                        This option sets the default button and switch button font.
+                
+                config EVE_UI_KEY_DEFAULT_SHADOW_COLOR
+                    hex "Default key shadow color"
+                    default 0x000000
+                    help
+                        This option sets the default shadow color for keys.
+                
+                config EVE_UI_KEY_DEFAULT_LINE_SKIP
+                    int "Default key line skip"
+                    default 5
+                    help
+                        This option sets the default line skip in multi-line key objects.
+                
+            endmenu
+
         endmenu # gui
 
         config MODULE_ENABLE_LCD_TOUCH

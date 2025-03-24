@@ -12,6 +12,7 @@
 #include "esp_lcd_panel_ops.h"
 
 #include "module/convert/convert.h"
+#include "module/comm/dbg.h"
 #include "module/util/assert.h"
 
 #include "eve_spi.h"

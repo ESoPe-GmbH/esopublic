@@ -24,7 +24,11 @@
 #include "module_public.h"
 #if MODULE_ENABLE_GUI
 #include "common.h"
+#if !CONFIG_ESOPUBLIC_ENABLE
 #include "gui_config.h"
+#else
+#include "gui_config_adapter.h"
+#endif
 #include "../eve/eve.h"
 #include "eve_ui_helper.h"
 
@@ -87,7 +91,7 @@ typedef enum component_event_e
 	COMPONENT_EVENT_LOAD = 0x0001,
 	/// @brief Handle that is called periodically while the component is visible.
 	COMPONENT_EVENT_HANDLE = 0x0002,
-	/// @brief Component is unloaded from the screen. Is calles when the screen or panel changes or becomes invisible.
+	/// @brief Component is unloaded from the screen. Is called when the screen or panel changes or becomes invisible.
 	COMPONENT_EVENT_UNLOAD = 0x0004
 }COMPONENT_EVENT_T;
 

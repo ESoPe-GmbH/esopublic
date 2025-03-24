@@ -119,6 +119,12 @@
 #define COLOR_TEXT_GREY					209, 204, 194
 #define COLOR_SCROLLBAR_INNER			230, 225, 214
 
+/// Parse the hex values from the config to the arguments for the color_rgb
+#define COLOR_RGB_FROM_HEX(hex) ((hex >> 16) & 0xFF), ((hex >> 8) & 0xFF), (hex & 0xFF)
+
+/// Parse the hex values from the config to the arguments for the color_argb
+#define COLOR_ARGB_FROM_HEX(hex) ((hex >> 24) & 0xFF), ((hex >> 16) & 0xFF), ((hex >> 8) & 0xFF), (hex & 0xFF)
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Structure
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
