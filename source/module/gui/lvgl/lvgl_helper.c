@@ -37,7 +37,7 @@ static void _lv_tick_interrupt(void *arg) ;
  */
 static void _lv_display_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map);
 
-static IRAM_ATTR bool _display_event(display_handle_t panel, display_event_data_t *edata, void *user_ctx);
+static bool _display_event(display_handle_t panel, display_event_data_t *edata, void *user_ctx);
 
 static void _read_cb(lv_indev_t* indev, lv_indev_data_t* data);
 
