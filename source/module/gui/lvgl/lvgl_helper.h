@@ -59,6 +59,8 @@ typedef struct lvgl_helper_config_s
     lvgl_helper_ui_init_t f_ui_init;
     /// Initial rotation of the display
     lv_display_rotation_t rotation;
+    /// @brief Color format of the display, default is rgb565
+    lv_color_format_t color_format;
 }lvgl_helper_config_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------

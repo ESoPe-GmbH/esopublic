@@ -84,7 +84,12 @@ static void _task_window(void* param)
     lv_display_set_rotation(display, config->rotation);
     lv_display_set_flush_cb(display, _lv_display_flush_cb);
     lv_display_set_user_data(display, config->display);
-    lv_display_set_color_format(display, LV_COLOR_FORMAT_RGB565);
+    lv_color_format_t color_format = config->color_format;
+    if(color_format == LV_COLOR_FORMAT_UNKNOWN)
+    {
+        color_format = LV_COLOR_FORMAT_RGB565;
+    }
+    lv_display_set_color_format(display, color_format);
 
     display_set_event_callback(config->display, _display_event, display);
     
