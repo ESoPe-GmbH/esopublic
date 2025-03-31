@@ -229,6 +229,8 @@ display_handle_t display_sld_init(const display_common_hardware_t* config, const
                 config2.rgb.b[5] = PIN_NONE;
                 config2.rgb.b[6] = PIN_NONE;
                 config2.rgb.b[7] = PIN_NONE;
+
+                device->mcu = display_mcu_init(&config2, device);
             }
         }
 
