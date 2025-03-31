@@ -90,7 +90,7 @@ display_sld_handle_t display_sld_init_hardware(const display_sld_hardware_t* con
     display_sld_init(&config->display, eeid, sizeof(eeid), device);
     DBG_ASSERT(device->display, goto error, NULL, "Failed to initialize display\n");
 
-    bool rotate = device->display->device_config.rgb.v_res > device->display->device_config.rgb.h_res;
+    // bool rotate = device->display->device_config.rgb.v_res > device->display->device_config.rgb.h_res;
 
     if(eeid[2] == 1)
     {
