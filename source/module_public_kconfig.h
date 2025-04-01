@@ -213,6 +213,9 @@
 //------------------------------------
 /// Enable the display driver for Smart line display
 #define DISPLAY_ENABLE_SLD							    CONFIG_DISPLAY_ENABLE_SLD
+
+/// This value is used to calculate the size of the bounce buffer. The percentage is calculated from the display size in pixels.
+#define DISPLAY_SLD_BOUNCE_BUFFER_PERCENTAGE            CONFIG_DISPLAY_SLD_BOUNCE_BUFFER_PERCENTAGE
 #endif
 
 #if MODULE_ENABLE_CONVERT_MATH

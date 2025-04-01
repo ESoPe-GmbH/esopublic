@@ -395,6 +395,14 @@ menu "Esopublic"
                 select MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
                 bool "Enable the display driver for Schukat SLD"
                 default n
+
+            config DISPLAY_SLD_BOUNCE_BUFFER_PERCENTAGE
+                int "Percentage of the display size that is used for the bounce buffer."
+                default 0
+                help
+                    This value is used to calculate the size of the bounce buffer. The percentage is calculated from the display size in pixels.
+                    For example, if the display has a resolution of 800x480 and the percentage is set to 10, the bounce buffer will be 800*480*0.1 = 38400 pixel.
+                    The number of bytes depends on the color depth of the display. For example, if the display has a color depth of 16 bit, the bounce buffer will be 38400*2 = 76800 bytes.
         endmenu
 
         config MODULE_ENABLE_EEPROM
