@@ -94,11 +94,11 @@ static void _task_window(void* param)
     display_set_event_callback(config->display, _display_event, display);
     
     uint32_t buf_size = display_device_get_width(config->display) * display_device_get_height(config->display) * lv_color_format_get_size(lv_display_get_color_format(display));
-    /* Allocate draw buffers on the heap. In this example we use two partial buffers of 1/10th size of the screen */
+    // Allocate draw buffers on the heap.
     lv_color_t * buf1 = NULL;
     lv_color_t * buf2 = NULL;
 
-    lv_display_render_mode_t rendermode = LV_DISPLAY_RENDER_MODE_DIRECT;
+    lv_display_render_mode_t rendermode = LV_DISPLAY_RENDER_MODE_FULL;
 
     // Try to get the framebuffer of the display if it has some
     display_get_framebuffer(config->display, 0, (void**)&buf1);
