@@ -90,6 +90,15 @@ struct display_mcu_data_s
  * @return Whether a high priority task has been waken up by this function
  */
 static bool _on_frame_buf_complete_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
+/**
+ * @brief Called when panel triggers vsync
+ * 
+ * @param[in] panel LCD panel handle, returned from `esp_lcd_new_rgb_panel`
+ * @param[in] edata Panel event data, fed by driver
+ * @param[in] user_ctx User data, passed from `esp_lcd_rgb_panel_config_t`
+ * @return Whether a high priority task has been waken up by this function
+ */
+static bool _on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Functions
@@ -285,7 +294,8 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0)
-        mcu->panel_event_callbacks.on_frame_buf_complete = _on_frame_buf_complete_event;
+        mcu->panel_event_callbacks.on_color_trans_done = _on_frame_buf_complete_event;
+        mcu->panel_event_callbacks.on_vsync = _on_vsync_event;
 #else
         mcu->panel_event_callbacks.on_vsync = _on_frame_buf_complete_event;
 #endif
@@ -467,6 +477,19 @@ static bool IRAM_ATTR _on_frame_buf_complete_event(esp_lcd_panel_handle_t panel,
 {
     display_mcu_handle_t mcu = user_data;
     display_event_data_t event = { .event = DISPLAY_EVENT_TRANS_DONE };
+    
+    if(mcu && mcu->f_on_event)
+    {
+        return mcu->f_on_event(mcu->display, &event, mcu->on_event_ctx);
+    }
+
+    return false;
+}
+
+static bool IRAM_ATTR _on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
+{
+    display_mcu_handle_t mcu = user_data;
+    display_event_data_t event = { .event = DISPLAY_EVENT_ON_VSYNC };
     
     if(mcu && mcu->f_on_event)
     {

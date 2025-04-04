@@ -63,7 +63,10 @@ typedef enum display_device_e
 /// Enumeration for the different display driver to call in @see display_common_init.
 typedef enum display_event_e
 {
+    /// @brief Display event for when the transfer of the framebuffer is done.
     DISPLAY_EVENT_TRANS_DONE,
+    /// @brief Display event for when the display is on and the framebuffer is ready to be used.
+    DISPLAY_EVENT_ON_VSYNC,
 
     /// Max value to limit the enum.
     DISPLAY_EVENT_MAX
