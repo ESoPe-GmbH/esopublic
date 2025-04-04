@@ -164,10 +164,36 @@ display_mcu_handle_t display_mcu_init(const display_common_hardware_t* config, d
         mcu->panel_config.disp_gpio_num = P(config->rgb.disp_en);
         mcu->panel_config.flags.disp_active_low = display->mcu_config.rgb.esp32.flags.disp_active_low;
         mcu->panel_config.flags.fb_in_psram = display->mcu_config.rgb.esp32.flags.fb_in_psram;
-        mcu->panel_config.bounce_buffer_size_px =     mcu->panel_config.timings.h_res   // Width
-                                                    * mcu->panel_config.timings.v_res   // Height
-                                                    * (display->mcu_config.rgb.esp32.bounce_buffer_size_percent / 100.0); // Percentage of the screen used as bounce buffer
-                                                            
+
+        // Width * Height
+        uint32_t max_resolution_px = mcu->panel_config.timings.h_res * mcu->panel_config.timings.v_res;   
+        // Percentage of the screen used as bounce buffer
+        mcu->panel_config.bounce_buffer_size_px = max_resolution_px * (display->mcu_config.rgb.esp32.bounce_buffer_size_percent / 100.0);
+
+        if(display->mcu_config.rgb.esp32.bounce_buffer_size_percent > 0)
+        {
+            size_t v = mcu->panel_config.bounce_buffer_size_px;
+            
+            if (v % 2 != 0) 
+            {
+                v--; // Make v even
+            }
+        
+            while (v > 0) 
+            {
+                if (max_resolution_px % v == 0) 
+                {
+                    break; // Stop when divisor is found
+                }
+                v -= 2; // Reduce by 2 to keep it even
+            }
+
+            mcu->panel_config.bounce_buffer_size_px = v;
+        
+            // mcu->panel_config.bounce_buffer_size_px = math_next_smaller_prime_factor(mcu->panel_config.bounce_buffer_size_px);
+            DBG_INFO("Bounce buffer size: %u px\n", mcu->panel_config.bounce_buffer_size_px);
+        }
+        
     if(config->rgb.data_width == 16)
     {
         mcu->panel_config.data_gpio_nums[0]  = P(config->rgb.b[0]);
