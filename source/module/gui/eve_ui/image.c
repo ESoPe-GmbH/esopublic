@@ -222,6 +222,7 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 
 	eve_copro_write_command(eve, EVE_VERTEX_FORMAT(0)); // Pixel precision: 1
 	eve_copro_set_color(eve, color_get_argb(0xFF, 0xFF, 0xFF, 0xFF));
+	eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
 
 #if EVE_USE_FT81X
 	if(obj->fileformat == IMAGE_FILEFORMAT_JPG || obj->fileformat == IMAGE_FILEFORMAT_PNG)
