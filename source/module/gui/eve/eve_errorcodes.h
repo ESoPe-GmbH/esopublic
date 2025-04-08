@@ -34,6 +34,9 @@ typedef enum
 	/// After EVE_ERROR_INVALID_COPROCESSOR_ERROR the module tries to reinitialize the eve chip. If this failed, the eve cannot be used anymore.
 	EVE_ERROR_REINITIALIZATION_FAILED = 0x0004,
 
+	/// Failed to read the EDID data from the display. This is only used for SLD displays.
+	EVE_ERROR_READING_EDID_FAILED = 0x0005,
+
 }EVE_ERROR;
 
 #endif

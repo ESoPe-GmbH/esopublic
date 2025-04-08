@@ -936,7 +936,7 @@ static bool eve_init_chip(eve_t* obj)
 			DBG_ASSERT(obj->hw.external_touch.i2c, NO_ACTION, false, "I2C is missing for auto configuration\n");
 			sld_edid_t edid;
 			FUNCTION_RETURN ret = sld_edid_read(obj->hw.external_touch.i2c, &edid);
-			DBG_ASSERT(ret == FUNCTION_RETURN_OK, NO_ACTION, false, "Read EDID failed\n");
+			DBG_ASSERT(ret == FUNCTION_RETURN_OK, eve_throw_error(obj, EVE_ERROR_READING_EDID_FAILED, "Reading EDID failed"), false, "Read EDID failed\n");
 
 			sld_debug_print(&edid);
 
