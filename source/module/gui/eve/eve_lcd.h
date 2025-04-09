@@ -1,5 +1,5 @@
 /**
- * @file eve_lcd_esp32.h
+ * @file eve_lcd.h
  * @author Tim Koczwara
  * 
  * @brief 
@@ -15,12 +15,11 @@
 #define __MODULE_EVE_LCD_H_
 
 #include "module_public.h"
-#if MODULE_ENABLE_GUI && MCU_TYPE == MCU_ESP32 && defined(KERNEL_USES_SLINT)
+#if MODULE_ENABLE_GUI && MODULE_ENABLE_DISPLAY && MODULE_ENABLE_LCD_TOUCH
 #include "module/enum/function_return.h"
 
 #include "../eve_ui/screen.h"
-#include "esp_lcd_panel_interface.h"
-#include "esp_lcd_touch.h"
+#include "module/display/display_common.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Definitions for configuration
@@ -49,7 +48,7 @@
 /**
  * Create an ESP panel handle using the eve chip.
 **/
-FUNCTION_RETURN_T eve_lcd_esp32_create(screen_device_t* device, esp_lcd_panel_handle_t* panel_handle, esp_lcd_touch_handle_t* touch_handle);
+FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_handle_t* display_handle, lcd_touch_handle_t* touch_handle);
 
 #endif // MODULE_ENABLE_EVE_LCD
 

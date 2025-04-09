@@ -2,9 +2,9 @@
  * @file eve_lcd_esp32.c
  **/
 
-#include "eve_lcd_esp32.h"
+#include "eve_lcd.h"
 
-#if MODULE_ENABLE_GUI && MCU_TYPE == MCU_ESP32 && defined(KERNEL_USES_SLINT)
+#if MODULE_ENABLE_GUI && MCU_TYPE == MCU_ESP32 && MODULE_ENABLE_DISPLAY && MODULE_ENABLE_LCD_TOUCH
 
 #include "esp_lcd_panel_interface.h"
 #include "esp_lcd_panel_rgb.h"
@@ -14,6 +14,7 @@
 #include "module/convert/convert.h"
 #include "module/comm/dbg.h"
 #include "module/util/assert.h"
+#include "module/display/internal/display_internal_esp32s3.h"
 
 #include "eve_spi.h"
 
@@ -24,10 +25,20 @@
 
 #define EVE_START_ADDRESS           0
 
+#define MAX_TOUCH_POINTS            1
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal structures and enums
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+struct lcd_touch_device_s
+{
+    screen_device_t* device;
+
+    int32_t points;
+    int32_t x[MAX_TOUCH_POINTS];
+    int32_t y[MAX_TOUCH_POINTS];
+};
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Prototypes
@@ -39,9 +50,9 @@ static esp_err_t _disp_on_off(esp_lcd_panel_t *panel, bool on_off);
 
 static void _flush_display(eve_t* eve);
 
-static esp_err_t _read_data(esp_lcd_touch_handle_t tp);
+static FUNCTION_RETURN_T _touch_read_data(lcd_touch_device_handle_t h);
     
-static bool _get_xy(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
+static bool _touch_get_xy(lcd_touch_device_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal variables
@@ -62,41 +73,23 @@ static esp_lcd_panel_t _panel =
     .user_data = NULL
 };
 
-static esp_lcd_touch_t _esp_lcd_touch = 
+const struct lcd_touch_interface_s _lcd_touch_interface = 
 {
-    .enter_sleep = NULL,
-    .exit_sleep = NULL,
-    .read_data = _read_data,
-    .get_xy = _get_xy,
-#if (CONFIG_ESP_LCD_TOUCH_MAX_BUTTONS > 0)
-    .get_button_state = NULL,
-#endif
-    .set_swap_xy = NULL,
-    .get_swap_xy = NULL,
-    .set_mirror_x = NULL,
-    .get_mirror_x = NULL,
-    .set_mirror_y = NULL,
-    .get_mirror_y = NULL,
-    .del = NULL,
-    .config = 
-    {
-        .x_max = 0, // Set in lcd_touch_esp32_create
-        .y_max = 0, // Set in lcd_touch_esp32_create
-        .rst_gpio_num = GPIO_NUM_NC,
-        .int_gpio_num = GPIO_NUM_NC,
-        .levels = {.reset = 0, .interrupt = 0},
-        .flags = {.swap_xy = 0, .mirror_x = 0, .mirror_y = 0},
-        .process_coordinates = NULL,
-        .interrupt_callback = NULL,
-        .user_data = NULL,
-        .driver_data = NULL // Set in lcd_touch_esp32_create
-    },
-    .io = NULL,
-    .data = 
-    {
-        0
-    }
+	.get_xy = _touch_get_xy,
+	.read_data = _touch_read_data
 };
+
+static struct lcd_touch_config_s _lcd_touch_config = 
+{
+    .x_max = 0, // Set in lcd_touch_esp32_create
+    .y_max = 0, // Set in lcd_touch_esp32_create
+    .process_xy = NULL,
+    .flags = {.swap_xy = 0, .mirror_x = 0, .mirror_y = 0}
+};
+
+static struct lcd_touch_device_s _esp_lcd_touch;
+
+static lcd_touch_handle_t _touch_handle;
 
 static bool _panel_changed = false;
 
@@ -105,18 +98,20 @@ static bool _panel_changed = false;
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // esp_lcd_panel_handle_t eve_lcd_esp32_create(screen_device_t* device)
-FUNCTION_RETURN_T eve_lcd_esp32_create(screen_device_t* device, esp_lcd_panel_handle_t* panel_handle, esp_lcd_touch_handle_t* touch_handle)
+FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_handle_t* display_handle, lcd_touch_handle_t* touch_handle)
 {
     ASSERT_RET_NOT_NULL(device, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
-    ASSERT_RET_NOT_NULL(panel_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+    ASSERT_RET_NOT_NULL(display_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
     
     _panel.user_data = device;
-    *panel_handle = &_panel;
+    (*display_handle)->mcu = &_panel;
+    *display_handle = &_panel;
     
     if(touch_handle)
     {
-        _esp_lcd_touch.config.driver_data = device;
-        *touch_handle = &_esp_lcd_touch;
+        _esp_lcd_touch.device = device;
+        lcd_touch_create(&_esp_lcd_touch, &_lcd_touch_interface, &_lcd_touch_config, &_touch_handle);
+        *touch_handle = _touch_handle;
     }
     
     return FUNCTION_RETURN_OK;
@@ -235,9 +230,9 @@ static void _flush_display(eve_t* eve)
     _panel_changed = false;
 }
 
-static esp_err_t _read_data(esp_lcd_touch_handle_t tp)
+static FUNCTION_RETURN_T _touch_read_data(lcd_touch_device_handle_t h)
 {
-    screen_device_t* device = (screen_device_t*)tp->config.driver_data;
+    screen_device_t* device = h->device;
     eve_t* eve = &device->eve;
     
     if(_panel_changed)
@@ -262,28 +257,28 @@ static esp_err_t _read_data(esp_lcd_touch_handle_t tp)
     //     DBG_INFO("x=%d y=%d\n", x, y);
     // }
 
-    tp->data.points = (x == 0x8000 && y == 0x8000) ? 0 : 1;
-    tp->data.coords[0].x = x;
-    tp->data.coords[0].y = y;
+    h->points = (x == 0x8000 && y == 0x8000) ? 0 : 1;
+    h->x[0] = x;
+    h->y[0] = y;
 
 
     return ESP_OK;
 }
 
-static bool _get_xy(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
+static bool _touch_get_xy(lcd_touch_device_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {
-    *point_num = MATH_MIN(max_point_num, tp->data.points);
+    *point_num = MATH_MIN(max_point_num, h->points);
     for(int i = 0; i < *point_num; i++)
     {
-        x[i] = tp->data.coords[i].x;
-        y[i] = tp->data.coords[i].y;
+        x[i] = h->x[i];
+        y[i] = h->y[i];
         if(strength)
         {
-            strength[i] = tp->data.coords[i].strength;
+            strength[i] = 0;
         }
     }
     
-    return tp->data.points > 0;
+    return h->points > 0;
 }
 
 #endif
