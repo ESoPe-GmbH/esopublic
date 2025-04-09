@@ -104,8 +104,9 @@ FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_handle_t* disp
     ASSERT_RET_NOT_NULL(display_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
     
     _panel.user_data = device;
-    (*display_handle)->mcu = &_panel;
-    *display_handle = &_panel;
+    // TODO: Create a display handle that uses the mcu with the panel as a panel
+    // (*display_handle)->mcu = &_panel;
+    // *display_handle = &_panel;
     
     if(touch_handle)
     {
