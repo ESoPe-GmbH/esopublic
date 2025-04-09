@@ -74,7 +74,7 @@ static void eve_spi_pin_int(eve_t* obj);
 /**
  * @brief Calls the callback function if it is not NULL.
  */
-static void eve_throw_error(eve_t* obj, EVE_ERROR err, const char* msg);
+static void eve_throw_error(eve_t* obj, EVE_STATUS_T err, const char* msg);
 
 /**
  * @brief Write the touch firmware into the ram of the BT817
@@ -196,7 +196,6 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 
 	if(!eve_init_chip(obj))
 	{
-		eve_throw_error(obj, EVE_ERROR_INITIALIZATION_FAILED, "Initialization failed");
 		return false;
 	}
 
@@ -210,6 +209,8 @@ bool eve_init(eve_t* obj, eve_hw_interface_t* hw, EVE_DISPLAY_TYPE type, bool ro
 #endif
 
 	system_init_object_task(&obj->eve_spi_task, true, (void(*)(void*))eve_spi_handle, (void*)obj);
+
+	obj->status = EVE_STATUS_OK;
 
 	return true;
 }
@@ -457,7 +458,7 @@ void eve_switch_power(eve_t* obj, bool b)
 		if(!eve_init_chip(obj))
 		{
 			string_printf(obj->msg, "Re-Initialization of %d failed", obj->type);
-			eve_throw_error(obj, EVE_ERROR_REINITIALIZATION_FAILED, obj->msg);
+			eve_throw_error(obj, EVE_STATUS_REINITIALIZATION_FAILED, obj->msg);
 		}
 		else
 		{
@@ -735,7 +736,7 @@ static bool eve_init_chip(eve_t* obj)
 		string_printf(obj->msg, "Invalid EVE Chip version %02x", regval);
 		if(!obj->in_reintialization)
 		{
-			eve_throw_error(obj, EVE_ERROR_INVALID_CHIP_VERSION, obj->msg);
+			eve_throw_error(obj, EVE_STATUS_INVALID_CHIP_VERSION, obj->msg);
 		}
 		else
 		{			
@@ -936,7 +937,8 @@ static bool eve_init_chip(eve_t* obj)
 			DBG_ASSERT(obj->hw.external_touch.i2c, NO_ACTION, false, "I2C is missing for auto configuration\n");
 			sld_edid_t edid;
 			FUNCTION_RETURN ret = sld_edid_read(obj->hw.external_touch.i2c, &edid);
-			DBG_ASSERT(ret == FUNCTION_RETURN_OK, eve_throw_error(obj, EVE_ERROR_READING_EDID_FAILED, "Reading EDID failed"), false, "Read EDID failed\n");
+			DBG_ASSERT(ret == FUNCTION_RETURN_OK, eve_throw_error(obj, EVE_STATUS_READING_EDID_FAILED, "Reading EDID failed"), false, "Read EDID failed\n");
+			memcpy(&obj->sld_edid, &edid, sizeof(sld_edid_t));
 
 			sld_debug_print(&edid);
 
@@ -978,7 +980,7 @@ static bool eve_init_chip(eve_t* obj)
 			string_printf(obj->msg, "Invalid EVE Display Type %u", obj->type);
 			if(!obj->in_reintialization)
 			{
-				eve_throw_error(obj, EVE_ERROR_INVALID_DISPLAYTYPE, obj->msg);
+				eve_throw_error(obj, EVE_STATUS_INVALID_DISPLAYTYPE, obj->msg);
 			}
 			else
 			{
@@ -1138,7 +1140,7 @@ static void eve_spi_handle(eve_t* obj)
 #else
 					string_printf(obj->msg, "Coprocessor Error -> Reset");
 #endif
-					eve_throw_error(obj, EVE_ERROR_INVALID_COPROCESSOR_ERROR, obj->msg);
+					eve_throw_error(obj, EVE_STATUS_INVALID_COPROCESSOR_ERROR, obj->msg);
 
 					// Make a hardware reset!
 					eve_switch_power(obj, false);
@@ -1158,8 +1160,10 @@ static void eve_spi_pin_int(eve_t* obj)
 	obj->eve_spi_int_triggered = true;
 }
 
-static void eve_throw_error(eve_t* obj, EVE_ERROR err, const char* msg)
+static void eve_throw_error(eve_t* obj, EVE_STATUS_T err, const char* msg)
 {
+	obj->status = err;
+
 	if(obj->error_callback != NULL)
 		obj->error_callback(obj->error_obj, err, msg);
 }

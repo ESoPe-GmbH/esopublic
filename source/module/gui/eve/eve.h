@@ -60,6 +60,9 @@
 #include "../eve_ui/color.h"
 #include "eve_register.h"
 #include "eve_errorcodes.h"
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+#include "module/display/sld/sld_edid.h"
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Definitions for configuration
@@ -168,7 +171,7 @@ typedef enum eve_flash_status_e
  * @param err		Code of the error.
  * @param msg		String message of the error.
  */
-typedef void (*eve_error_cb_t)(void* user_ctx, EVE_ERROR error, const char* msg);
+typedef void (*eve_error_cb_t)(void* user_ctx, EVE_STATUS_T error, const char* msg);
 
 /**
  * @struct eve_reset_action_t
@@ -316,6 +319,9 @@ typedef struct
 	/// Data for the managing the memory of the eve.
 	eve_memory_t memory;
 
+	/// @brief Status of the chip. Is set to not initialized by default.
+	EVE_STATUS_T status;
+
 #if EVE_COPRO_ENABLE_DUMP
 	/// Is set to true when the memory is changed. Is used in the dumps to check whether ram content must be sent or not
 	bool memory_changed;
@@ -369,6 +375,10 @@ typedef struct
 	/// level 1 is BT815 compatible
 	/// level 2 is BT817/8 compatible
 	uint8_t api_level;
+#if MODULE_ENABLE_DISPLAY && DISPLAY_ENABLE_SLD
+	/// @brief SLD EDID structure to read the display type and resolution from the display.
+	sld_edid_t sld_edid;
+#endif
 #if MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I && MODULE_ENABLE_LCD_TOUCH
 	/// @brief Pointer to the touch driver that is used for the touch interface.
 	lcd_touch_device_handle_t touch_device;

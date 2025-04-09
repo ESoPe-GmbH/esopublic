@@ -139,7 +139,7 @@ static void screen_show_toast_internal(screen_t* obj, char* text, SCREEN_TOAST_P
  * @param obj				Pointer to the screen device on which the error occured.
  * @param err				Errorcode of the occured error.
  */
-static void screen_device_eve_error(screen_device_t* obj, EVE_ERROR err, const char* msg);
+static void screen_device_eve_error(screen_device_t* obj, EVE_STATUS_T err, const char* msg);
 
 static void _event(component_t* c, COMPONENT_EVENT_T event, const component_event_t* data);
 
@@ -1061,13 +1061,16 @@ static void screen_show_toast_internal(screen_t* obj, char* text, SCREEN_TOAST_P
 	screen_repaint(obj->screen_device);
 }
 
-static void screen_device_eve_error(screen_device_t* obj, EVE_ERROR err, const char* msg)
+static void screen_device_eve_error(screen_device_t* obj, EVE_STATUS_T err, const char* msg)
 {
 	obj->screen_shall_repaint = true;
 
 	switch(err)
 	{
-		case EVE_ERROR_REINITIALIZATION_FAILED:
+		case EVE_STATUS_INVALID_CHIP_VERSION:
+		case EVE_STATUS_INVALID_DISPLAYTYPE:
+		case EVE_STATUS_READING_EDID_FAILED:
+		case EVE_STATUS_REINITIALIZATION_FAILED:
 			system_remove_task(&obj->screen_task); // EVE stopped working, so stop the screen task!
 		break;
 

@@ -124,7 +124,7 @@ typedef void(*screen_callback_t)(screen_t*, uint32_t);
  * @param err		Code of the error.
  * @param msg		String message of the error.
  */
-typedef void(*screen_device_error_t)(screen_device_t* dev, EVE_ERROR err, const char* msg);
+typedef void(*screen_device_error_t)(screen_device_t* dev, EVE_STATUS_T err, const char* msg);
 
 /**
  * @struct screen_toast_t

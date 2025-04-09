@@ -17,27 +17,31 @@
 #include "module_public.h"
 #if MODULE_ENABLE_GUI
 
-typedef enum
+typedef enum eve_status_e
 {
-	/// If the initialization at the beginning fails, this code is thrown at the end (the error responsible for failing is thrown before this error).
-	EVE_ERROR_INITIALIZATION_FAILED = 0x000,
+	/// The eve module is not initialized. This is the default value of the eve module.
+	/// This is used to check if the eve module is initialized or not.
+	EVE_STATUS_NOT_INITIALIZED = 0,
+
+	/// The eve module is initialized and can be used.
+	EVE_STATUS_OK,
 
 	/// During initialization, the chip version is checked. If it is wrong, the initialization failed.
-	EVE_ERROR_INVALID_CHIP_VERSION = 0x0001,
+	EVE_STATUS_INVALID_CHIP_VERSION,
 
 	/// If a coprocessor error occured, the chip is reinitialized. The display may not work properly then.
-	EVE_ERROR_INVALID_COPROCESSOR_ERROR = 0x0002,
+	EVE_STATUS_INVALID_COPROCESSOR_ERROR,
 
 	/// The displaytype parameter is invalid.
-	EVE_ERROR_INVALID_DISPLAYTYPE = 0x0003,
+	EVE_STATUS_INVALID_DISPLAYTYPE,
 
-	/// After EVE_ERROR_INVALID_COPROCESSOR_ERROR the module tries to reinitialize the eve chip. If this failed, the eve cannot be used anymore.
-	EVE_ERROR_REINITIALIZATION_FAILED = 0x0004,
+	/// After EVE_STATUS_INVALID_COPROCESSOR_ERROR the module tries to reinitialize the eve chip. If this failed, the eve cannot be used anymore.
+	EVE_STATUS_REINITIALIZATION_FAILED,
 
 	/// Failed to read the EDID data from the display. This is only used for SLD displays.
-	EVE_ERROR_READING_EDID_FAILED = 0x0005,
+	EVE_STATUS_READING_EDID_FAILED,
 
-}EVE_ERROR;
+}EVE_STATUS_T;
 
 #endif
 
