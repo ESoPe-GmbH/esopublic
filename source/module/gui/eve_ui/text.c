@@ -9,6 +9,7 @@
 #include "../eve/eve_register.h"
 #include "../eve/eve_copro.h"
 #include "font.h"
+#include "module/comm/dbg.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal variables
@@ -61,6 +62,12 @@ void text_set_font(text_t* obj, uint16_t font)
 {
 	if(obj == NULL)
 		return;
+
+	if(font < 16 || font > 31)	// Font index must be between 16 and 31 (ROM fonts)
+	{
+		DBG_ERROR("Font index %d must be between 16 and 31 (ROM fonts)!\n", font);
+		return;
+	}
 
 	obj->font = font;
 }
