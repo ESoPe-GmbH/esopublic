@@ -281,16 +281,24 @@ void image_set_visible(image_t* obj, bool b);
  *
  *			If the pointer to the image object is NULL, nothing happens.
  *
- * @param obj					Pointer to the button object.
+ * @param obj					Pointer to the image object.
  * @param pressed_callback		Pointer to the callback function that has a pointer to the pressed image as a parameter.
  * 								To disable the callback, set it to NULL or disable it with component_set_enabled.
  */
 void image_set_action(image_t* obj, void(*pressed_callback)(image_t*));
 
 /**
+ * @brief	Sets the scaling factor of the image.
+ *
+ * @param obj					Pointer to the image object.
+ * @param scale					Scaling factor of the image. 1.0 = 100%
+ */
+void image_set_scalef(image_t* obj, float scale);
+
+/**
  * @brief 	Sets the target size of the image that is shown. The source image is transformed to match this values.
  *
- * @param obj					Pointer to the button object.
+ * @param obj					Pointer to the image object.
  * @param width					Width of the image that is shown
  * @param width					Height of the image that is shown
  */

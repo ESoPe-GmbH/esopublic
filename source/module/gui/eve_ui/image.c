@@ -167,6 +167,18 @@ void image_set_action(image_t* obj, void(*pressed_callback)(image_t*))
 	obj->action_callback = (void(*)(void*))pressed_callback;
 }
 
+void image_set_scalef(image_t* obj, float scale)
+{
+	if(obj == NULL)
+		return;
+
+	obj->scale_x = (obj->raw_w / scale) / obj->raw_w;
+	obj->scale_y = (obj->raw_h / scale) / obj->raw_h;
+
+	obj->component.size.width = obj->raw_w / scale;
+	obj->component.size.height = obj->raw_h / scale;
+}
+
 void image_set_scale(image_t* obj, uint16_t width, uint16_t height)
 {
 	if(obj == NULL)
