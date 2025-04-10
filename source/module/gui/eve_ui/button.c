@@ -259,8 +259,7 @@ static void button_paint(button_t* obj, eve_ui_point_t p)
 	w = obj->component.size.width;
 	h = obj->component.size.height;
 
-	p.x = p.x + obj->component.origin.x;
-	p.y = p.y + obj->component.origin.y;
+	p = component_get_origin(&obj->component, p);
 
 	eve_copro_add_tag(eve, (component_t*)obj);
 
