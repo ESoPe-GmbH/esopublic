@@ -373,8 +373,8 @@ void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y)
 
 	uint32_t commands[2] = 
 	{
-		EVE_BITMAP_TRANSFORM_A_8_8((uint32_t)roundf(256.0f * scale_x)),
-		EVE_BITMAP_TRANSFORM_E_8_8((uint32_t)roundf(256.0f * scale_y))
+		EVE_BITMAP_TRANSFORM_A_8_8((uint32_t)roundf(256.0f / scale_x)),
+		EVE_BITMAP_TRANSFORM_E_8_8((uint32_t)roundf(256.0f / scale_y))
 	};
 	eve_copro_write_commands(eve, commands, 2);
 
@@ -382,12 +382,16 @@ void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y)
 
 	// Below is used when loadidentity and setmatrix are also used, above is used for current bitmap
 
-	// uint32_t options[2] = {
+	// eve_copro_check_command_buffer(eve, 20);
+	// // Well, 0xFFFFFF28 is the command for set scale, but we need loadidentity and setmatrix too, so we use the options different here
+	// uint32_t options[4] = {
+	// 	0xFFFFFF28,
 	// 	(uint32_t)round(65536.0 * scale_x),
-	// 	(uint32_t)round(65536.0 * scale_y)
+	// 	(uint32_t)round(65536.0 * scale_y),
+	// 	0xFFFFFF2A
 	// };
 
-	// eve_copro_internal_write_command_data(eve, 0xffffff28, options, 2, NULL, 0);
+	// eve_copro_internal_write_command_data(eve, 0xffffff26, options, 4, NULL, 0);
 }
 
 // TODO: eve_copro_loadimage_mmc -> Filename instead of buffer and loads the data from mmc 

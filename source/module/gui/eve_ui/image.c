@@ -172,11 +172,13 @@ void image_set_scalef(image_t* obj, float scale)
 	if(obj == NULL)
 		return;
 
-	obj->scale_x = (obj->raw_w / scale) / obj->raw_w;
-	obj->scale_y = (obj->raw_h / scale) / obj->raw_h;
+	obj->scale_x = scale;
+	obj->scale_y = scale;	
 
 	obj->component.size.width = obj->raw_w / scale;
 	obj->component.size.height = obj->raw_h / scale;
+
+	// DBG_INFO("Image scalef %m -> %d / %d | %d / %d\n", (int)(scale*100.0), obj->raw_w, obj->component.size.width, obj->raw_h, obj->component.size.height);
 }
 
 void image_set_scale(image_t* obj, uint16_t width, uint16_t height)
@@ -187,10 +189,10 @@ void image_set_scale(image_t* obj, uint16_t width, uint16_t height)
 	obj->component.size.width = width;
 	obj->component.size.height = height;
 
-	// obj->scale_x = (double)width / (double)obj->raw_w;
-	// obj->scale_y = (double)height / (double)obj->raw_h;
-	obj->scale_x = (double)obj->raw_w / (double)width;
-	obj->scale_y = (double)obj->raw_h / (double)height;
+	obj->scale_x = (double)width / (double)obj->raw_w;
+	obj->scale_y = (double)height / (double)obj->raw_h;
+
+	// DBG_INFO("Image scale %d / %d = %m | %d / %d %m\n", obj->raw_w, width, (int)(obj->scale_x*100.0), obj->raw_h, height, (int)(obj->scale_y*100.0));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -269,7 +271,7 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 			return;
 		}
 
-		eve_copro_set_bitmap(eve, obj->component.mem_file_ptr->address, obj->format, obj->component.size.width, obj->component.size.height);
+		eve_copro_set_bitmap(eve, obj->component.mem_file_ptr->address, obj->format, obj->raw_w, obj->raw_h);
 		// Set image on display
 		eve_copro_write_command(eve, EVE_BEGIN(EVE_BITMAPS));		// Draw bitmap
 
