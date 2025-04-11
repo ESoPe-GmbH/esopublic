@@ -91,28 +91,60 @@ static struct lcd_touch_device_s _esp_lcd_touch;
 
 static lcd_touch_handle_t _touch_handle;
 
+static struct display_mcu_data_s _mcu = 
+{
+    .config = NULL,
+    .display = NULL,
+    .spi = NULL,
+    .panel_handle = &_panel,
+    .panel_config = {0}
+};
+
+static struct display_data_s _display = 
+{
+    .mcu = &_mcu
+};
+
+static struct display_sld_s _display_sld = 
+{
+    .display = &_display,
+    .touch = NULL
+};
+
 static bool _panel_changed = false;
+
+static size_t pixel_bytes = 2;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // esp_lcd_panel_handle_t eve_lcd_esp32_create(screen_device_t* device)
-FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_handle_t* display_handle, lcd_touch_handle_t* touch_handle)
+FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_sld_handle_t* display_handle)
 {
     ASSERT_RET_NOT_NULL(device, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
     ASSERT_RET_NOT_NULL(display_handle, NO_ACTION, FUNCTION_RETURN_PARAM_ERROR);
+
+    *display_handle = &_display_sld;
     
     _panel.user_data = device;
-    // TODO: Create a display handle that uses the mcu with the panel as a panel
-    // (*display_handle)->mcu = &_panel;
-    // *display_handle = &_panel;
+    _mcu.display = &_display;
+
+    _display.device_config.rgb.h_res = device->eve.sld_edid.rgb.h_res;
+    _display.device_config.rgb.v_res = device->eve.sld_edid.rgb.v_res;
+			
+    strcpy(_display_sld.screen_diagonal, device->eve.sld_edid.screen_diagonal);
+    _display_sld.supports_touch = device->eve.sld_edid.touch;
+    _display_sld.data_width = 16; // Set to 16, so we only use RGB565
+    // _display_sld.data_width = device->eve.sld_edid.rgb.color_depth;
+    // pixel_bytes = device->eve.sld_edid.rgb.color_depth / 8;
+    // TODO: How to handle the backlight since it is managed by eve? External backlight handle in mcu_pwm?
     
-    if(touch_handle)
+    if(_display_sld.supports_touch)
     {
         _esp_lcd_touch.device = device;
         lcd_touch_create(&_esp_lcd_touch, &_lcd_touch_interface, &_lcd_touch_config, &_touch_handle);
-        *touch_handle = _touch_handle;
+        _display_sld.touch = _touch_handle;
     }
     
     return FUNCTION_RETURN_OK;
@@ -134,7 +166,7 @@ static esp_err_t _draw_bitmap(esp_lcd_panel_t *panel, int x_start, int y_start, 
     if(x_start == 0 && y_start == 0 && x_end == eve->eve_display_width && y_end == eve->eve_display_height)
     {
         DBG_INFO("Flush complete\n");
-        eve_spi_write_data(eve, EVE_START_ADDRESS, (uint8_t*)color_data, eve->eve_display_width * eve->eve_display_height * 2, false);
+        eve_spi_write_data(eve, EVE_START_ADDRESS, (uint8_t*)color_data, eve->eve_display_width * eve->eve_display_height * pixel_bytes, false);
         // Flush directly and remove later flush
         _flush_display(eve);
     }
@@ -142,19 +174,8 @@ static esp_err_t _draw_bitmap(esp_lcd_panel_t *panel, int x_start, int y_start, 
     {
         while(y_start < y_end)
         {
-            uint32_t address = EVE_START_ADDRESS + (eve->eve_display_width * 2 * y_start) + (2 * x_start);
-            uint16_t* data = (uint16_t*)mcu_heap_calloc(eve->eve_display_width, sizeof(uint16_t));
-            if(data)
-            {
-                uint16_t* ptr = (uint16_t*)color_data;
-                int width = x_end - x_start;
-                // for(int i = 0; i < width; i++)
-                // {
-                //  data[i] = swap16(ptr[i]);
-                // }
-                eve_spi_write_data(eve, address, (uint8_t*)data, width * 2, false);
-                mcu_heap_free(data);
-            }
+            uint32_t address = EVE_START_ADDRESS + (pixel_bytes * ((eve->eve_display_width * y_start) + x_start));
+            eve_spi_write_data(eve, address, (uint8_t*)color_data, (x_end - x_start) * pixel_bytes, false);
             y_start++;
         }
 
@@ -204,9 +225,9 @@ static void _flush_display(eve_t* eve)
         EVE_VERTEX_FORMAT(0), // Pixel precision: 1
         EVE_BITMAP_HANDLE(0),
         EVE_BITMAP_SOURCE(EVE_START_ADDRESS),
-        EVE_BITMAP_SIZE_H(0, 0),
+        EVE_BITMAP_SIZE_H(eve->eve_display_width, eve->eve_display_height),
         EVE_BITMAP_SIZE(EVE_FILTER_NEAREST, EVE_WRAP_BORDER, EVE_WRAP_BORDER, eve->eve_display_width, eve->eve_display_height),
-        EVE_BITMAP_LAYOUT_H(0, 0),
+        EVE_BITMAP_LAYOUT_H(eve->eve_display_width * 2, eve->eve_display_height),
         // 7 = RGB565, Linestride = Width * 2, Number of lines
         EVE_BITMAP_LAYOUT(7, eve->eve_display_width * 2, eve->eve_display_height),
         // Set image on display

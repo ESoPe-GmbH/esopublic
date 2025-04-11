@@ -20,6 +20,7 @@
 
 #include "../eve_ui/screen.h"
 #include "module/display/display_common.h"
+#include "module/display/sld/display_sld.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Definitions for configuration
@@ -48,7 +49,7 @@
 /**
  * Create an ESP panel handle using the eve chip.
 **/
-FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_handle_t* display_handle, lcd_touch_handle_t* touch_handle);
+FUNCTION_RETURN_T eve_lcd_create(screen_device_t* device, display_sld_handle_t* display_handle);
 
 #endif // MODULE_ENABLE_EVE_LCD
 
