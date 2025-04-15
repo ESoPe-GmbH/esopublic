@@ -106,8 +106,7 @@ static void panel_paint(panel_t* obj, eve_ui_point_t p)
 
 	// Draw all panel components, starting with the own rectangle background
 	comp = (component_t*)&obj->rect_bg;
-	p.x += obj->component.origin.x;
-	p.y += obj->component.origin.y;
+	p = component_get_origin(&obj->component, p);
 
 	while(comp != NULL)
 	{
