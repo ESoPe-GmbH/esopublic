@@ -114,7 +114,7 @@ void crc32_init(crc32_t* crc, uint32_t polynom, uint32_t initial, uint32_t final
     else
     {        
         crc->table = mcu_heap_calloc(256, sizeof(uint32_t));
-        ASSERT_RET(crc->table != NULL, NO_ACTION, NO_RETURN);
+        ASSERT_RET(crc->table != NULL, NO_ACTION, NO_RETURN, "CRC32: Not enough memory for table!\n");
 
         for (int i = 0; i < 256; i++) 
         {
