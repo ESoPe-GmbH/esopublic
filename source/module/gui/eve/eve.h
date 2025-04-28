@@ -203,12 +203,15 @@ typedef struct
 
 typedef struct
 {
+	/// @brief Name of the file to distinguish between the files.
 	const char* filename;
-
+	/// @brief Address inside the eve chip ram where the file should be stored.
 	uint32_t address;
-
+	/// @brief Is set when the file is located inside the flash memory of the eve chip.
+	uint32_t flash_address;
+	/// @brief Is set when the file is located inside the flash or ram of this controller and needs to be transferred to the eve chip.
 	const uint8_t* data;
-
+	/// @brief Length of the data that is loaded into the eve chip.
 	uint32_t data_length;
 
 }eve_memory_file_t;

@@ -96,6 +96,34 @@ eve_memory_file_t* eve_memory_register(eve_t* eve, const char* filename, const u
 			eve->memory_files[i].filename = filename;
 			eve->memory_files[i].data = data;
 			eve->memory_files[i].data_length = length;
+			eve->memory_files[i].address = 0;	// Set to invalid address
+//			dbg_printf(DBG_STRING, "Register %s at %d\n", filename, i);
+			return &eve->memory_files[i];
+		}
+		if(strcmp(eve->memory_files[i].filename, filename) == 0)
+		{
+//			dbg_printf(DBG_STRING, "Return %s at %d\n", filename, i);
+			return &eve->memory_files[i];
+		}
+	}
+	return NULL;
+}
+
+eve_memory_file_t* eve_memory_register_from_external_flash(eve_t* eve, const char* filename, uint32_t flash_address, uint32_t length)
+{
+	uint16_t i;
+	if(eve == NULL)
+		return NULL;
+
+	for(i = 0; i < EVE_MEMORY_FILES_MAX; i++)
+	{
+		// New memory object!
+		if(eve->memory_files[i].filename == NULL)
+		{
+			eve->memory_files[i].filename = filename;
+			eve->memory_files[i].flash_address = flash_address;
+			eve->memory_files[i].data = NULL;
+			eve->memory_files[i].data_length = length;
 //			dbg_printf(DBG_STRING, "Register %s at %d\n", filename, i);
 			return &eve->memory_files[i];
 		}
@@ -158,7 +186,7 @@ bool eve_memory_write_file_to(eve_t* eve, eve_memory_file_t* mfo)
 	if(eve == NULL || mfo == NULL)
 		return false;
 
-	if(mfo->data == NULL)
+	if(mfo->data == NULL && mfo->flash_address == 0)
 	{
 #if MODULE_ENABLE_MMC
 		return _load_from_file(eve, mfo);
@@ -279,7 +307,7 @@ static bool _load_from_flash(eve_t* eve, eve_memory_file_t* obj)
 
 //	dbg_printf(DBG_STRING, "_load_from_flash(%s)\n", obj->filename);
 
-	if(obj->data == NULL || obj->data_length == 0)
+	if((obj->data == NULL && obj->flash_address == 0) || obj->data_length == 0)
 	{
 #if EVE_DEBUG_ERROR
 		dbg_printf(DBG_STRING, "Data not available\n");
@@ -299,9 +327,18 @@ static bool _load_from_flash(eve_t* eve, eve_memory_file_t* obj)
 		return false;
 	}
 
-//	dbg_printf(DBG_STRING, "Current Pointer: %u\n", obj->address);
+	// dbg_printf(DBG_STRING, "Current Pointer for %s: %u\n", obj->filename, obj->address);
 
-	eve_memory_write_to(eve, obj->address, obj->data, obj->data_length);
+	if(obj->data != NULL)
+	{
+		// Write the data from the flash into the eve memory
+		eve_memory_write_to(eve, obj->address, obj->data, obj->data_length);
+	}
+	else
+	{
+		// Write the data from the flash into the eve memory	
+		eve_copro_flash_read_to_ram(eve, obj->address, obj->flash_address, obj->data_length);
+	}
 
 //	dbg_printf(DBG_STRING, "Bytes loaded: %u\n", obj->data_length);
 //	dbg_printf(DBG_STRING, "Next Pointer: %u\n", eve->memory.ram_pointer);

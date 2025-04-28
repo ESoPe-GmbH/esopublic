@@ -356,6 +356,8 @@ void eve_copro_set_bitmap(eve_t* eve, uint32_t address, uint32_t format, uint16_
 	if(eve == NULL)
 		return;
 
+	// DBG_INFO("Set bitmap %06x %d %d %d\n", address, format, width, height);
+
 	eve_copro_check_command_buffer(eve, 16);
 	uint32_t options[3] = {
 		address,
@@ -408,6 +410,32 @@ void eve_copro_loadimage(eve_t* eve, uint32_t ptr, EVE_OPT_IMAGE opt_image, cons
 	};
 
 	eve_copro_internal_write_command_data(eve, 0xffffff24, options, 2, data, length);
+}
+
+uint32_t eve_copro_memcrc(eve_t* eve, uint32_t address, uint32_t length)
+{
+	if(eve == NULL)
+		return 0;
+
+	eve_copro_check_command_buffer(eve, 12);
+	uint32_t options[3] = {
+		address,
+		length,
+		0
+	};
+
+	eve_copro_internal_write_command_data(eve, 0xffffff18, options, 3, NULL, 0);
+	
+	eve_copro_wait_for_execution(eve);
+	
+	// Read the current write position
+	uint16_t pos = eve_spi_read_16(eve, EVE_REG_CMD_WRITE);
+	// Get the position where the 0 of the options was written to.
+	pos = (pos - 4) & 0xFFC;
+	// Since we aligned the buffer by 4, we do not need to make it a multiple of 4.
+	uint32_t result = eve_spi_read_32(eve, EVE_RAM_CMD + pos);
+
+	return result;
 }
 
 void eve_copro_flash_erase(eve_t* eve)

@@ -58,7 +58,8 @@ typedef enum
 {
 	EVE_OPT_IMAGE_RGB565 = 	0,		///< Co-processor option to decode the JPEG image to RGB565 format
 	EVE_OPT_IMAGE_MONO = 		1,		///< Co-processor option to decode the JPEG image to L8 format, i.e., monochrome
-	EVE_OPT_IMAGE_NODL = 		2		///< No display list commands generated for bitmap decoded from JPEG image
+	EVE_OPT_IMAGE_NODL = 		2,		///< No display list commands generated for bitmap decoded from JPEG image
+	EVE_OPT_IMAGE_FLASH = 	64,		///< Co-processor option to decode the JPEG image from external flash memory
 }EVE_OPT_IMAGE;
 
 /**
@@ -300,6 +301,15 @@ void eve_copro_set_scale(eve_t* eve, float scale_x, float scale_y);
 
 // TODO: Description
 void eve_copro_loadimage(eve_t* eve, uint32_t ptr, EVE_OPT_IMAGE opt_image, const uint8_t* data, uint32_t length);
+/**
+ * @brief Calculate a CRC checksum of the memory area in RAM_G.
+ * 
+ * @param eve 		Pointer to the eve handler.
+ * @param address 	Address of the memory area in RAM_G.
+ * @param length 	Length of the memory area in bytes.
+ * @return uint32_t CRC-32 of the memory area.
+ */
+uint32_t eve_copro_memcrc(eve_t* eve, uint32_t address, uint32_t length);
 /**
  * @brief Erases the complete flash chip.
  * 

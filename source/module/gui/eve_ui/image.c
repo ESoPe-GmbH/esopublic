@@ -95,6 +95,7 @@ bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uin
 	obj->component.pressed_callback = (component_pressed_cb_t)image_set_pressed;
 	obj->scale_x = 1.0;
 	obj->scale_y = 1.0;
+	obj->address_flash = 0;
 
 	image_parse_fileformat(obj);
 	image_calculate_stride(obj);
@@ -135,6 +136,7 @@ bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, u
 	obj->component.pressed_callback = (component_pressed_cb_t)image_set_pressed;
 	obj->scale_x = 1.0;
 	obj->scale_y = 1.0;
+	obj->address_flash = 0;
 
 	image_parse_fileformat(obj);
 	image_calculate_stride(obj);
@@ -151,12 +153,61 @@ bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, u
 	return (obj->component.mem_file_ptr != NULL);
 }
 
+bool image_init_from_external_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename, uint32_t address)
+{
+	if(obj == NULL)
+		return false;
+
+	component_init((component_t*)obj, COMPONENT_TYPE_IMAGE, (component_paint_cb_t)image_paint);
+
+	obj->component.origin.x = x;
+	obj->component.origin.y = y;
+	obj->raw_w = width;
+	obj->raw_h = height;
+	obj->component.size.width = width;
+	obj->component.size.height = height;
+	obj->format = format;
+	obj->filename = (char*)filename;
+	obj->component.is_visible = true;
+	obj->buffer_ptr = NULL;
+	obj->buffer_length = 0;
+	obj->pressed = false;
+	obj->action_callback = NULL;
+	obj->component.pressed_callback = (component_pressed_cb_t)image_set_pressed;
+	obj->scale_x = 1.0;
+	obj->scale_y = 1.0;
+	obj->address_flash = address;
+	obj->copy_from_external_flash = false;
+
+	image_parse_fileformat(obj);
+	image_calculate_stride(obj);
+
+	if(obj->fileformat == IMAGE_FILEFORMAT_JPG || obj->fileformat == IMAGE_FILEFORMAT_PNG)
+	{		
+		obj->component.mem_file_ptr = eve_memory_register_from_external_flash(&screen_get_default_device()->eve, filename, address, obj->buffer_length);
+	}
+	else
+	{
+		obj->component.mem_file_ptr = eve_memory_register_from_external_flash(&screen_get_default_device()->eve, filename, address, (obj->stride * obj->component.size.height));
+	}
+
+	return true;
+}
+
 void image_set_visible(image_t* obj, bool b)
 {
 	if(obj == NULL)
 		return;
 
 	obj->component.is_visible = b;
+}
+
+void image_set_copy_from_external_flash(image_t* obj, bool b)
+{
+	if(obj == NULL)
+		return;
+
+	obj->copy_from_external_flash = b;
 }
 
 void image_set_action(image_t* obj, void(*pressed_callback)(image_t*))
@@ -239,9 +290,16 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 	eve_copro_write_command(eve, EVE_BITMAP_HANDLE(0));
 
 #if EVE_USE_FT81X
+	bool from_flash = obj->address_flash > 0 && !obj->copy_from_external_flash;
+
 	if(obj->fileformat == IMAGE_FILEFORMAT_JPG || obj->fileformat == IMAGE_FILEFORMAT_PNG)
-	{
-		eve_copro_loadimage(eve, obj->component.mem_file_ptr->address, 0, obj->component.mem_file_ptr->data, obj->component.mem_file_ptr->data_length);
+	{	
+		if(from_flash)
+		{
+			eve_copro_flashsource(eve, obj->address_flash);		
+		}
+
+		eve_copro_loadimage(eve, obj->component.mem_file_ptr->address, from_flash ? EVE_OPT_IMAGE_FLASH : 0, obj->component.mem_file_ptr->data, obj->component.mem_file_ptr->data_length);
 		
 		p = component_get_origin(&obj->component, p);
 
@@ -271,7 +329,9 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 			return;
 		}
 
-		eve_copro_set_bitmap(eve, obj->component.mem_file_ptr->address, obj->format, obj->raw_w, obj->raw_h);
+		uint32_t address = from_flash ? 0x800000 | (obj->address_flash / 32) : obj->component.mem_file_ptr->address;
+
+		eve_copro_set_bitmap(eve, address, obj->format, obj->raw_w, obj->raw_h);
 		// Set image on display
 		eve_copro_write_command(eve, EVE_BEGIN(EVE_BITMAPS));		// Draw bitmap
 
