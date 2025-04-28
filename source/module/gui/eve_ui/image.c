@@ -335,6 +335,16 @@ static void image_paint(image_t* obj, eve_ui_point_t p)
 		// Set image on display
 		eve_copro_write_command(eve, EVE_BEGIN(EVE_BITMAPS));		// Draw bitmap
 
+		if(obj->scale_x > 1.0 || obj->scale_y > 1.0)
+		{
+			uint32_t commands[2] = {
+				EVE_BITMAP_SIZE(0, EVE_WRAP_BORDER, EVE_WRAP_BORDER, obj->component.size.width, obj->component.size.height),
+				EVE_BITMAP_SIZE_H(obj->component.size.width, obj->component.size.height)
+			};
+
+			eve_copro_write_commands(eve, commands, 2);
+		}
+
 		eve_copro_set_scale(eve, obj->scale_x, obj->scale_y);
 
 		p = component_get_origin(&obj->component, p);
