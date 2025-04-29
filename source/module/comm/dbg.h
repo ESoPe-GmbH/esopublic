@@ -143,7 +143,7 @@
 #define DBG_ERROR(...)			do{}while(0)
 #endif
 
-#if !MODULE_ENABLE_MMC
+#if !MODULE_ENABLE_MMC && defined(DBG_USE_MMC_LOG)
 #undef DBG_USE_MMC_LOG
 /// No MMC is enables, so disable MMC logs. DO NOT CHANGE THIS VALUE TO TRUE!
 #define DBG_USE_MMC_LOG 						false
