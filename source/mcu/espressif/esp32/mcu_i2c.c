@@ -218,17 +218,36 @@ bool mcu_i2c_wr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* rbuf, size_t
     if(rbuf == NULL || rlen == 0)
     {
         err = i2c_master_transmit(i2c->dev_handle, wbuf, wlen, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Transmit Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
     else if(wbuf == NULL || wlen == 0)
     {
         err = i2c_master_receive(i2c->dev_handle, rbuf, rlen, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Receive Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
     else
     {
         err = i2c_master_transmit_receive(i2c->dev_handle, wbuf, wlen, rbuf, rlen, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Transmit/Receive Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
 
     err = i2c_master_bus_rm_device(i2c->dev_handle);
+    if(err != ESP_OK)
+    {
+        DBG_ERROR("I2C Remove Device Error: %s\n", esp_err_to_name(err));
+    }
     i2c->dev_handle = NULL;
 #else
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
@@ -295,22 +314,46 @@ bool mcu_i2c_wwr(mcu_i2c_t i2c, uint8_t* wbuf, size_t wlen, uint8_t* w2buf, size
             {.write_buffer = w2buf, .buffer_size = w2len}
         };
         err = i2c_master_multi_buffer_transmit(i2c->dev_handle, buf, 2, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Transmit Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
     else if(wbuf && wlen > 0)
     {
         err = i2c_master_transmit(i2c->dev_handle, wbuf, wlen, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Transmit Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
     else if(w2buf && w2len > 0)
     {
         err = i2c_master_transmit(i2c->dev_handle, w2buf, w2len, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Transmit Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
 
     if(rbuf && rlen > 0)
     {
         err = i2c_master_receive(i2c->dev_handle, rbuf, rlen, 100);
+        if(err != ESP_OK)
+        {
+            DBG_ERROR("I2C Receive Error: %s\n", esp_err_to_name(err));
+            return false;
+        }
     }
 
     err = i2c_master_bus_rm_device(i2c->dev_handle);
+    if(err != ESP_OK)
+    {
+        DBG_ERROR("I2C Remove Device Error: %s\n", esp_err_to_name(err));
+    }
     i2c->dev_handle = NULL;
 #else
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
