@@ -63,5 +63,37 @@
  */
 #define ASSERT_RET_NOT_NULL(v, a, r)   ASSERT_RET(v != NULL, a, r, #v " cannot be NULL\n")
 
+/**
+ * @brief Macro for asserting two variables are the same.
+ * 
+ * @param actual Actual value
+ * @param expected Expected value
+ * @param format Format string for the values. Use %d for int, %s for string, %x for hex.
+ * @param a Action to execute before returning (e.g. free a buffer). Keep empty to do nothing
+ * @param r Return value when expression is not met
+ */
+#define ASSERT_RET_EXPECT_EQUAL(actual, expected, format, a, r) \
+    if((expected) != (actual)) \
+    { \
+        _ASSERT_PRINT( #actual ": Actual " format " <> Expected " format "\n", actual, expected); \
+        a; \
+        return r; \
+    }
+
+/**
+ * @brief Macro for asserting two strings are the same.
+ * 
+ * @param actual Actual value
+ * @param expected Expected value
+ * @param a Action to execute before returning (e.g. free a buffer). Keep empty to do nothing
+ * @param r Return value when expression is not met
+ */
+#define ASSERT_RET_EXPECT_EQUAL_STR(actual, expected, a, r) \
+    if(strcmp(expected, actual) == 0) \
+    { \
+        _ASSERT_PRINT( #actual ": Actual %s <> Expected %s\n", actual, expected); \
+        a; \
+        return r; \
+    }
 
 #endif // __UTIL_ASSERT__FIRST_INCL
