@@ -23,7 +23,7 @@
 #include "mcu/common/mcu_internal.h"
 
 // Note: We deactivate the new api for now, because we encounter lots of timeouts with it and possible deadlocks when timeouts occur.
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0) && CONFIG_IDF_TARGET_ESP32P4 == 1
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 0) /*& CONFIG_IDF_TARGET_ESP32P4 == 1*/
 #define USE_I2C_MASTER_API		1
 #endif
 
