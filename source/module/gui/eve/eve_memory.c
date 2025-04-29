@@ -96,7 +96,7 @@ eve_memory_file_t* eve_memory_register(eve_t* eve, const char* filename, const u
 			eve->memory_files[i].filename = filename;
 			eve->memory_files[i].data = data;
 			eve->memory_files[i].data_length = length;
-			eve->memory_files[i].address = 0;	// Set to invalid address
+			eve->memory_files[i].flash_address = 0;	// Set to invalid address
 //			dbg_printf(DBG_STRING, "Register %s at %d\n", filename, i);
 			return &eve->memory_files[i];
 		}
