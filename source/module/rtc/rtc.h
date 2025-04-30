@@ -188,7 +188,7 @@ void rtc_set_simulation_time(rtc_time_t* t);
  * @return true     If the time structure is NULL or all values are zero.
  * @return false    If the time structure is not NULL and not all values are zero.
  */
-bool rtc_is_null(rtc_time_t* t);
+bool rtc_is_null(const rtc_time_t* t);
 
 /**
  * Sets the time from the parameter into the rtc.

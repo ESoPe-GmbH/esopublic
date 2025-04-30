@@ -108,7 +108,7 @@ void rtc_set_simulation_time(rtc_time_t* t)
 	_simulation_running	= true;
 }
 
-bool rtc_is_null(rtc_time_t* t)
+bool rtc_is_null(const rtc_time_t* t)
 {
 	if(t == NULL)
 		return true;
