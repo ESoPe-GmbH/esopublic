@@ -89,9 +89,9 @@
  * @param r Return value when expression is not met
  */
 #define ASSERT_RET_EXPECT_EQUAL_STR(actual, expected, a, r) \
-    if(strcmp(expected, actual) == 0) \
+    if(strcmp(expected, actual) != 0) \
     { \
-        _ASSERT_PRINT( #actual ": Actual %s <> Expected %s\n", actual, expected); \
+        _ASSERT_PRINT( #actual ": Actual \"%s\" <> Expected \"%s\"\n", actual, expected); \
         a; \
         return r; \
     }
