@@ -14,7 +14,7 @@
 #ifndef __MODULE_CRC32_H_
 #define __MODULE_CRC32_H_
 
-#include "module.h"
+#include "module_public.h"
 #if MODULE_ENABLE_CRC
 #include "module/enum/function_return.h"
 
