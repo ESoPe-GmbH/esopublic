@@ -1,0 +1,26 @@
+import { Palette, VerticalBox, HorizontalBox, Button } from "std-widgets.slint";
+import { Navigation, Screens } from "common.slint";
+import { Logic } from "logic.slint";
+
+import { ImagePage } from "page_image.slint";
+import { InfoPage } from "page_info.slint";
+import { MainPage } from "page_main.slint";
+import { CameraPage } from "page_camera.slint";
+
+export { Navigation, Screens, Logic }
+
+export component AppWindow inherits Window {
+    background: white;
+    public function set-screen(screen: Screens) {
+        Navigation.current-screen = screen;
+    }
+    init => {
+        Navigation.current-screen = Screens.Main;
+        Logic.width = root.width;
+        Logic.height = root.height;
+    }
+    if Navigation.current-screen == Screens.Main: mainPage := MainPage { }
+    if Navigation.current-screen == Screens.Image: imagePage := ImagePage { }
+    if Navigation.current-screen == Screens.Info: infoPage := InfoPage { }
+    if Logic.has-camera && Navigation.current-screen == Screens.Camera: cameraPage := CameraPage { }
+}

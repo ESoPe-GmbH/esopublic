@@ -1,0 +1,57 @@
+import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { Page, Navigation, Screens } from "common.slint";
+
+export component InfoPage inherits Page {
+    alignment: start;
+    padding: 10px;
+    Button {
+        text: "←";
+        width: parent.width / 10;
+        height: parent.height / 10;
+        clicked => {
+            Navigation.current-screen = Screens.Main;
+        }
+    }
+
+    VerticalBox {
+        padding: 0;
+        spacing: 0;
+        alignment: center;
+        Text {
+            text: "Demo Software and Description";
+            wrap: TextWrap.word-wrap;
+            horizontal-alignment: center;
+            font-size: 24px;
+        }
+
+        Text {
+            text: "Scan the QR-Code for the GitHub Link to this Demo.";
+            wrap: TextWrap.word-wrap;
+            horizontal-alignment: center;
+            font-size: 16px;
+        }
+
+        HorizontalBox {
+            alignment: space-around;
+            Image {
+                padding: 0;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                source: @image-url("assets/qr_sld_demo.png");
+            }
+        }
+
+        HorizontalBox {
+            alignment: end;
+            spacing: 0;
+            padding: 0;
+            Text {
+                text: "powered by";
+            }
+
+            Image {
+                source: @image-url("assets/esope.png");
+            }
+        }
+    }
+}

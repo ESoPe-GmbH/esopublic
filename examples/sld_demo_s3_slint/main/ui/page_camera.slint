@@ -1,0 +1,82 @@
+import { Button, GridBox } from "std-widgets.slint";
+import { Page, Navigation, Screens } from "common.slint";
+import { Logic } from "logic.slint";
+
+export component CameraPage inherits Page {
+
+    // width: 800px;
+    // height: 480px;
+
+    timer := Timer
+    {
+        interval: 100ms;
+        running: Logic.is-capturing;
+        triggered() => {
+            Logic.camera-update();
+        }
+    }
+
+    Rectangle {
+        width: parent.width;
+        height: parent.height;
+
+        padding: 0;
+        image := Image {
+            padding: 0;
+            // horizontal-alignment: left;
+            // image-fit: ImageFit.fill;
+            // image-rendering: ImageRendering.smooth;
+            source: Logic.camera-image;
+        }
+
+        Button {
+            text: "←";
+            x: 10px;
+            y: 10px;
+            width: parent.width / 10;
+            height: parent.height / 10;
+            clicked => {
+                if(Logic.is-capturing)
+                {
+                    Logic.stop-camera();
+                }
+                Navigation.current-screen = Screens.Main;
+            }
+        }
+
+        buttonPlay := Button {
+            text: "PLAY";
+            x: 10px;
+            y: parent.height - 10px - (parent.height / 10);
+            width: parent.width / 8;
+            height: parent.height / 10;
+            clicked => 
+            {
+                Logic.start-camera(parent.width, parent.height);                
+                if(Logic.is-capturing)
+                {
+                    buttonPlay.visible = false;
+                    buttonStop.visible = true;
+                }
+            }
+        }
+
+        buttonStop := Button {
+            text: "STOP";
+            x: 10px;
+            y: parent.height - 10px - (parent.height / 10);
+            width: parent.width / 8;
+            height: parent.height / 10;
+            visible: false;
+            clicked => 
+            {
+                Logic.stop-camera();            
+                if(!Logic.is-capturing)
+                {
+                    buttonStop.visible = false;
+                    buttonPlay.visible = true;
+                }
+            }
+        }
+    }
+}
