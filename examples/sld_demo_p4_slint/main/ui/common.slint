@@ -1,0 +1,29 @@
+import { VerticalBox, HorizontalBox } from "std-widgets.slint";
+
+export global UIDefaults {
+    out property <length> small-button-height: 28px;
+    out property <length> button-height: 38px;
+    out property <length> big-button-height: 48px;
+    out property <length> huge-button-height: 60px;
+    out property <length> menu-button-height: big-button-height;
+    out property <length> back-button-height: button-height;
+}
+
+export enum Screens 
+{
+    Main,
+    Image,
+    Info,
+    Camera,
+    MAX
+}
+
+export global Navigation {
+    in-out property <Screens> current-screen: Main;
+}
+
+export component Page inherits VerticalBox {
+    alignment: space-between;
+    padding: 0;
+    spacing: 0;
+}

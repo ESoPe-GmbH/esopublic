@@ -1,0 +1,64 @@
+menu "SLD Demo configuration"
+
+    config SLD_C_W_S3_BT817
+        bool "Use SLD_C_W_S3_BT817 board instead of SLD_C_W_S3"
+        default n
+        help
+            Set this, when using the SLD_C_W_S3_BT817 board instead of SLD_C_W_S3.
+
+    config SLD_DEMO_WEBSERVER_PORT
+        int "Webserver port"
+        default 80
+        help
+            Set this to the webserver port you want to use.
+
+    config SLD_DEMO_WIFI_SSID
+        string "WiFi SSID"
+        default ""
+        help
+            Set this to the WiFi SSID you want to connect to.
+
+    config SLD_DEMO_WIFI_PASSWORD
+        string "WiFi Password"
+        default ""
+        help
+            Set this to the WiFi password you want to connect to.
+
+    config SLD_DEMO_WIFI_AP_ENABLE
+        bool "Enable WiFi hotspot"
+        default y
+        help
+            Set this to enable the WiFi hotspot.
+            This will create a hotspot with the SSID "SLD_DEMO_WIFI_HOTSPOT"
+
+    config SLD_DEMO_WIFI_AP_SSID
+        depends on SLD_DEMO_WIFI_AP_ENABLE
+        string "WiFi hotspot SSID"
+        default "SLD_DEMO_WIFI_AP_SSID"
+        help
+            Set this to the WiFi hotspot SSID you want to create.
+
+    config SLD_DEMO_WIFI_AP_PASSWORD
+        depends on SLD_DEMO_WIFI_AP_ENABLE
+        string "WiFi hotspot Password"
+        default "12345678"
+        help
+            Set this to the WiFi hotspot password you want to create.
+
+    choice EXAMPLE_VIDEO_BUFFER_TYPE
+        prompt "Video Buffer Type"
+        default EXAMPLE_VIDEO_BUFFER_TYPE_USER
+        help
+            Select video buffer type:
+            
+            - User buffer, users should allocate and free the buffer manually
+            - Driver buffer, drivers allocate and free the buffer automatically
+
+        config EXAMPLE_VIDEO_BUFFER_TYPE_USER
+            bool "User Buffer"
+
+        config EXAMPLE_VIDEO_BUFFER_TYPE_DRIVER
+            bool "Driver Buffer"
+    endchoice
+
+endmenu

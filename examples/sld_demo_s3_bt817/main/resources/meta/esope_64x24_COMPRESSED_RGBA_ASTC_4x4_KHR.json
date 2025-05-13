@@ -1,0 +1,13 @@
+{
+  "eab version": "2.12.2",
+  "input name": "esope.png",
+  "output name": "esope_64x24_COMPRESSED_RGBA_ASTC_4x4_KHR.raw",
+  "output size": 1536,
+  "type": "bitmap",
+  "format": "COMPRESSED_RGBA_ASTC_4x4_KHR",
+  "compressed": "no",
+  "astc preset": "fastest",
+  "width": 64,
+  "height": 24,
+  "stride": 256
+}

@@ -1,0 +1,26 @@
+import { Button, GridBox } from "std-widgets.slint";
+import { Page, Navigation, Screens } from "common.slint";
+
+export component ImagePage inherits Page {
+    Rectangle {
+        padding: 0;
+        Image {
+            padding: 0;
+            horizontal-alignment: left;
+            image-fit: ImageFit.fill;
+            image-rendering: ImageRendering.smooth;
+            source: @image-url("assets/landscape.png");
+        }
+
+        Button {
+            text: "←";
+            x: 10px;
+            y: 10px;
+            width: parent.width / 10;
+            height: parent.height / 10;
+            clicked => {
+                Navigation.current-screen = Screens.Main;
+            }
+        }
+    }
+}

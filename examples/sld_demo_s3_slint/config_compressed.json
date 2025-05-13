@@ -1,0 +1,9 @@
+{
+    "name":"sld_demo_s3_compressed",
+    "eso_version":4,
+    "mcu":"ESP32",
+    "appname":"SLD_Demo",
+    "version_src":"main/app/app_main.c",
+    "compress":true,
+    "firmware":"build/flasher_args.json"
+}

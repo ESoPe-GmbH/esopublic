@@ -1,0 +1,21 @@
+
+export global Logic {
+    in property <string> version: "xx.yyy";
+    in property <string> runtime_minutes: "00:00";
+    in-out property <int> counter: 0;
+    in-out property <string> display_size: "x.x";
+    in-out property <length> width: 0;
+    in-out property <length> height: 0;
+
+    in-out property <bool> has-camera;
+
+    in-out property <bool> is-capturing;
+
+    in-out property <image> camera-image;
+
+    callback start-camera(width : length, height : length);
+
+    callback stop-camera();
+
+    callback camera-update();
+}
