@@ -12,6 +12,7 @@
 #include <string.h>
 #include "hal/uart_ll.h"
 #include <sdkconfig.h>
+#include "driver/uart.h"
 #include "driver/uart_select.h"
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
@@ -69,6 +70,11 @@ void mcu_uart_create_comm_handler(mcu_uart_t h, comm_t *ch)
 
 mcu_uart_t mcu_uart_init(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx)
 {
+	return mcu_uart_init_new(num, tx, rx, 0);
+}
+
+mcu_uart_t mcu_uart_init_new(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, uint8_t mode)
+{
 	mcu_uart_t handle;
 
 	// Clear if maximum number of uarts is reached.
@@ -91,6 +97,9 @@ mcu_uart_t mcu_uart_init(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx)
 	mcu_uart_set_pin_gpio(handle, false);
 
 	mcu_io_set_pullup(rx, true);
+	// Set UART mode
+	DBG_INFO("Setting UART %d to mode %d\n", num, mode);
+	handle->config.mode = (MCU_UART_MODE_T)mode;
 	mcu_uart_set_config(handle, &handle->config);
 
 	uart_set_select_notif_callback(num, _uart_isr_event);
@@ -177,12 +186,29 @@ MCU_RESULT mcu_uart_set_config(mcu_uart_t handle, mcu_uart_config_t* config)
 	uart_param_config(handle->hw.unit, &uart_config);
 	uart_driver_install(handle->hw.unit, handle->hw.receive_buffer_size, handle->hw.transmit_buffer_size, 0, NULL, 0);
 
+	esp_err_t err;
+
 	if(handle->config.mode == MCU_UART_MODE_UART_RTS_CTS_FLOW_CONTROL)
-		uart_set_mode(handle->hw.unit, UART_MODE_UART);
+		err = uart_set_mode(handle->hw.unit, UART_MODE_UART);
 	else if(handle->config.mode == MCU_UART_MODE_UART_485_HALF_DUPLEX || handle->config.mode == MCU_UART_MODE_UART_485_FULL_DUPLEX)
-		uart_set_mode(handle->hw.unit, UART_MODE_RS485_HALF_DUPLEX);
+		err = uart_set_mode(handle->hw.unit, UART_MODE_RS485_HALF_DUPLEX);
+	else if(handle->config.mode == MCU_UART_MODE_UART_IRDA)
+	{
+		DBG_INFO("Setting UART mode to IRDA\n");
+		err = uart_set_mode(handle->hw.unit, UART_MODE_IRDA);
+		if(err == ESP_OK)
+		{
+			// IRDA typically requires signal inversion for proper operation
+			err = uart_set_line_inverse(handle->hw.unit, UART_SIGNAL_IRDA_TX_INV | UART_SIGNAL_IRDA_RX_INV);
+		}
+	}
 	else
-		uart_set_mode(handle->hw.unit, UART_MODE_UART);
+		err = uart_set_mode(handle->hw.unit, UART_MODE_UART);
+
+	if(err != ESP_OK)
+	{
+		DBG_ERROR("Failed to set UART mode %d: %d\n", handle->config.mode, err);
+	}
 
 	return MCU_OK;
 }

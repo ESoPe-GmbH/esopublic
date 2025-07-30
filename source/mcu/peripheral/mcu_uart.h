@@ -147,7 +147,8 @@ typedef enum mcu_uart_mode_e
 	MCU_UART_MODE_UART_485_HALF_DUPLEX,
 	/// RS485 mode uses a DE line to assert to high when data is sent and cleared to 0, when sending of last byte is finished.
 	/// Uses RTS pin for DE.
-	MCU_UART_MODE_UART_485_FULL_DUPLEX
+	MCU_UART_MODE_UART_485_FULL_DUPLEX,
+	MCU_UART_MODE_UART_IRDA,
 }MCU_UART_MODE_T;
 
 //------------------------------------------------------------------------------------------------------------
@@ -254,6 +255,7 @@ MCU_RESULT mcu_uart_init(mcu_uart_t h);
  *							Other then NULL: The uart handler.
  */
 mcu_uart_t mcu_uart_init(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx);
+mcu_uart_t mcu_uart_init_new(uint8_t num, MCU_IO_PIN tx, MCU_IO_PIN rx, uint8_t mode);
 #endif
 /**
  * @brief Creates a UART by applying the hardware and UART configuration at once.
