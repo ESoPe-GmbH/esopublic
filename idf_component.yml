@@ -1,4 +1,4 @@
-version: "25.1.0"
+version: "25.2.2"
 description: "esopublic - MCU abstraction and utilities like console, communication and ui driver."
 url: "https://esope.de"
 license: "Apache 2.0"

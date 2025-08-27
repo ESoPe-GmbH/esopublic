@@ -1,0 +1,119 @@
+import { Palette, VerticalBox, HorizontalBox, Button, TabWidget } from "std-widgets.slint";
+import { Logic } from "logic.slint";
+import { Page, Navigation, Screens } from "common.slint";
+
+component LabeledValue inherits HorizontalBox {
+    in property <string> label;
+    in property <string> text;
+    padding-right: 8px;
+    spacing: 3px;
+    // width of a space char
+    padding: 0;
+    Text {
+        horizontal-alignment: left;
+        text: label;
+    }
+
+    Text {
+        horizontal-alignment: right;
+        text: text;
+    }
+}
+
+export component MainPage inherits Page {
+    alignment: space-between;
+    padding: 0;
+    spacing: 0;
+    Rectangle {
+        height: 58px;
+        padding: 0;
+        Image {
+            source: @image-url("assets/schukat-logo.png");
+            height: 45px;
+            x: 5px;
+            y: 5px;
+        }
+
+        VerticalBox {
+            padding: 0;
+            spacing: 0;
+            x: root.width - 120px;
+            y: 10px;
+            height: 20px;
+            alignment: space-around;
+            Text {
+                padding: 0;
+                text: "Display: \{Logic.display_size}\"";
+            }
+
+            Text {
+                padding: 0;
+                text: "Resolution: \{Logic.width / 1px} x \{Logic.height / 1px}";
+            }
+        }
+    }
+
+    Rectangle {
+        height: 36px;
+        Text {
+            vertical-alignment: top;
+            text: "Slint Demo";
+            font-size: 24px;
+        }
+    }
+
+    VerticalBox {
+        padding-right: 20px;
+        padding-left: 20px;
+        LabeledValue {
+            alignment: center;
+            label: "Runtime:";
+            text: "\{Logic.runtime_minutes} min";
+        }
+
+        LabeledValue {
+            alignment: center;
+            label: "Counter:";
+            text: Logic.counter;
+        }
+
+        HorizontalBox {
+            Button {
+                clicked => {
+                    Logic.counter += 1
+                }
+                text: "+";
+            }
+
+            Button {
+                clicked => {
+                    Navigation.current-screen = Screens.Image
+                }
+                icon: @image-url("assets/button_landscape.png");
+            }
+
+            Button {
+                clicked => {
+                    Navigation.current-screen = Screens.Info
+                }
+                icon: @image-url("assets/esope.png");
+            }
+
+            if(Logic.has-camera): Button {
+                clicked => {
+                    Navigation.current-screen = Screens.Camera
+                }
+                text: "📷";
+            }
+        }
+    }
+
+    VerticalBox {
+        alignment: end;
+        padding-right: 10px;
+        Text {
+            horizontal-alignment: right;
+            text: "Version: \{Logic.version}";
+        }
+    }
+}

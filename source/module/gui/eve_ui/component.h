@@ -381,7 +381,8 @@ uint16_t component_get_height(component_t* obj);
  * @brief Calculates and returns the point where the component should be drawn (top/left), based on the alignment and width/height.
  * 
  * @param obj					Pointer to the component object.
- * @param p						Coordinate for the component on the screen.
+ * @param p						Coordinate of the parent component. This is the top left coordinate of the parent component. 
+ * 								Can be set to 0,0 if you need the edge in regard to the parent.
  * @return eve_ui_point_t 		Coordinate of the top left where the component should be started to be drawn.
  */
 eve_ui_point_t component_get_origin(component_t* obj, eve_ui_point_t p);
@@ -391,7 +392,8 @@ eve_ui_point_t component_get_origin(component_t* obj, eve_ui_point_t p);
  * 
  * @param obj					Pointer to the component object.
  * @param edge					Edge for which the coordinate is needed.
- * @param p						Coordinate for the component on the screen.
+ * @param p						Coordinate of the parent component. This is the top left coordinate of the parent component. 
+ * 								Can be set to 0,0 if you need the edge in regard to the parent.
  * @return eve_ui_point_t 		Coordinate for the edge of the component
  */
 eve_ui_point_t component_get_edge(component_t* obj, COMPONET_EDGE_T edge, eve_ui_point_t p);

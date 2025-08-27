@@ -157,6 +157,39 @@ struct rtc_sync_s
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Starts the simulation of the rtc. The time is simulated and not read from the hardware.
+ * 
+ * This can be used for testing purposes, when no hardware is available.
+ * The simulation is stopped when the function rtc_stop_simulation is called. 
+ */
+void rtc_start_simulation(void);
+
+/**
+ * @brief Stops the simulation of the rtc. The time is read from the hardware again.
+ */
+void rtc_stop_simulation(void);
+
+/**
+ * @brief Sets the time for the simulation. The time is simulated and not read from the hardware.
+ * 
+ * This can be used for testing purposes, when no hardware is available.
+ * The simulation is stopped when the function rtc_stop_simulation is called. 
+ * 
+ * @param t		Pointer to the structure that contains the time.
+ */
+void rtc_set_simulation_time(rtc_time_t* t);
+
+/**
+ * @brief Checks if the time structure is NULL or the content is all zero.
+ * 
+ * @param t         Pointer to the structure that should be checked.
+ * @return true     If the time structure is NULL or all values are zero.
+ * @return false    If the time structure is not NULL and not all values are zero.
+ */
+bool rtc_is_null(const rtc_time_t* t);
+
 /**
  * Sets the time from the parameter into the rtc.
  *

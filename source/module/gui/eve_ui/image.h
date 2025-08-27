@@ -221,6 +221,13 @@ typedef struct
 	/// Scaling factor for the image.  (drawn height / source height)
 	float scale_y;
 
+	/// @brief Address of the image in external flash. This is used to show images that are stored in external flash.
+	/// The address is set to 0 if the image is not stored in external flash. Since address 0 in external flash is always used for the blob, it is an invalid address.
+	uint32_t address_flash;
+	/// true: Image is copied from external flash to eve ram. This might be necessary for some big images. 
+	/// false: Image is shown directly from external flash.
+	bool copy_from_external_flash;	
+
 	/// Memory object for the image. Is needed for handling multiple images on the screen of the same image. Ensures
 	/// that it is stored in memory only once.
 //	eve_memory_file_t* mem;
@@ -266,7 +273,22 @@ bool image_init_from_mmc(image_t* obj, int32_t x, int32_t y, uint16_t width, uin
  * 							false: Image could not be loaded into the eve.
  */
 bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename, const uint8_t* buffer_ptr, uint32_t buffer_length);
-
+/**
+ * @brief Initializes the image object and sets the parameters into it.
+ * 			Takes data that exists in external flash and shows it from there.
+ * 
+ * @param obj				Pointer to the image object.
+ * @param x					x-Coordinate of the image object.
+ * @param y					y-Coordinate of the image object.
+ * @param width				Width of the image in pixel.
+ * @param height			Height of the image in pixel.
+ * @param format			Bitmap format of the image.
+ * @param filename			Pointer to the filename of the image file.
+ * @param address 			Address of the image in external flash.
+ * @return					true: Image was loaded into the eve successfully.
+ * 							false: Image could not be loaded into the eve.
+ */
+bool image_init_from_external_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, uint16_t height, IMAGE_FORMAT_T format, const char* filename, uint32_t address);
 /**
  * @brief	Sets the image visible or invisible.
  *
@@ -274,6 +296,16 @@ bool image_init_from_flash(image_t* obj, int32_t x, int32_t y, uint16_t width, u
  * @param b					true: Image is drawn in screen_paint, false: Image is not drawn in screen_paint.
  */
 void image_set_visible(image_t* obj, bool b);
+
+/**
+ * @brief Sets the flag that indicates if the image is copied from external flash before it is shown.
+ * 
+ * In some cases the image is too big to be shown directly from external flash. In this case the image is copied into the eve ram before it is shown.
+ * 
+ * @param obj 				Pointer to the image object.
+ * @param b 				true: Image is copied from external flash to eve ram, false: Image is shown directly from external flash.
+ */
+void image_set_copy_from_external_flash(image_t* obj, bool b);
 
 /**
  * @brief	Sets a callback function that is called when the image is pressed.

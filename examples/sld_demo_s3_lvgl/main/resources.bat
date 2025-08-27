@@ -1,0 +1,1 @@
+"C:\\ESoPeProgramme\\FileToC.exe" "%cd%\resources" -r

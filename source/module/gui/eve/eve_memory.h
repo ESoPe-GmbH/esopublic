@@ -41,6 +41,17 @@ void eve_memory_clear(eve_t* eve);
 eve_memory_file_t* eve_memory_register(eve_t* eve, const char* filename, const uint8_t* data, uint32_t length);
 
 /**
+ * Registers a filename as a memory object. Returns the memory object for this file object.
+ *
+ * @param eve				Pointer to the EVE device
+ * @param filename			Filename of the object
+ * @param flash_address 	Address of the object in the flash memory of the eve chip.
+ * @param length			Number of bytes to write into memory for this object.
+ * @return					NULL if no memory object can be registered or pointer to the memory object.
+ */
+eve_memory_file_t* eve_memory_register_from_external_flash(eve_t* eve, const char* filename, uint32_t flash_address, uint32_t length);
+
+/**
  * Returns address where data according to the needed space can be stored.
  *
  * @param eve				Pointer to the EVE device

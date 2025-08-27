@@ -71,6 +71,10 @@ static const int rtc_ytab[2][12] =
 static uint32_t _offset_fractions = 0;
 #endif
 
+static rtc_time_t _simulated_time = {0};
+
+static bool _simulation_running = false;
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,6 +88,36 @@ static void _trigger_observer_event(RTC_EVENT_T event);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void rtc_start_simulation(void)
+{
+	_simulation_running = true;
+}
+
+void rtc_stop_simulation(void)
+{
+	_simulation_running = false;
+}
+
+void rtc_set_simulation_time(rtc_time_t* t)
+{
+	if(t == NULL)
+		return;
+
+	_simulated_time = *t;
+	_simulation_running	= true;
+}
+
+bool rtc_is_null(const rtc_time_t* t)
+{
+	if(t == NULL)
+		return true;
+
+	if(t->tm_year == 0 && t->tm_mon == 0 && t->tm_mday == 0 && t->tm_hour == 0 && t->tm_min == 0 && t->tm_sec == 0 && t->tm_msec == 0)
+		return true;
+
+	return false;
+}
 
 FUNCTION_RETURN rtc_set_time(rtc_time_t* t)
 {
@@ -110,6 +144,12 @@ FUNCTION_RETURN rtc_get_time(rtc_time_t* t)
 	if(t == NULL)
 	{
 		return FUNCTION_RETURN_PARAM_ERROR;
+	}
+
+	if(_simulation_running)
+	{
+		*t = _simulated_time;
+		return FUNCTION_RETURN_OK;
 	}
 
 	if(_sync_external_rtc && _sync_external_rtc->cb)
