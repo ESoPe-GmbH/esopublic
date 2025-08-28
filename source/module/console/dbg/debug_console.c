@@ -25,6 +25,7 @@
 #define DEBUG_FLASH_COMMAND			"flash"
 #define DEBUG_FLASH_HELP			"Subcommands: hwid, mac, save\n" \
 									"\thwid (set <id> | get): Sets or returns the hardware ID.\n" \
+									"\thwrev (set <rev> | get): Sets or returns the hardware revision.\n" \
 									"\tmac (set <id> | get): Sets or returns the hardware address.\n" \
 									"\tsave: Saves changes to the flash. Is automatically called when hwid set or mac set is used\n"
 #endif

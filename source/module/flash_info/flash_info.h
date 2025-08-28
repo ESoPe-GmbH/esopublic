@@ -93,6 +93,9 @@ uint8_t flash_info_get_flash_info_version(void);
 ///	@return		Returns the hardware id stored in the flash.
 uint32_t flash_info_get_hardware_id(void);
 
+///	@return	Returns the hardware revision stored in the flash.
+uint8_t flash_info_get_hardware_revision(void);
+
 ///	@return	Returns the year of the testing date stored in the flash.
 uint16_t flash_info_get_tested_year(void);
 
@@ -155,6 +158,14 @@ uint8_t* flash_info_get_byte_array(uint16_t size);
  *	@param id			4-Byte hardware id of this device.
  */
 void flash_info_set_hardware_id(uint32_t id);
+
+/**
+ * @brief	Sets the hardware revision into the flash info data array.
+ *			To save it into the flash you must call flash_info_save after this.
+ *
+ * @param revision		8-Bit hardware revision of this device.
+ */
+void flash_info_set_hardware_revision(uint8_t revision);
 
 
 /**

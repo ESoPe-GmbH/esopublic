@@ -57,6 +57,26 @@ FUNCTION_RETURN debug_flash_execute(console_data_t* data, char* line)
 			return console_set_response_static(data, FUNCTION_RETURN_PARAM_ERROR, "Set/get expected");
 		}
 	}
+	else if (IS_CMD("hwrev"))
+	{
+		line += 6;
+		if (IS_CMD("set"))
+		{
+			tmp = strtol(&line[4], &ptr, 10);
+			flash_info_set_hardware_revision(tmp);
+			flash_info_save();
+			return console_set_response_dynamic(data, FUNCTION_RETURN_OK, 30, "hwrev set %u", tmp);
+		}
+		else if (IS_CMD("get"))
+		{
+			tmp = flash_info_get_hardware_revision();
+			return console_set_response_dynamic(data, FUNCTION_RETURN_OK, 30, "hwrev get %u", tmp);
+		}
+		else
+		{
+			return console_set_response_static(data, FUNCTION_RETURN_PARAM_ERROR, "Set/get expected");
+		}
+	}
 	else if (IS_CMD("mac"))
 	{
 		line += 4;

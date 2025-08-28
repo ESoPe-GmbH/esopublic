@@ -11,6 +11,7 @@
 #include "module/crc/crc.h"
 #include <string.h>
 #include "module/comm/comm.h"
+#include "module/util/assert.h"
 #include "esp_err.h"
 #include "nvs_flash.h"
 
@@ -25,6 +26,8 @@
 
 #define _NVS_HARDWARE_ID		"hwid"
 
+#define _NVS_HARDWARE_REVISION	"hwrev"
+
 //------------------------------------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------------------------------------
@@ -32,6 +35,8 @@
 static nvs_handle_t 	_nvs;
 
 static uint32_t 		_hardware_id;
+
+static uint8_t			_hardware_revision;
 
 //------------------------------------------------------------------------------------------------------------
 // Prototypes
@@ -58,20 +63,27 @@ void flash_info_init(void)
 		DBG_ERROR("NVS Error 0x%04x\n", ret);
 		// Default values...
 		_hardware_id = 0;
+		_hardware_revision = 0;
 	}
 }
 
 bool flash_info_save(void)
 {
 	esp_err_t ret =	nvs_set_u32(_nvs, _NVS_HARDWARE_ID, _hardware_id);
+	ASSERT_RET(ret == ESP_OK, NO_ACTION, false);
 
-	return (ret == ESP_OK);
+	ret = nvs_set_u8(_nvs, _NVS_HARDWARE_REVISION, _hardware_revision);
+	ASSERT_RET(ret == ESP_OK, NO_ACTION, false);
+
+	return true;
 }
 
 
 uint8_t flash_info_get_flash_info_version(void){		return 0;				}
 
 uint32_t flash_info_get_hardware_id(void){				return _hardware_id;			}
+
+uint8_t flash_info_get_hardware_revision(void){			return _hardware_revision;		}
 
 uint16_t flash_info_get_tested_year(void){				return 0;			}
 
@@ -84,6 +96,8 @@ uint8_t flash_info_get_tested_hour(void){				return 0;			}
 uint8_t flash_info_get_tested_minute(void){				return 0;		}
 
 void flash_info_set_hardware_id(uint32_t id){			_hardware_id = id;			}
+
+void flash_info_set_hardware_revision(uint8_t revision){	_hardware_revision = revision;	}
 
 void flash_info_set_tested_date(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
 {
@@ -111,6 +125,12 @@ static void flash_info_load(void)
 	{
 		DBG_INFO("NVS Error 0x%04x (HWID)\n", ret);
 		_hardware_id = 0;
+	}
+	
+	if(ESP_OK != (ret = nvs_get_u8(_nvs, _NVS_HARDWARE_REVISION, &_hardware_revision)))
+	{
+		DBG_INFO("NVS Error 0x%04x (HWREV)\n", ret);
+		_hardware_revision = 0;
 	}
 }
 
