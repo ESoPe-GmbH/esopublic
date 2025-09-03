@@ -354,4 +354,26 @@
 
 #endif // CONFIG_ESOPUBLIC_ENABLE
 
+#if CONFIG_ESOPEKERNEL_ENABLE
+
+/// Enables the mmc module
+/// Init function in board_init available, only pins need to be corrected
+#define MODULE_ENABLE_MMC                           CONFIG_MODULE_ENABLE_MMC
+
+/// Enables the module for network interfaces
+#define MODULE_ENABLE_NETWORK                       CONFIG_MODULE_ENABLE_NETWORK
+
+#if MODULE_ENABLE_DEBUG_CONSOLE
+//------------------------------------
+// console/dbg
+//------------------------------------
+/// Enable / disable wifi API
+#define DEBUG_CONSOLE_ENABLE_WIFI                   CONFIG_DEBUG_CONSOLE_ENABLE_WIFI
+
+#define DEBUG_CONSOLE_ENABLE_SOCKET                 CONFIG_DEBUG_CONSOLE_ENABLE_SOCKET
+
+#endif //MODULE_ENABLE_DEBUG_CONSOLE
+
+#endif //CONFIG_ESOPEKERNEL_ENABLE
+
 #endif
