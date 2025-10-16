@@ -591,6 +591,45 @@ char* string_create_int64_string(char* str, int64_t val, uint8_t base, uint8_t m
     return string_internal_create_int64_string(str, (uint64_t)val, base, min_letters, add_leading_zero, add_minus);
 }
 
+char* string_create_float_string(char* str, float val, uint8_t min_letters, uint8_t num_decimals, bool add_leading_zero)
+{
+    uint32_t int_val;
+    uint32_t dec_val;
+    char* ptr = str;
+    bool negative = false;
+
+    if(str == NULL)
+        return NULL;
+
+    if(val < 0)
+    {
+        negative = true;
+        val *= -1;
+    }
+
+    int_val = (uint32_t)val;
+    
+    // Calculate decimal part by multiplying fractional part by 10^num_decimals
+    float fractional_part = val - (float)int_val;
+    float decimal_multiplier = 1.0f;
+    for(uint8_t i = 0; i < num_decimals; i++)
+        decimal_multiplier *= 10.0f;
+    
+    dec_val = (uint32_t)(fractional_part * decimal_multiplier);
+
+    ptr = string_internal_create_int_string(ptr, int_val, 10, min_letters, add_leading_zero, negative);
+
+    if(num_decimals > 0)
+    {
+        *ptr++ = string_decimal_point;
+        ptr = string_internal_create_int_string(ptr, dec_val, 10, num_decimals, true, false);
+    }
+
+    *ptr = 0;
+
+    return ptr;
+}
+
 #if !STRING_USE_COMM_MINIMUM
 
 char* string_create_num_string(char *str_buf, int32_t num, bool with_thousand_seperator)

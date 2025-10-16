@@ -425,6 +425,20 @@ char* string_create_uint64_string(char* str, uint64_t val, uint8_t base, uint8_t
  **/
 char* string_create_int64_string(char* str, int64_t val, uint8_t base, uint8_t min_letters, bool add_leading_zero);
 
+/**
+ *  Creates a float string from a float value.
+ *
+ * @param str                   Pointer to a buffer where the string will be written to.
+ * @param val                   Float value that needs to be converted to a string.
+ * @param min_letters           Total number of digits that should be shown (including the digits behind the decimal point).
+ *                              If min_letters is 0, the full number will be shown.
+ * @param num_decimals          Number of digits that should be shown behind the decimal point.
+ * @param add_leading_zero      true: Leading 0 will be added if the number has less characters then min_letters.
+ *                              false: Spaces will be added if the number has less characters then min_letters.
+ * @return                      Pointer to the address of the terminating zero.
+ **/
+char* string_create_float_string(char* str, float val, uint8_t min_letters, uint8_t num_decimals, bool add_leading_zero);
+
 #if !STRING_USE_COMM_MINIMUM
 
 /**

@@ -130,6 +130,9 @@ typedef struct
 
 	/// Converted integer value of comm_len_ascii_str.
 	uint16_t format_len;
+	
+	/// Used inside xprintf functions to limit the number of characters printed.
+	uint16_t decimal_len;
 }comm_t;
 
 #endif /* MODULE_COMM_COMM_TYPE_H_ */

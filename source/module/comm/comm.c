@@ -135,6 +135,9 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 	bool use_var_len = false;			// Is set when two parameter for one wildcard are used, first one is the number of letters to print, second is the value.
 	bool use_prev_len = false;			// Is set when the previously printed parameter is the length value for the current value.
 	bool string_left_aligned = true;	// Is cleared with wildcard '.'. Strings will then be right aligned.
+	bool parsing_decimal = false;		// Set to true when parsing decimal precision after '.'
+	char decimal_str[4];				// Buffer for decimal precision digits
+	uint16_t decimal_str_len = 0;		// Length of decimal precision string
 	char* tmp_ptr = NULL;				// Is used for storing string pointers temporarily
 	int32_t tmp_int32 = 0;				// Is used for storing integers temporarily
 	int64_t tmp_int64 = 0;
@@ -146,8 +149,10 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 		return;	// Cancel if it cannot be used.
 
 	h->format_len = 0;
+	h->decimal_len = 0;
 	h->len_ascii_str_len = 0;
 	h->len_ascii_str[0] = 0;
+	decimal_str[0] = 0;
 
 	while(*str)
 	{
@@ -157,14 +162,26 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 			 is_in_fromatted_data = true;
 			 use_var_len = false;
 			 use_prev_len = false;
+			 parsing_decimal = false;
+			 decimal_str_len = 0;
+			 decimal_str[0] = 0;
 			 do
 			 {
 				 letter2 = *str++;
 				 if(letter2 >= '0' && letter2 <= '9') // If value is an ascii number
 				 {
-					 // Add it to the number buffer
+					 if(parsing_decimal)
+					 {
+						 // Add to decimal precision buffer
+						 if(decimal_str_len < (sizeof(decimal_str) - 1))
+							 decimal_str[decimal_str_len++] = letter2;
+					 }
+					 else
+					 {
+						 // Add to the width number buffer
 					 if(h->len_ascii_str_len < (sizeof(h->len_ascii_str) - 1) )
 						 h->len_ascii_str[h->len_ascii_str_len++] = letter2;
+					 }
 					 continue;
 				 }
 				 else if(letter2 == '#')
@@ -180,6 +197,7 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 				 else if(letter2 == '.')
 				 {
 					 string_left_aligned = false;
+					 parsing_decimal = true;  // Start parsing decimal precision
 					 continue;
 				 }
 				 else if(letter2 == 'l')
@@ -205,6 +223,26 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 						break;
 					}
 					h->len_ascii_str_len = 0;
+				 }
+				 
+				 // Convert decimal precision digits to decimal_len
+				 if(decimal_str_len > 0)
+				 {
+					 switch(decimal_str_len)
+					 {
+						case 3:
+							h->decimal_len = (decimal_str[0]-'0')*100 + (decimal_str[1]-'0')*10 + decimal_str[2]-'0';
+						break;
+
+						case 2:
+							h->decimal_len = (decimal_str[0]-'0')*10 + decimal_str[1]-'0';
+						break;
+
+						case 1:
+							h->decimal_len = decimal_str[0]-'0';
+						break;
+					 }
+					 decimal_str_len = 0;
 				 }
 				 if(use_var_len)
 				 {
@@ -260,6 +298,16 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
                         comm_puts(h, comm_num_str);
                         is_in_fromatted_data = false;
                     break;
+
+					case 'f':
+						{
+							float tmp_float = (float)va_arg(vl, double);
+							uint16_t precision = (h->decimal_len > 0) ? h->decimal_len : 6;  // Use decimal_len if specified, default to 6
+							string_create_float_string(comm_num_str, tmp_float, h->format_len, precision, (h->len_ascii_str[0] == '0'));
+							comm_puts(h, comm_num_str);
+							is_in_fromatted_data = false;
+						}
+					break;
 
 					case 'm':
 						tmp_int32 = va_arg(vl, int32_t);
@@ -373,6 +421,7 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 						break;
 				 }
 				 h->format_len = 0;
+				 h->decimal_len = 0;
 			 }while(*str && is_in_fromatted_data);
 		 }
 		 else
