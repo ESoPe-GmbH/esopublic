@@ -70,10 +70,10 @@ void flash_info_init(void)
 bool flash_info_save(void)
 {
 	esp_err_t ret =	nvs_set_u32(_nvs, _NVS_HARDWARE_ID, _hardware_id);
-	ASSERT_RET(ret == ESP_OK, NO_ACTION, false);
+	ASSERT_RET(ret == ESP_OK, NO_ACTION, false, "Hardware ID NVS save error 0x%04x\n", ret);
 
 	ret = nvs_set_u8(_nvs, _NVS_HARDWARE_REVISION, _hardware_revision);
-	ASSERT_RET(ret == ESP_OK, NO_ACTION, false);
+	ASSERT_RET(ret == ESP_OK, NO_ACTION, false, "Hardware Revision NVS save error 0x%04x\n", ret);
 
 	return true;
 }
