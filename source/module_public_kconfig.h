@@ -159,6 +159,26 @@
 #define _DBG_STRING_HIDE_PATH				        CONFIG_DBG_STRING_HIDE_PATH
 /// Can be set to append the debug string with spaces when it is shorter to assure the debug content all have the same start.
 #define _DBG_STRING_MIN_LEN					        CONFIG_DBG_STRING_MIN_LEN
+/// Defines if the mmc can be used for log. If set to true dbg_init_logfile must be called.
+#define DBG_USE_MMC_LOG                             CONFIG_DBG_USE_MMC_LOG
+/// If enabled, debugging can be enabled via TCP, when dbg_init_tcp is called.
+#define DBG_USE_TCP                                 CONFIG_DBG_USE_TCP
+/// If enabled, a console will be added to the tcp debug interface when DBG_USE_TCP is enabled.
+#define DBG_USE_TCP_CONSOLE                         CONFIG_DBG_USE_TCP_CONSOLE
+#if DBG_USE_MMC_LOG
+	/// Name of the directory on the sd card where the log files of this module will be stored.
+	#define DBG_LOG_DIRECTORY                       CONFIG_DBG_LOG_DIRECTORY
+	/// Defines whether the logfile is the only debug target.
+	/// 	true: 	Debug prints will be only written to the logfile.
+	///		false: 	Debug prints will be written into the logfile and to the comm handler that was set with
+	///				dbg_set_comm before dbg_init_logfile was called or when dbg_set_comm is called after dbg_init_logfile.
+	#define DBG_LOG_IS_ADDITION                    CONFIG_DBG_LOG_IS_ADDITION
+	/// Maximum inactivity time after which the logfile is closed.
+	#define DBG_LOG_CLOSE_INTERVAL_MS              CONFIG_DBG_LOG_CLOSE_INTERVAL_MS
+	/// Maximum interval before closing a file. The file is closed regardless of the activity.
+	#define DBG_LOG_CLOSE_MAX_INTERVAL_MS          CONFIG_DBG_LOG_CLOSE_MAX_INTERVAL_MS
+#endif
+
 #endif
 
 #if MODULE_ENABLE_COMM_LINE_READER

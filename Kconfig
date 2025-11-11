@@ -191,13 +191,50 @@ menu "Esopublic"
             config DBG_SYS_MS_COUNT_LETTERS
                 int "Defines how many Letters of the Milliseconds are shown inside dbg_printf."
                 default 9
+
             config DBG_STRING_HIDE_PATH
                 bool "If set to true, only the filename of the debug string is shown."
                 default n
+
             config DBG_STRING_MIN_LEN
                 int "Can be set to append the debug string with spaces when it is shorter to assure the debug content all have the same start."
                 default 40
+                
+            config DBG_USE_MMC_LOGGER
+                bool "If set to true, the debug prints are logged into a file on the mmc/sd card."
+                default n
 
+            menu "MMC Logger Configuration"
+                depends on DBG_USE_MMC_LOGGER
+
+                config DBG_LOG_DIRECTORY
+                    string "Directory on the mmc/sd card where the log files are stored."
+                    default "DevLog"
+
+                config DBG_LOG_IS_ADDITION
+                    bool "If set to true the debug prints will only be written to the log file, otherwise they will be printed to the console as well."
+                    default y
+
+                config DBG_LOG_CLOSE_INTERVAL_MS
+                    int "Maximum inactivity time after which the logfile is closed."
+                    default 200
+
+                config DBG_LOG_CLOSE_MAX_INTERVAL_MS
+                    int "Maximum time after which the logfile is closed, regardless of activity."
+                    default 2000
+            endmenu #mmc logger
+            
+            config DBG_USE_TCP
+                bool "If enabled, debugging can be enabled via TCP, when dbg_init_tcp is called."
+                default n
+
+                menu "DBG TCP Configuration"
+                    depends on DBG_USE_TCP
+
+                    config DBG_USE_TCP_CONSOLE
+                        bool "If enabled, a console will be added to the tcp debug interface when DBG_USE_TCP is enabled."
+                        default n
+                endmenu #dbg tcp configuration
         endmenu #comm
 
         config MODULE_ENABLE_COMM_I2C
