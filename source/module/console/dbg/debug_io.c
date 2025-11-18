@@ -11,6 +11,9 @@
 #if DEBUG_CONSOLE_ENABLE_IO
 #include "debug_buffer.h"
 #include "module/convert/string.h"
+#if MCU_TYPE == MCU_ESP32
+#include "driver/gpio.h"
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal definitions
@@ -76,8 +79,61 @@ FUNCTION_RETURN debug_io_execute(console_data_t* data, char** args, uint8_t args
 		else
 			return FUNCTION_RETURN_NOT_FOUND;
 	}
-	else
+	#if MCU_TYPE == MCU_ESP32
+	else if(args_len >= 1 && strcmp(args[0], "dump") == 0)
+	{
+		if(args_len == 1)
+		{
+			// Dump all valid GPIOs
+			esp_err_t err = gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
+			if(err == ESP_OK)
+			{
+				return console_set_response_static(data, FUNCTION_RETURN_OK, "dump");
+			}
+			else
+			{
+				return console_set_response_dynamic(data, FUNCTION_RETURN_EXECUTION_ERROR, 50, 
+					"dump failed: %s", esp_err_to_name(err));
+			}
+		}
+		else
+		{
+			// Dump specific GPIOs
+			uint64_t gpio_mask = 0;
+			
+			for(int i = 1; i < args_len; i++)
+			{
+				int gpio_num = strtol(args[i], NULL, 10);
+				
+				// Check if GPIO number is valid using the SOC mask
+				if(gpio_num < 0 || gpio_num > SOC_GPIO_IN_RANGE_MAX || 
+				   !(SOC_GPIO_VALID_GPIO_MASK & (1ULL << gpio_num)))
+				{
+					return console_set_response_dynamic(data, FUNCTION_RETURN_PARAM_ERROR, 50, 
+						"Invalid GPIO: %d", gpio_num);
+				}
+				
+				gpio_mask |= (1ULL << gpio_num);
+			}
+			
+			esp_err_t err = gpio_dump_io_configuration(stdout, gpio_mask);
+			if(err == ESP_OK)
+			{
+				return console_set_response_dynamic(data, FUNCTION_RETURN_OK, 50, 
+					"dump %d GPIO(s)", args_len - 1);
+			}
+			else
+			{
+				return console_set_response_dynamic(data, FUNCTION_RETURN_EXECUTION_ERROR, 50, 
+					"dump failed: %s", esp_err_to_name(err));
+			}
+		}
+	}
+	#endif
+	else 
+	{
 		return FUNCTION_RETURN_NOT_FOUND;
+	}
 
 	return FUNCTION_RETURN_OK;
 }
