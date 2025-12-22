@@ -137,10 +137,12 @@ mcu_uart_t mcu_uart_create(mcu_uart_hw_config_t* hw, mcu_uart_config_t* config)
 
 void mcu_uart_free(mcu_uart_t h)
 {
+	if(h==NULL)	return;
 	// Make uart pins unusable
 	mcu_uart_set_pin_gpio(h, true);
 	uart_driver_delete(h->hw.unit);	
 	memset(h, 0, sizeof(struct mcu_uart_s));
+	mcu_current_uart_handler--;
 }
 
 const mcu_uart_config_t* mcu_uart_get_config(mcu_uart_t h)
