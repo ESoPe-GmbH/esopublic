@@ -9,6 +9,7 @@
 #include "screen.h"
 #include "font.h"
 #include "module/comm/dbg.h"
+#include "module/util/assert.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // Internal definitions
@@ -128,6 +129,7 @@ void component_set_enabled(component_t* obj, bool b)
 
 eve_t* component_get_eve(component_t* obj)
 {
+	ASSERT_RET_NOT_NULL(obj, NO_ACTION, NULL);
 	return screen_get_eve(screen_get_from_component(obj));
 }
 
@@ -197,6 +199,8 @@ uint16_t component_get_height(component_t* obj)
 
 eve_ui_point_t component_get_origin(component_t* obj, eve_ui_point_t p)
 {
+	ASSERT_RET_NOT_NULL(obj, NO_ACTION, p);
+
 	p.x += obj->origin.x;
 	p.y += obj->origin.y;
 
@@ -231,6 +235,8 @@ eve_ui_point_t component_get_origin(component_t* obj, eve_ui_point_t p)
 
 eve_ui_point_t component_get_edge(component_t* obj, COMPONET_EDGE_T edge, eve_ui_point_t p)
 {
+	ASSERT_RET_NOT_NULL(obj, NO_ACTION, p);
+
 	p = component_get_origin(obj, p);
 	switch(edge)
 	{
@@ -260,11 +266,14 @@ eve_ui_point_t component_get_edge(component_t* obj, COMPONET_EDGE_T edge, eve_ui
 
 bool component_needs_cyclic_repaint(component_t* obj)
 {
+	ASSERT_RET_NOT_NULL(obj, NO_ACTION, false);
 	return obj->type == COMPONENT_TYPE_EDIT_TEXT;
 }
 
 void component_trigger_event(component_t* c, COMPONENT_EVENT_T event, const component_event_t* data)
 {
+	ASSERT_RET_NOT_NULL(c, NO_ACTION, NO_RETURN);
+
 	if(event == COMPONENT_EVENT_LOAD)
 	{
 		// Stop if component is not visible or was already set as loaded
