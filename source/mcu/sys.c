@@ -318,7 +318,7 @@ void main(void)
 #if MCU_ENABLE_FREERTOS 
 	// On Free RTOS we do not follow main code here, we create a new task for the main code to be able to use idle task priority
 	// Otherwise we might have to deal with task watchdog.
-	xTaskCreate(_task_main, "sys_main", 4096, NULL, 10, NULL);
+	xTaskCreate(_task_main, "sys_main", 4096, NULL, 4, NULL);
 	vTaskDelete(NULL);
 }
 
