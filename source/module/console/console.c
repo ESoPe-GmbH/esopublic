@@ -431,7 +431,11 @@ static void console_handle_command(console_data_t* data, char* line)
 
 						while(*ptr != 0)
 						{
-							if(*ptr == '\"')
+							if(*ptr == '\\')
+							{
+								ptr++;
+							}
+							else if(in_string && *ptr == '\"')
 							{
 								in_string = false;
 								*ptr = 0;
