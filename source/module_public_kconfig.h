@@ -160,7 +160,7 @@
 /// Can be set to append the debug string with spaces when it is shorter to assure the debug content all have the same start.
 #define _DBG_STRING_MIN_LEN					        CONFIG_DBG_STRING_MIN_LEN
 /// Defines if the mmc can be used for log. If set to true dbg_init_logfile must be called.
-#define DBG_USE_MMC_LOG                             CONFIG_DBG_USE_MMC_LOG
+#define DBG_USE_MMC_LOG                             CONFIG_DBG_USE_MMC_LOGGER
 /// If enabled, debugging can be enabled via TCP, when dbg_init_tcp is called.
 #define DBG_USE_TCP                                 CONFIG_DBG_USE_TCP
 /// If enabled, a console will be added to the tcp debug interface when DBG_USE_TCP is enabled.
