@@ -95,6 +95,7 @@ mcu_i2c_t mcu_i2c_init(uint8_t num, MCU_IO_PIN sda, MCU_IO_PIN scl)
     i2c->conf.flags.enable_internal_pullup = 1;
     i2c->conf.clk_source = I2C_CLK_SRC_DEFAULT;
     i2c->dev_conf.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    i2c->dev_conf.scl_speed_hz = 100000;
 
     err = i2c_new_master_bus(&i2c->conf, &i2c->bus_handle);
 
