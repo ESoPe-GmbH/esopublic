@@ -134,6 +134,8 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 	bool is_in_fromatted_data = false;	// Set to true while the format is checked.
 	bool use_var_len = false;			// Is set when two parameter for one wildcard are used, first one is the number of letters to print, second is the value.
 	bool use_prev_len = false;			// Is set when the previously printed parameter is the length value for the current value.
+	bool use_var_decimal = false;		// Is set when # is used after . to get decimal precision from the next va_arg.
+	bool use_prev_decimal = false;		// Is set when $ is used after . to use the previously printed value as decimal precision.
 	bool string_left_aligned = true;	// Is cleared with wildcard '.'. Strings will then be right aligned.
 	bool parsing_decimal = false;		// Set to true when parsing decimal precision after '.'
 	char decimal_str[4];				// Buffer for decimal precision digits
@@ -162,6 +164,8 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 			 is_in_fromatted_data = true;
 			 use_var_len = false;
 			 use_prev_len = false;
+			 use_var_decimal = false;
+			 use_prev_decimal = false;
 			 parsing_decimal = false;
 			 decimal_str_len = 0;
 			 decimal_str[0] = 0;
@@ -186,12 +190,18 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 				 }
 				 else if(letter2 == '#')
 				 {
-					 use_var_len = true;
+					 if(parsing_decimal)
+						 use_var_decimal = true;
+					 else
+						 use_var_len = true;
 					 continue;
 				 }
 				 else if(letter2 == '$')
 				 {
-					 use_prev_len = true;
+					 if(parsing_decimal)
+						 use_prev_decimal = true;
+					 else
+						 use_prev_len = true;
 					 continue;
 				 }
 				 else if(letter2 == '.')
@@ -253,6 +263,16 @@ void comm_vprintf(comm_t *h, const char *str, va_list vl)
 				 {
 					 h->format_len = tmp_int32;
 					 use_prev_len = false;
+				 }
+				 if(use_var_decimal)
+				 {
+					 h->decimal_len = va_arg(vl, uint32_t);
+					 use_var_decimal = false;
+				 }
+				 else if(use_prev_decimal)
+				 {
+					 h->decimal_len = tmp_int32;
+					 use_prev_decimal = false;
 				 }
 				 if(letter2 != 'D' && letter2 != 'T' && letter2 != 'A' && letter2 != 'a' && letter2 != 'Q' && letter2 != 'q')
 				 {
