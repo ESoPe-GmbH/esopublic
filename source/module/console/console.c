@@ -431,7 +431,10 @@ static void console_handle_command(console_data_t* data, char* line)
 
 						while(*ptr != 0)
 						{
-							if(*ptr == '\"')
+							// Check if this is an escaped quote
+							bool is_escaped = (ptr > _args_ptr[args_length] && *(ptr - 1) == '\\');
+							
+							if(*ptr == '\"' && !is_escaped)
 							{
 								in_string = false;
 								*ptr = 0;
@@ -450,7 +453,9 @@ static void console_handle_command(console_data_t* data, char* line)
 									continue;
 								}
 								args_length++;
-								if(*ptr == '\"') // First quote
+								// Check if this is an escaped quote
+								bool is_escaped_start = (ptr > line && *(ptr - 1) == '\\');
+								if(*ptr == '\"' && !is_escaped_start) // First quote
 								{
 									in_string = true;
 									*ptr++ = 0;
@@ -458,7 +463,9 @@ static void console_handle_command(console_data_t* data, char* line)
 								if(*ptr != 0)
 								{
 									_args_ptr[args_length] = ptr;
-									if(in_string && *ptr == '\"') // Next is second quote
+									// Check for escaped quote at the start of the new argument
+									bool is_next_escaped = (ptr > line && *(ptr - 1) == '\\');
+									if(in_string && *ptr == '\"' && !is_next_escaped) // Next is second quote
 										continue;
 								}
 							}
