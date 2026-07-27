@@ -37,6 +37,17 @@ static int _get_y(int x, int y, float d, float e, float f, int y_max);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 // External functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+bool lcd_touch_calibration_process_etm0350g8edh6(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
+{
+    float a = -0.38735126f;
+    float b = 0.0f;
+    float c = 342.80786f;
+    float d = 0.0f;
+    float e = -0.38567337f;
+    float f = 245.55795f;
+
+    return _common_process(x, y, point_num, max_point_num, 320, 240, a, b, c, d, e, f);
+}
 
 bool lcd_touch_calibration_process_etml035023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num)
 {    

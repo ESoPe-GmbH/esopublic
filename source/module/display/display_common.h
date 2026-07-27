@@ -56,6 +56,10 @@ typedef enum display_device_e
     /// KD021WVFPD003 display will be used.
     DISPLAY_DEVICE_KD021WVFPD003,
 #endif
+#if DISPLAY_ENABLE_ETM0350G8EDH6
+    /// ETM0350G8EDH6 display will be used.
+    DISPLAY_DEVICE_ETM0350G8EDH6,
+#endif
     /// Max value to limit the enum.
     DISPLAY_DEVICE_MAX
 }DISPLAY_DEVICE_T;

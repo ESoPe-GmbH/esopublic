@@ -43,6 +43,8 @@
 // External Functions
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+bool lcd_touch_calibration_process_etm0350g8edh6(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
+
 bool lcd_touch_calibration_process_etml035023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
 
 bool lcd_touch_calibration_process_etml043023udra(lcd_touch_handle_t h, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);

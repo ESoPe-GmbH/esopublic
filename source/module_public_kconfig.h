@@ -101,6 +101,9 @@
 /// Enable the touch driver for Sitronix ST1633i
 #define MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I          CONFIG_MODULE_ENABLE_LCD_TOUCH_DRIVER_ST1633I
 
+/// Enable the touch driver for HY4614
+#define MODULE_ENABLE_LCD_TOUCH_DRIVER_HY4614          CONFIG_MODULE_ENABLE_LCD_TOUCH_DRIVER_HY4614
+
 /// Enables the rtc module for calculation function on time.
 #define MODULE_ENABLE_RTC                               CONFIG_MODULE_ENABLE_RTC
 
@@ -236,6 +239,9 @@
 
 /// This value is used to calculate the size of the bounce buffer. The percentage is calculated from the display size in pixels.
 #define DISPLAY_SLD_BOUNCE_BUFFER_PERCENTAGE            CONFIG_DISPLAY_SLD_BOUNCE_BUFFER_PERCENTAGE
+
+// Enable the display driver for ETM0350G8EDH6
+#define DISPLAY_ENABLE_ETM0350G8EDH6                CONFIG_DISPLAY_ENABLE_ETM0350G8EDH6
 #endif
 
 #if MODULE_ENABLE_CONVERT_MATH
