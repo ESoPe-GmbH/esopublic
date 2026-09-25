@@ -79,6 +79,7 @@ void led_init(led_t *s, MCU_IO_PIN pin, bool is_inverted)
 	MCU_IO_SET_HANDLER(s->pin, MCU_IO_LOW);
 
 	// Initialize task
+	s->task.name = "MODULE_LED_HANDLE";
 	system_init_object_task(&s->task, false, (void(*)(void*))_handle, s);
 }
 
