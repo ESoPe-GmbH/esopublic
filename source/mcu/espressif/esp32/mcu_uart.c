@@ -185,6 +185,8 @@ MCU_RESULT mcu_uart_set_config(mcu_uart_t handle, mcu_uart_config_t* config)
 	}
 	uart_param_config(handle->hw.unit, &uart_config);
 	uart_driver_install(handle->hw.unit, handle->hw.receive_buffer_size, handle->hw.transmit_buffer_size, 0, NULL, 0);
+	// Driver deletion releases the UART pins in ESP-IDF 5.5.
+	mcu_uart_set_pin_gpio(handle, false);
 
 	esp_err_t err;
 
